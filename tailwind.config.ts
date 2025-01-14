@@ -46,11 +46,22 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        caption: 'rgb(61, 72, 87)',
+        'main-blue': '#041124',
+        'gray-label': '#CBD5E3',
+        'sky-blue': '#E6EDF6',
+        placeholder: 'rgb(99, 120, 149)',
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+      },
+      maxWidth: {
+        pc: '1660px',
+      },
+      gridTemplateColumns: {
+        header: '15fr 55fr 20fr 5fr 5fr',
       },
     },
   },
