@@ -1,0 +1,13 @@
+.root {
+  @apply w-full
+    max-w-pc
+    py-5
+    flex
+    justify-between
+    items-center;
+}
+
+.nav {
+  @apply flex
+    gap-8;
+}

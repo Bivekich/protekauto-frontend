@@ -1,2 +1,1 @@
-export * from './WIP';
 export * from './header';
