@@ -1,5 +1,5 @@
-import { UnderConstruction } from '@/components/ui/UnderConstruction';
+import { WIP } from '@/widgets';
 
 export default function Home() {
-  return <UnderConstruction />;
+  return <WIP />;
 }
