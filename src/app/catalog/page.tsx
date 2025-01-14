@@ -1,8 +1,8 @@
-import { UnderConstruction } from '@/components/ui/UnderConstruction';
+import { WIP } from '@/widgets';
 
 export default function CatalogPage() {
   return (
-    <UnderConstruction
+    <WIP
       title="Каталог в разработке"
       subtitle="Наши специалисты наполняют каталог товарами"
       emoji="📦"
