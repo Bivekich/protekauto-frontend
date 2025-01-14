@@ -1,9 +1,10 @@
-import { HeaderTop } from './components';
+import { HeaderMiddle, HeaderTop } from './components';
 
 export const Header = () => {
   return (
-    <div className={'w-full flex justify-center'}>
+    <header className={'w-full flex items-center flex-col'}>
       <HeaderTop />
-    </div>
+      <HeaderMiddle />
+    </header>
   );
 };
