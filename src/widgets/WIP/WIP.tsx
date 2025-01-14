@@ -1,16 +1,16 @@
-interface UnderConstructionProps {
+interface IProps {
   title?: string;
   subtitle?: string;
   message?: string;
   emoji?: string;
 }
 
-export const UnderConstruction = ({
+export const WIP = ({
   title = 'Упс! Мы ещё работаем',
   subtitle = 'Наши механики собирают страницу',
   message = '*Слышны звуки гаечного ключа и приглушенные ругательства*',
   emoji = '🚗',
-}: UnderConstructionProps) => {
+}: IProps) => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="text-center p-8">
