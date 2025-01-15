@@ -1,9 +1,11 @@
-import { AboutUs } from '@/widgets/about/aboutUs';
+import { AboutUs, MainInfo, WeOffer } from '@/widgets';
 
 export default function AboutPage() {
   return (
-    <div>
+    <div className={'w-full'}>
       <AboutUs />
+      <WeOffer />
+      <MainInfo />
     </div>
   );
 }

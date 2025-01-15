@@ -1,10 +1,14 @@
 import Image from 'next/image';
 import Banner from '@public/img/aboutUs/Banner.png';
-import { Button } from '@/shared';
+import { Button, WidgetContainer } from '@/shared';
 
 export const AboutUs = () => {
   return (
-    <div className={'flex justify-between items-center w-full gap-5'}>
+    <WidgetContainer
+      innerContainerProps={{
+        className: 'flex justify-between items-center gap-5 mb-10',
+      }}
+    >
       <div className={'flex flex-col gap-14'}>
         <div className={'flex flex-col'}>
           <h1 className={'text-title'}>О компании</h1>
@@ -21,10 +25,10 @@ export const AboutUs = () => {
       </div>
       <Image
         src={Banner}
-        alt={'Протек - ваш надежный поставщик автозапчастей!'}
+        alt={'Protek - ваш надежный поставщик автозапчастей!'}
         width={820}
         height={469}
       />
-    </div>
+    </WidgetContainer>
   );
 };

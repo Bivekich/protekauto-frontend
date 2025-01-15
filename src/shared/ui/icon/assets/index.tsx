@@ -6,6 +6,9 @@ import Garage from './Garage';
 import Profile from './Profile';
 import Cart from './Cart';
 import Arrow from './Arrow';
+import Bag from './Bag';
+import Like from './Like';
+import Verify from './Verify';
 
 export const iconsList = {
   phone: <Phone />,
@@ -16,4 +19,7 @@ export const iconsList = {
   profile: <Profile />,
   cart: <Cart />,
   arrow: <Arrow />,
+  bag: <Bag />,
+  like: <Like />,
+  verify: <Verify />,
 };

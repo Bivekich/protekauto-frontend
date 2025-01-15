@@ -5,6 +5,10 @@ export default {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
+      fontFamily: {
+        golos: ['var(--font-golos)'],
+        druk: ['var(--font-druk)'],
+      },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
@@ -48,6 +52,8 @@ export default {
         },
         caption: 'rgb(61, 72, 87)',
         'main-blue': '#041124',
+        'secondary-blue': '#041124',
+        'secondary-blue-80': 'rgba(4,17,36,0.8)',
         'gray-label': '#CBD5E3',
         'sky-blue': '#E6EDF6',
         placeholder: 'rgb(99, 120, 149)',
