@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground shadow hover:bg-primary/90',
+          'bg-primary-red font-medium text-white text-lg rounded-[12px] hover:bg-red-700',
         secondary: 'main-blue text-lg text-gray-label border-gray-label border',
         ghost:
           'text-lg font-medium text-gray-label hover:text-gray-100 p-0 h-full',
@@ -18,7 +18,7 @@ const buttonVariants = cva(
       size: {
         default: 'h-9 p-[14px]',
         sm: 'h-8 rounded-md px-3 text-xs',
-        lg: 'h-10 rounded-md px-8',
+        lg: 'px-9 h-[70px]',
         icon: 'h-9 w-9',
       },
     },

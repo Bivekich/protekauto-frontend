@@ -78,4 +78,14 @@ body {
     text-caption
     transition;
   }
+
+  .text-title {
+    @apply text-[52px]
+    font-bold;
+  }
+
+  .text-paragraph {
+    @apply text-2xl
+    leading-[140%];
+  }
 }

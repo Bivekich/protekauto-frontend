@@ -51,6 +51,7 @@ export default {
         'gray-label': '#CBD5E3',
         'sky-blue': '#E6EDF6',
         placeholder: 'rgb(99, 120, 149)',
+        'primary-red': '#C00D0D',
       },
       borderRadius: {
         lg: 'var(--radius)',
