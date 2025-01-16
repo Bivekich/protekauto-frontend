@@ -5,6 +5,29 @@ export const HeaderMiddle = () => {
     <div className={'bg-main-blue w-full flex justify-center'}>
       <div className={'max-w-pc w-full py-8 grid grid-cols-header gap-6'}>
         <Button variant={'secondary'} className={'w-fit'}>
+          <div className={'flex flex-col gap-1'}>
+            <div
+              style={{
+                width: '34px',
+                height: '2px',
+                backgroundColor: '#C00D0D',
+              }}
+            />
+            <div
+              style={{
+                width: '34px',
+                height: '2px',
+                backgroundColor: '#C00D0D',
+              }}
+            />
+            <div
+              style={{
+                width: '34px',
+                height: '2px',
+                backgroundColor: '#C00D0D',
+              }}
+            />
+          </div>
           Каталог
         </Button>
         <InputGroup>

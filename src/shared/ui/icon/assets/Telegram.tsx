@@ -24,23 +24,21 @@ const Telegram: FC<SVGProps<SVGSVGElement>> = (props) => (
       <clipPath id="clip6_498">
         <rect
           id="Телеграм 1"
-          width="29"
-          height="29"
+          width="30"
+          height="30"
           fill="#fff"
           fillOpacity="0"
           rx="0"
-          transform="translate(.5 .5)"
         ></rect>
       </clipPath>
     </defs>
     <rect
       id="Телеграм 1"
-      width="29"
-      height="29"
+      width="30"
+      height="30"
       fill="#FFF"
       fillOpacity="0"
       rx="0"
-      transform="translate(.5 .5)"
     ></rect>
     <g fillOpacity="1" fillRule="evenodd" clipPath="url(#clip6_498)">
       <path

@@ -2,12 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
+    --font-golos: 'Golos-Text', sans-serif;
+    --font-druk: 'DrukTextWideCyr', sans-serif;
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -34,6 +32,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -66,6 +65,7 @@ body {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -74,8 +74,26 @@ body {
 @layer components {
   .variant-caption {
     @apply text-base
-    font-normal
-    text-caption
-    transition;
+        font-normal
+        text-caption
+        transition;
+  }
+
+  .text-title {
+    @apply text-[52px]
+        font-druk
+        font-bold;
+  }
+
+  .text-title-secondary {
+    @apply text-xl
+        font-druk
+        font-bold;
+  }
+
+  .text-paragraph {
+    @apply text-2xl
+        font-golos
+        leading-[140%];
   }
 }
