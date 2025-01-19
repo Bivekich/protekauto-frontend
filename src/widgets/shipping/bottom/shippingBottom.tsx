@@ -25,7 +25,7 @@ export const ShippingBottom = () => {
     <div className={'relative p-[60px] overflow-hidden rounded-2xl font-golos'}>
       <div
         className={
-          'absolute inset-0 bg-gradient-to-r from-secondary-blue to-secondary-blue-80 z-10 opacity-80'
+          'absolute inset-0 bg-gradient-to-r from-secondary-blue to-secondary-blue-80 opacity-80 z-10'
         }
       />
       <Image
