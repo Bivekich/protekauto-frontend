@@ -79,6 +79,12 @@
         transition;
   }
 
+  .variant-caption-secondary {
+    @apply text-[14px]
+    font-normal
+    text-ice-grey;
+  }
+
   .text-title {
     @apply text-[52px]
         font-druk
@@ -91,9 +97,20 @@
         font-bold;
   }
 
-  .text-paragraph {
+  .text-paragraph,
+  .text-paragraph-sm {
     @apply text-2xl
         font-golos
         leading-[140%];
+  }
+
+  .text-paragraph-sm {
+    @apply text-lg;
+  }
+
+  .text-label {
+    @apply text-lg
+    font-golos
+    leading-[140%];
   }
 }
