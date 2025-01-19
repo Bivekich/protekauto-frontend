@@ -11,6 +11,8 @@ import Like from './Like';
 import Verify from './Verify';
 import Alert from './Alert';
 import VerifyRed from './VerifyRed';
+import MapPoint from './MapPoint';
+import Clock from './Clock';
 
 export const iconsList = {
   phone: <Phone />,
@@ -26,4 +28,6 @@ export const iconsList = {
   verify: <Verify />,
   alert: <Alert />,
   verify_red: <VerifyRed />,
+  map_point: <MapPoint />,
+  clock: <Clock />,
 };

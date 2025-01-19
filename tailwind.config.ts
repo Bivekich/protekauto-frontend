@@ -68,6 +68,9 @@ export default {
       maxWidth: {
         pc: '1660px',
       },
+      maxHeight: {
+        body: 'calc(100vh - 240px)',
+      },
       gridTemplateColumns: {
         header: '15fr 55fr 20fr 5fr 5fr',
         'shipping-cards': '3fr 3fr 2fr',

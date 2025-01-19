@@ -13,7 +13,7 @@ export const routes = [
         path: '/wholesale-clients',
         bgColor: 'white',
       },
-      { name: 'Контакты', path: '/contacts', bgColor: 'white' },
+      { name: 'Контакты', path: '/contacts', bgColor: 'sky-blue' },
     ],
   },
 ];

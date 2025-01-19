@@ -30,7 +30,7 @@ export default function RootLayout({
         className={`${golosText.variable} ${customFont.variable} antialiased h-screen`}
       >
         <Header />
-        <main className={'w-full h-full font-druk'}>{children}</main>
+        <main className={'w-full max-h-body h-full font-druk'}>{children}</main>
       </body>
     </html>
   );
