@@ -56,8 +56,9 @@ export default {
         'secondary-blue-80': 'rgba(4,17,36,0.8)',
         'gray-label': '#CBD5E3',
         'sky-blue': '#E6EDF6',
-        placeholder: 'rgb(99, 120, 149)',
+        placeholder: 'rgb(174,174,189)',
         'primary-red': '#C00D0D',
+        'ice-grey': '#CBD5E3',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -69,6 +70,7 @@ export default {
       },
       gridTemplateColumns: {
         header: '15fr 55fr 20fr 5fr 5fr',
+        'shipping-cards': '3fr 3fr 2fr',
       },
     },
   },

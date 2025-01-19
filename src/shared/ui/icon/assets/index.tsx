@@ -9,6 +9,8 @@ import Arrow from './Arrow';
 import Bag from './Bag';
 import Like from './Like';
 import Verify from './Verify';
+import Alert from './Alert';
+import VerifyRed from './VerifyRed';
 
 export const iconsList = {
   phone: <Phone />,
@@ -22,4 +24,6 @@ export const iconsList = {
   bag: <Bag />,
   like: <Like />,
   verify: <Verify />,
+  alert: <Alert />,
+  verify_red: <VerifyRed />,
 };
