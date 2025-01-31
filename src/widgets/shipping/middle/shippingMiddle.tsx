@@ -24,7 +24,7 @@ export const ShippingMiddle = () => {
       </div>
 
       <div className={'space-y-5'}>
-        <h4 className={'text-title-secondary text-3xl'}>В регионы</h4>
+        <h4 className={'text-title-secondary'}>В регионы</h4>
         <div className={'flex gap-4'}>
           {shippingOptions.bottom.map((option, index) => (
             <p key={index} className={'text-paragraph-sm'}>
