@@ -8,7 +8,7 @@ export const WeOffer = () => {
       outerContainerProps={{ className: 'bg-sky-blue' }}
       innerContainerProps={{ className: 'pt-10 flex flex-col gap-10' }}
     >
-      <h2 className={'text-title-secondary text-2xl'}>Мы предлагаем</h2>
+      <h2 className={'text-title-third text-2xl'}>Мы предлагаем</h2>
       <div className={'grid grid-cols-2 gap-5 font-golos'}>
         {gridItems.map((item) => (
           <div
@@ -19,7 +19,7 @@ export const WeOffer = () => {
           >
             <Image {...item.photo} />
             <div className={'w-full flex flex-col gap-4'}>
-              <h4 className={'text-title-secondary'}>{item.title}</h4>
+              <h4 className={'text-title-third'}>{item.title}</h4>
               <p className={'leading-5'}>{item.description}</p>
             </div>
           </div>

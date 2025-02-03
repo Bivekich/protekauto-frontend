@@ -11,7 +11,7 @@ export const MainInfo = () => {
         className: 'pt-20 flex flex-col gap-10 pb-[60px] font-golos',
       }}
     >
-      <h2 className={'text-title-secondary'}>ПРОТЕК Автозапчасти – это</h2>
+      <h2 className={'text-title-third'}>ПРОТЕК Автозапчасти – это</h2>
 
       <div className={'flex w-full justify-between gap-5'}>
         <p className={'w-full'}>
@@ -37,7 +37,7 @@ export const MainInfo = () => {
           >
             <h5
               className={
-                'text-title-secondary font-golos flex gap-4 text-xl leading-5 items-center'
+                'text-title-third font-golos flex gap-4 text-xl leading-5 items-center'
               }
             >
               <Icon name={item.icon} />
@@ -68,7 +68,7 @@ export const MainInfo = () => {
           }
         >
           <div className={'w-full flex flex-col max-w-[760px] gap-9'}>
-            <h3 className={'text-title-secondary relative text-white'}>
+            <h3 className={'text-title-third relative text-white'}>
               Мы всегда рады помочь
             </h3>
             <p className={'text-gray-label'}>

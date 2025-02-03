@@ -1,1 +1,1 @@
-export * from './phoneInput';
+export * from './main';

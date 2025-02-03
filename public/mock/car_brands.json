@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "name": "Audi",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 2,
+    "name": "Mercedes-Benz",
+    "categories": ["passenger", "truck", "commercial"]
+  },
+  {
+    "id": 3,
+    "name": "MAN",
+    "categories": ["truck", "commercial"]
+  },
+  {
+    "id": 4,
+    "name": "BMW",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 5,
+    "name": "Ford",
+    "categories": ["passenger", "truck", "commercial"]
+  },
+  {
+    "id": 6,
+    "name": "Volvo",
+    "categories": ["passenger", "truck", "commercial"]
+  },
+  {
+    "id": 7,
+    "name": "Toyota",
+    "categories": ["passenger", "truck", "commercial"]
+  },
+  {
+    "id": 8,
+    "name": "Honda",
+    "categories": ["passenger", "commercial"]
+  },
+  {
+    "id": 9,
+    "name": "Nissan",
+    "categories": ["passenger", "truck", "commercial"]
+  },
+  {
+    "id": 10,
+    "name": "Tesla",
+    "categories": ["passenger", "truck"]
+  },
+  {
+    "id": 11,
+    "name": "Porsche",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 12,
+    "name": "Chevrolet",
+    "categories": ["passenger", "truck", "commercial"]
+  },
+  {
+    "id": 13,
+    "name": "Kia",
+    "categories": ["passenger", "commercial"]
+  },
+  {
+    "id": 14,
+    "name": "Hyundai",
+    "categories": ["passenger", "commercial"]
+  },
+  {
+    "id": 15,
+    "name": "Renault",
+    "categories": ["passenger", "commercial"]
+  },
+  {
+    "id": 16,
+    "name": "Peugeot",
+    "categories": ["passenger", "commercial"]
+  },
+  {
+    "id": 17,
+    "name": "Citroën",
+    "categories": ["passenger", "commercial"]
+  },
+  {
+    "id": 18,
+    "name": "Fiat",
+    "categories": ["passenger", "commercial"]
+  },
+  {
+    "id": 19,
+    "name": "Iveco",
+    "categories": ["truck", "commercial"]
+  },
+  {
+    "id": 20,
+    "name": "Scania",
+    "categories": ["truck", "commercial"]
+  },
+  {
+    "id": 21,
+    "name": "DAF",
+    "categories": ["truck"]
+  },
+  {
+    "id": 22,
+    "name": "Kenworth",
+    "categories": ["truck"]
+  },
+  {
+    "id": 23,
+    "name": "Mack",
+    "categories": ["truck"]
+  },
+  {
+    "id": 24,
+    "name": "Peterbilt",
+    "categories": ["truck"]
+  },
+  {
+    "id": 25,
+    "name": "Freightliner",
+    "categories": ["truck", "commercial"]
+  },
+  {
+    "id": 26,
+    "name": "Lexus",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 27,
+    "name": "Subaru",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 28,
+    "name": "Mazda",
+    "categories": ["passenger", "truck"]
+  },
+  {
+    "id": 29,
+    "name": "Suzuki",
+    "categories": ["passenger", "commercial"]
+  },
+  {
+    "id": 30,
+    "name": "Mitsubishi",
+    "categories": ["passenger", "truck"]
+  },
+  {
+    "id": 31,
+    "name": "Jaguar",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 32,
+    "name": "Land Rover",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 33,
+    "name": "Bentley",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 34,
+    "name": "Rolls-Royce",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 35,
+    "name": "Maserati",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 36,
+    "name": "Ferrari",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 37,
+    "name": "Lamborghini",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 38,
+    "name": "Bugatti",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 39,
+    "name": "McLaren",
+    "categories": ["passenger"]
+  },
+  {
+    "id": 40,
+    "name": "Genesis",
+    "categories": ["passenger"]
+  }
+]

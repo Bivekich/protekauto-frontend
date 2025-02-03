@@ -2,9 +2,8 @@
 
 import Garage from '@img/shipping/Garage.png';
 import Image from 'next/image';
-import { PhoneInput } from '@/features';
 import { ChangeEvent, useState } from 'react';
-import { Button } from '@/shared';
+import { Button, PhoneInput } from '@/shared';
 
 export const ShippingBottom = () => {
   const [phone, setPhone] = useState('');
@@ -41,7 +40,7 @@ export const ShippingBottom = () => {
         }
       >
         <div className={'w-full flex flex-col gap-9 h-full'}>
-          <h3 className={'text-title-secondary relative text-white text-3xl'}>
+          <h3 className={'text-title-third relative text-white text-3xl'}>
             Мы будем рады помочь вам с оформлением заказа!
           </h3>
           <p className={'text-gray-label'}>

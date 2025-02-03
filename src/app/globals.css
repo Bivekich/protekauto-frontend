@@ -93,6 +93,12 @@
   }
 
   .text-title-secondary {
+    @apply text-[42px]
+    font-golos
+    font-bold;
+  }
+
+  .text-title-third {
     @apply text-xl
         font-druk
         font-bold;

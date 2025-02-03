@@ -1,5 +1,10 @@
-import { WIP } from '@/widgets';
+import { MainBanner, MainCatalog } from '@/widgets';
 
 export default function Home() {
-  return <WIP />;
+  return (
+    <div className={'w-full flex flex-col gap-20 bg-sky-blue'}>
+      <MainBanner />
+      <MainCatalog />
+    </div>
+  );
 }

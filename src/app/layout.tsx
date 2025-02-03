@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${golosText.variable} ${customFont.variable} antialiased h-screen`}
+        className={`${golosText.variable} ${customFont.variable} antialiased h-screen overflow-x-hidden`}
       >
         <Header />
         <main className={'w-full max-h-body h-full font-druk'}>{children}</main>
