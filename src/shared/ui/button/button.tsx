@@ -12,11 +12,11 @@ const buttonVariants = cva(
         default:
           'font-golos bg-primary-red font-medium text-white text-lg rounded-[12px] hover:bg-red-700',
         secondary: 'main-blue text-lg text-gray-label border-gray-label border',
-        ghost:
-          'text-lg font-medium text-gray-label hover:text-gray-100 p-0 h-full',
+        burger: 'bg-white',
+        ghost: 'text-white hover:text-gray-300 p-0 h-full',
       },
       size: {
-        default: 'h-9 p-[14px]',
+        default: 'h-16 py-[14px] px-5',
         sm: 'h-8 rounded-md px-3 text-xs',
         lg: 'px-9 h-[70px]',
         icon: 'h-9 w-9',

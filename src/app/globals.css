@@ -81,14 +81,15 @@
 
   .variant-caption-secondary {
     @apply text-[14px]
-    font-normal
-    text-ice-grey;
+        font-normal
+        text-ice-grey;
   }
 
   .text-title {
     @apply text-[52px]
         font-druk
-        font-bold;
+        font-bold
+        uppercase;
   }
 
   .text-title-secondary {
@@ -110,7 +111,7 @@
 
   .text-label {
     @apply text-lg
-    font-golos
-    leading-[140%];
+        font-golos
+        leading-[140%];
   }
 }

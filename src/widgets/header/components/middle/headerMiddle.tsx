@@ -1,34 +1,16 @@
 import { Button, Icon, Input, InputGroup, InputRightElement } from '@/shared';
+import { burgerLines } from '@/widgets/header/components/middle/burgerLines';
 
 export const HeaderMiddle = () => {
   return (
     <div className={'bg-main-blue w-full flex justify-center'}>
-      <div className={'max-w-pc w-full py-8 grid grid-cols-header gap-6'}>
-        <Button variant={'secondary'} className={'w-fit'}>
-          <div className={'flex flex-col gap-1'}>
-            <div
-              style={{
-                width: '34px',
-                height: '2px',
-                backgroundColor: '#C00D0D',
-              }}
-            />
-            <div
-              style={{
-                width: '34px',
-                height: '2px',
-                backgroundColor: '#C00D0D',
-              }}
-            />
-            <div
-              style={{
-                width: '34px',
-                height: '2px',
-                backgroundColor: '#C00D0D',
-              }}
-            />
+      <div className={'max-w-pc w-full py-8 grid grid-cols-header gap-10'}>
+        <Button variant={'burger'} className={'w-fit'}>
+          <div className={'flex flex-col gap-1.5'}>
+            {burgerLines.map((line, index) => (
+              <div key={index} style={line} />
+            ))}
           </div>
-          Каталог
         </Button>
         <InputGroup>
           <Input
@@ -38,18 +20,23 @@ export const HeaderMiddle = () => {
             <Icon name={'search'} />
           </InputRightElement>
         </InputGroup>
-        <Button variant={'ghost'}>
+        <Button
+          variant={'ghost'}
+          className={
+            'bg-secondary-blue w-fit px-7 rounded-xl hover:bg-blue-950'
+          }
+        >
           <Icon name={'garage'} />
           Добавить в гараж
         </Button>
         <Button variant={'ghost'}>
           <Icon name={'profile'} />
-          Вход
+          Личный кабинет
         </Button>
         <Button variant={'ghost'} className={'relative'}>
           <p
             className={
-              'bg-red-900 text-white absolute text-[8px] px-1 leading-[12px] rounded top-1 left-6 h-fit'
+              'bg-red-900 text-white absolute text-[8px] px-1 leading-[12px] rounded top-4 left-12 h-fit'
             }
           >
             12

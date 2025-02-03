@@ -17,7 +17,7 @@ export const HeaderTop = () => {
           <Link
             href={option.path}
             key={option.path}
-            className={'variant-caption hover:text-gray-300'}
+            className={'variant-caption hover:text-black text-main-blue'}
           >
             {option.label}
           </Link>

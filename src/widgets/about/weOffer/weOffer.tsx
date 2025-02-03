@@ -8,7 +8,7 @@ export const WeOffer = () => {
       outerContainerProps={{ className: 'bg-sky-blue' }}
       innerContainerProps={{ className: 'pt-10 flex flex-col gap-10' }}
     >
-      <h2 className={'text-title text-2xl'}>Мы предлагаем</h2>
+      <h2 className={'text-title-secondary text-2xl'}>Мы предлагаем</h2>
       <div className={'grid grid-cols-2 gap-5 font-golos'}>
         {gridItems.map((item) => (
           <div
