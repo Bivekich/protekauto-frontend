@@ -1,5 +1,5 @@
 'use client';
-import { SegmentedControl } from '@/shared';
+import { Button, SegmentedControl } from '@/shared';
 import { segmentedControlOptions } from './options';
 import brandsData from '@public/mock/car_brands.json';
 import { useMemo, useState } from 'react';
@@ -23,18 +23,20 @@ export const BrandsCatalog = () => {
         options={segmentedControlOptions}
         onChange={handleSelectBrand}
       />
-      <div className={'w-full px-10 grid grid-cols-6 gap-14'}>
+      <div className={'w-full px-10 grid grid-cols-6 gap-6'}>
         {brands.map(({ id, name }) => (
           <button
             key={id}
             className={
-              'text-paragraph text-left hover:text-primary-red transition-colors'
+              'text-paragraph text-left hover:text-primary-red transition-colors truncate'
             }
           >
             {name}
           </button>
         ))}
       </div>
+
+      <Button variant={'arrow'}>Все марки</Button>
     </div>
   );
 };

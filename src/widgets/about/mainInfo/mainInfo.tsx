@@ -1,4 +1,4 @@
-import { Button, Icon, WidgetContainer } from '@/shared';
+import { Banner, Button, Icon, WidgetContainer } from '@/shared';
 import { gridItems } from './gridItems';
 import Wheels from '@public/img/aboutUs/Wheels.jpg';
 import Image from 'next/image';
@@ -11,7 +11,7 @@ export const MainInfo = () => {
         className: 'pt-20 flex flex-col gap-10 pb-[60px] font-golos',
       }}
     >
-      <h2 className={'text-title-third'}>ПРОТЕК Автозапчасти – это</h2>
+      <h2 className={'text-title-fourth'}>ПРОТЕК Автозапчасти – это</h2>
 
       <div className={'flex w-full justify-between gap-5'}>
         <p className={'w-full'}>
@@ -37,7 +37,7 @@ export const MainInfo = () => {
           >
             <h5
               className={
-                'text-title-third font-golos flex gap-4 text-xl leading-5 items-center'
+                'text-title-fourth font-golos flex gap-4 text-xl leading-5 items-center'
               }
             >
               <Icon name={item.icon} />
@@ -48,39 +48,7 @@ export const MainInfo = () => {
         ))}
       </div>
 
-      <div className={'relative rounded-xl overflow-hidden p-[60px]'}>
-        <div
-          className={
-            'absolute inset-0 bg-gradient-to-r from-secondary-blue to-secondary-blue-80 z-10 opacity-80'
-          }
-        />
-
-        <Image
-          src={Wheels}
-          alt={'Фон'}
-          fill
-          className={'absolute object-cover z-0'}
-        />
-
-        <div
-          className={
-            'relative z-20 w-full h-full flex items-center justify-between'
-          }
-        >
-          <div className={'w-full flex flex-col max-w-[760px] gap-9'}>
-            <h3 className={'text-title-third relative text-white'}>
-              Мы всегда рады помочь
-            </h3>
-            <p className={'text-gray-label'}>
-              Если вам нужна помощь с подбором автозапчастей, то воспользуйтесь
-              формой VIN-запроса. Введите идентификационный номер (VIN) вашего
-              автомобиля — и мы найдём нужную деталь.
-            </p>
-          </div>
-
-          <Button size={'lg'}>Отправить VIN-запрос</Button>
-        </div>
-      </div>
+      <Banner />
     </WidgetContainer>
   );
 };
