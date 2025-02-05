@@ -1,7 +1,5 @@
-import { Banner, Button, Icon, WidgetContainer } from '@/shared';
+import { Banner, Icon, WidgetContainer } from '@/shared';
 import { gridItems } from './gridItems';
-import Wheels from '@public/img/aboutUs/Wheels.jpg';
-import Image from 'next/image';
 
 export const MainInfo = () => {
   return (
