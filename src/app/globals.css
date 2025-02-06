@@ -93,6 +93,18 @@
   }
 
   .text-title-secondary {
+    @apply text-[32px]
+    font-golos
+    font-bold;
+  }
+
+  .text-title-third {
+    @apply text-[42px]
+    font-golos
+    font-bold;
+  }
+
+  .text-title-fourth {
     @apply text-xl
         font-druk
         font-bold;
@@ -107,6 +119,10 @@
 
   .text-paragraph-sm {
     @apply text-lg;
+  }
+
+  .text-paragraph-xs {
+    @apply text-sm;
   }
 
   .text-label {

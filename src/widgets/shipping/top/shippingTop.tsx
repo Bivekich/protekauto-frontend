@@ -19,7 +19,7 @@ export const ShippingTop = () => {
           )}
 
           <h4
-            className={`text-title-secondary text-3xl font-golos text-${card.titleColor}`}
+            className={`text-title-fourth text-3xl font-golos text-${card.titleColor}`}
           >
             {card.title}
           </h4>

@@ -18,6 +18,10 @@ export const HeaderBottom = () => {
   const breadcrumbs = getBreadcrumbByPath(pathname);
   const bgColor = breadcrumbs.at(-1)?.bgColor;
 
+  if (breadcrumbs.length < 2) {
+    return;
+  }
+
   return (
     <WidgetContainer
       outerContainerProps={{

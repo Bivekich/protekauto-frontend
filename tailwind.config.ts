@@ -74,6 +74,7 @@ export default {
       gridTemplateColumns: {
         header: '6fr 59fr 15fr 10fr 10fr',
         'shipping-cards': '3fr 3fr 2fr',
+        'main-cards': '3fr 2fr 2fr 2fr',
       },
     },
   },

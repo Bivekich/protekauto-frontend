@@ -3,3 +3,7 @@ export * from './button';
 export * from './input';
 export * from './breadcrumb';
 export * from './widgetContainer';
+export * from './segmentedControl';
+export * from './phoneInput';
+export * from './select';
+export * from './autoScroll';

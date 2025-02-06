@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@pbe/react-yandex-maps": "^1.2.5",
+    "@radix-ui/react-select": "^2.1.5",
     "@radix-ui/react-slot": "^1.1.1",
     "@react-input/mask": "^2.0.4",
     "class-variance-authority": "^0.7.1",
@@ -21,8 +22,10 @@
     "next": "15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.54.2",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

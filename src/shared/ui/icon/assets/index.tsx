@@ -13,6 +13,9 @@ import Alert from './Alert';
 import VerifyRed from './VerifyRed';
 import MapPoint from './MapPoint';
 import Clock from './Clock';
+import ArrowRed from './ArrowRed';
+import Discount from './Discount';
+import ClockSmall from './ClockSmall';
 
 export const iconsList = {
   phone: <Phone />,
@@ -30,4 +33,7 @@ export const iconsList = {
   verify_red: <VerifyRed />,
   map_point: <MapPoint />,
   clock: <Clock />,
+  arrow_red: <ArrowRed />,
+  discount: <Discount />,
+  clock_small: <ClockSmall />,
 };
