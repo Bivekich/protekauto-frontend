@@ -46,7 +46,7 @@ export const MainInStock = () => {
             </div>
           ))}
         </div>
-        <div className={'grid grid-cols-main-cards gap-5'}>
+        <div className={'grid grid-cols-main-cards.ts gap-5'}>
           {cards2.map((card) => (
             <div
               key={card.title}

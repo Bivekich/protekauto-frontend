@@ -16,6 +16,14 @@ import Clock from './Clock';
 import ArrowRed from './ArrowRed';
 import Discount from './Discount';
 import ClockSmall from './ClockSmall';
+import ClockBig from './ClockBig';
+import Blocks from './Blocks';
+import Wallet from './Wallet';
+import Delivery from './Delivery';
+import Payback from './Payback';
+import ArrowCircle from './ArrowCircle';
+import TelegramBig from './TelegramBig';
+import WhatsAppBig from './WhatsAppBig';
 
 export const iconsList = {
   phone: <Phone />,
@@ -36,4 +44,12 @@ export const iconsList = {
   arrow_red: <ArrowRed />,
   discount: <Discount />,
   clock_small: <ClockSmall />,
+  clock_big: <ClockBig />,
+  blocks: <Blocks />,
+  wallet: <Wallet />,
+  delivery: <Delivery />,
+  payback: <Payback />,
+  arrow_circle: <ArrowCircle />,
+  telegram_big: <TelegramBig />,
+  whatsapp_big: <WhatsAppBig />,
 };
