@@ -1,0 +1,11 @@
+.card {
+  @apply flex justify-between w-full gap-4;
+}
+
+.card svg path {
+  transition: fill 0.2s;
+}
+
+.card:hover svg path {
+  fill: red;
+}
