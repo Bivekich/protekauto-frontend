@@ -5,7 +5,7 @@ export const ContactsMap = () => {
   return (
     <YMaps query={{ lang: 'ru_RU' }}>
       <div
-        className={'h-full w-full max-h-[450px] rounded-2xl overflow-hidden'}
+        className={'h-[450px] w-full max-h-[450px] rounded-2xl overflow-hidden'}
       >
         <Map
           defaultState={{
