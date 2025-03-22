@@ -2,12 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
+    --font-golos: 'Golos-Text', sans-serif;
+    --font-druk: 'DrukTextWideCyr', sans-serif;
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -34,6 +32,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -66,7 +65,69 @@ body {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .variant-caption {
+    @apply text-base
+        font-normal
+        text-caption
+        transition;
+  }
+
+  .variant-caption-secondary {
+    @apply text-[14px]
+        font-normal
+        text-ice-grey;
+  }
+
+  .text-title {
+    @apply text-[52px]
+        font-druk
+        font-bold
+        uppercase;
+  }
+
+  .text-title-secondary {
+    @apply text-[32px]
+    font-golos
+    font-bold;
+  }
+
+  .text-title-third {
+    @apply text-[42px]
+    font-golos
+    font-bold;
+  }
+
+  .text-title-fourth {
+    @apply text-xl
+        font-druk
+        font-bold;
+  }
+
+  .text-paragraph,
+  .text-paragraph-sm {
+    @apply text-2xl
+        font-golos
+        leading-[140%];
+  }
+
+  .text-paragraph-sm {
+    @apply text-lg;
+  }
+
+  .text-paragraph-xs {
+    @apply text-sm;
+  }
+
+  .text-label {
+    @apply text-lg
+        font-golos
+        leading-[140%];
   }
 }

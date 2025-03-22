@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Golos_Text } from 'next/font/google';
 import './globals.css';
+import { Header } from '@/widgets';
+import localFont from 'next/font/local';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const golosText = Golos_Text({
+  variable: '--font-golos-text',
   subsets: ['latin'],
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
+const customFont = localFont({
+  src: '../../public/fonts/druktextwidecyr-medium.woff2',
+  variable: '--font-druk', // CSS переменная
 });
 
 export const metadata: Metadata = {
@@ -25,9 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${golosText.variable} ${customFont.variable} antialiased h-screen overflow-x-hidden`}
       >
-        {children}
+        <Header />
+        <main className={'w-full max-h-body h-full font-druk'}>{children}</main>
       </body>
     </html>
   );

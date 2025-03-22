@@ -5,6 +5,10 @@ export default {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
+      fontFamily: {
+        golos: ['var(--font-golos)'],
+        druk: ['var(--font-druk)'],
+      },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
@@ -46,11 +50,31 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        caption: 'rgb(61, 72, 87)',
+        'main-blue': '#0D336C',
+        'secondary-blue': '#0D336C',
+        'secondary-blue-80': 'rgb(13,51,108)',
+        'gray-label': '#CBD5E3',
+        'sky-blue': '#E6EDF6',
+        placeholder: '#435772',
+        'primary-red': '#C00D0D',
+        'ice-grey': '#CBD5E3',
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+      },
+      maxWidth: {
+        pc: '1660px',
+      },
+      maxHeight: {
+        body: 'calc(100vh - 240px)',
+      },
+      gridTemplateColumns: {
+        header: '6fr 59fr 15fr 10fr 10fr',
+        'shipping-cards': '3fr 3fr 2fr',
+        'main-cards': '3fr 2fr 2fr 2fr',
       },
     },
   },
