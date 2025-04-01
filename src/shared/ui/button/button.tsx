@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/shared/lib/css';
@@ -14,9 +13,12 @@ const buttonVariants = cva(
           'font-golos bg-primary-red font-medium text-white text-lg rounded-[12px] hover:bg-red-700',
         secondary: 'main-blue text-lg text-gray-label border-gray-label border',
         burger: 'bg-white',
-        ghost: 'text-white hover:text-gray-300 p-0 h-full',
+        ghost:
+          'text-white hover:text-gray-300 p-0 h-full bg-secondary-blue w-fit px-7 rounded-xl hover:bg-blue-950 aria-checked:bg-white aria-checked:text-black',
         arrow:
           'text-primary-red text-2xl font-semibold font-golos flex items-center gap-4 hover:gap-6 transition-all',
+        outlined:
+          'border border-primary-red rounded-[12px] bg-white font-medium text-[20px] hover:opacity-70',
       },
       size: {
         default: 'h-16 py-[14px] px-5',
@@ -38,13 +40,22 @@ export interface ButtonProps
   asChild?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, children, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button';
+const Button = React.forwardRef<
+  (HTMLDivElement | null) & (HTMLButtonElement | null),
+  ButtonProps
+>(
+  (
+    { className, variant, size, asChild = false, children, onCopy, ...props },
+    ref
+  ) => {
+    const Comp = asChild ? 'div' : 'button';
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        onCopy={!asChild && onCopy ? onCopy : undefined}
         {...props}
       >
         {children}

@@ -7,3 +7,5 @@ export * from './segmentedControl';
 export * from './phoneInput';
 export * from './select';
 export * from './autoScroll';
+export * from './sheet';
+export * from './inputOTP';
