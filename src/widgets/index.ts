@@ -7,3 +7,4 @@ export * from './main';
 export * from './newsCard';
 export * from './wholesale-clients';
 export * from './footer';
+export * from './navigationPanel';
