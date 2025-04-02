@@ -7,7 +7,7 @@ export const MainNews = () => {
   return (
     <WidgetContainer
       innerContainerProps={{
-        className: 'flex flex-col gap-10',
+        className: 'flex flex-col gap-10 pb-20',
       }}
     >
       <div className={'w-full flex justify-between items-center'}>

@@ -4,6 +4,7 @@ import WhatsApp from './WhatsApp';
 import Search from './Search';
 import Garage from './Garage';
 import Profile from './Profile';
+import ProfileRed from './ProfileRed';
 import Cart from './Cart';
 import Arrow from './Arrow';
 import Bag from './Bag';
@@ -24,6 +25,8 @@ import Payback from './Payback';
 import ArrowCircle from './ArrowCircle';
 import TelegramBig from './TelegramBig';
 import WhatsAppBig from './WhatsAppBig';
+import Close from './Close';
+import ArrowLong from './ArrowLong';
 
 export const iconsList = {
   phone: <Phone />,
@@ -32,6 +35,7 @@ export const iconsList = {
   search: <Search />,
   garage: <Garage />,
   profile: <Profile />,
+  profile_red: <ProfileRed />,
   cart: <Cart />,
   arrow: <Arrow />,
   bag: <Bag />,
@@ -52,4 +56,6 @@ export const iconsList = {
   arrow_circle: <ArrowCircle />,
   telegram_big: <TelegramBig />,
   whatsapp_big: <WhatsAppBig />,
+  close: <Close />,
+  arrow_long: <ArrowLong />,
 };

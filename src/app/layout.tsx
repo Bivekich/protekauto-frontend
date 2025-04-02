@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Golos_Text } from 'next/font/google';
 import './globals.css';
-import { Header } from '@/widgets';
+import { Footer, Header } from '@/widgets';
 import localFont from 'next/font/local';
 
 const golosText = Golos_Text({
@@ -30,7 +30,10 @@ export default function RootLayout({
         className={`${golosText.variable} ${customFont.variable} antialiased h-screen overflow-x-hidden`}
       >
         <Header />
-        <main className={'w-full max-h-body h-full font-druk'}>{children}</main>
+        <main className={'w-full font-druk'} id={'main'}>
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );
