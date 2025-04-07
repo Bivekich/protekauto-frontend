@@ -7,7 +7,11 @@ import { usePathname } from 'next/navigation';
 export const NavigationPanel = () => {
   const pathname = usePathname();
   return (
-    <div className={'bg-white p-8 rounded-[20px] space-y-5'}>
+    <div
+      className={
+        'bg-white p-8 rounded-[20px] space-y-5 w-full max-w-[305px] h-fit'
+      }
+    >
       <h4 className={'text-paragraph font-semibold text-black'}>
         Личный кабинет
       </h4>

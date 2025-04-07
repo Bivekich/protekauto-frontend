@@ -7,7 +7,7 @@ const inputSizes = {
   default: 'h-16 px-7 py-5',
   sm: 'h-8 rounded-md px-3 text-xs',
   lg: 'h-10 rounded-md px-8',
-  xl: 'h-12 rounded-md px-3 text-normal',
+  xl: 'h-12 rounded-md pl-3 pr-14 !text-sm font-medium',
   icon: 'h-9 w-9',
 };
 
@@ -18,6 +18,8 @@ const inputVariants = cva(
       variant: {
         default:
           'variant-caption bg-white placeholder:text-placeholder rounded-md',
+        inline_edit:
+          'variant-caption bg-white text-black rounded-md bg-[#71A6F626] border-none disabled:opacity-100 disabled:cursor-text',
       },
       size: inputSizes,
     },

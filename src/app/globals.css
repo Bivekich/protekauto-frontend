@@ -130,4 +130,20 @@
         font-golos
         leading-[140%];
   }
+
+  /* Wrappers */
+  .card-wrapper {
+    @apply w-full
+    rounded-2xl
+    bg-white
+    p-8;
+  }
+
+  .table-wrapper {
+    @apply flex
+    flex-col
+    w-full
+    max-h-full
+    overflow-auto;
+  }
 }

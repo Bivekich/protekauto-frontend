@@ -8,3 +8,4 @@ export * from './newsCard';
 export * from './wholesale-clients';
 export * from './footer';
 export * from './navigationPanel';
+export * from './profile';

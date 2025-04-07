@@ -35,6 +35,11 @@ import NavFavorites from './NavFavorites';
 import NavGarage from './NavGarage';
 import NavSettings from './NavSettings';
 import NavOrders from './NavOrders';
+import ArrowDown from './ArrowDown';
+import Trash from './Trash';
+import Pencil from './Pencil';
+import Email from './Email';
+import PhoneBlack from './PhoneBlack';
 
 export const iconsList = {
   phone: <Phone />,
@@ -74,4 +79,9 @@ export const iconsList = {
   nav_garage: <NavGarage />,
   nav_favorites: <NavFavorites />,
   nav_orders: <NavOrders />,
+  arrow_down: <ArrowDown />,
+  trash: <Trash />,
+  pencil: <Pencil />,
+  email: <Email />,
+  phone_black: <PhoneBlack />,
 };

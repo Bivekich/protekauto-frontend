@@ -9,3 +9,6 @@ export * from './select';
 export * from './autoScroll';
 export * from './sheet';
 export * from './inputOTP';
+export * from './labelWrapper';
+export * from './switch';
+export * from './accordion';

@@ -1,3 +1,3 @@
-export default function ProfileOrdersPage() {
+export default function ProfileMessagesPage() {
   return <div></div>;
 }
