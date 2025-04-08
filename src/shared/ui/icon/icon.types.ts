@@ -7,4 +7,5 @@ export interface IIconProps {
   name: TIconMap;
   className?: string;
   style?: CSSProperties;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }

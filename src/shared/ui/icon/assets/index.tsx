@@ -27,6 +27,19 @@ import TelegramBig from './TelegramBig';
 import WhatsAppBig from './WhatsAppBig';
 import Close from './Close';
 import ArrowLong from './ArrowLong';
+import NavAlerts from './NavAlerts';
+import NavBalance from './NavBalance';
+import NavMessages from './NavMessages';
+import NavAddresses from './NavAddresses';
+import NavFavorites from './NavFavorites';
+import NavGarage from './NavGarage';
+import NavSettings from './NavSettings';
+import NavOrders from './NavOrders';
+import ArrowDown from './ArrowDown';
+import Trash from './Trash';
+import Pencil from './Pencil';
+import Email from './Email';
+import PhoneBlack from './PhoneBlack';
 
 export const iconsList = {
   phone: <Phone />,
@@ -58,4 +71,17 @@ export const iconsList = {
   whatsapp_big: <WhatsAppBig />,
   close: <Close />,
   arrow_long: <ArrowLong />,
+  nav_alerts: <NavAlerts />,
+  nav_balance: <NavBalance />,
+  nav_messages: <NavMessages />,
+  nav_addresses: <NavAddresses />,
+  nav_settings: <NavSettings />,
+  nav_garage: <NavGarage />,
+  nav_favorites: <NavFavorites />,
+  nav_orders: <NavOrders />,
+  arrow_down: <ArrowDown />,
+  trash: <Trash />,
+  pencil: <Pencil />,
+  email: <Email />,
+  phone_black: <PhoneBlack />,
 };

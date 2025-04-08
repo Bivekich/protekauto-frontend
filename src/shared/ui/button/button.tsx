@@ -13,6 +13,8 @@ const buttonVariants = cva(
           'font-golos bg-primary-red font-medium text-white text-lg rounded-[12px] hover:bg-red-700',
         secondary: 'main-blue text-lg text-gray-label border-gray-label border',
         burger: 'bg-white',
+        third:
+          'font-golos bg-white font-medium text-lg rounded-[12px] border-primary-red border',
         ghost:
           'text-white hover:text-gray-300 p-0 h-full bg-secondary-blue w-fit px-7 rounded-xl hover:bg-blue-950 aria-checked:bg-white aria-checked:text-black',
         arrow:
@@ -23,6 +25,7 @@ const buttonVariants = cva(
       size: {
         default: 'h-16 py-[14px] px-5',
         sm: 'h-8 rounded-md px-3 text-xs',
+        md: 'px-[26px] py-[12px] h-fit text-lg leading-[22px]',
         lg: 'px-9 h-[70px]',
         icon: 'h-9 w-9',
       },

@@ -21,7 +21,7 @@ export const WidgetContainer: FC<IProps> = ({
   return (
     <div
       {...outerContainerProps}
-      className={clsx('w-full', outerContainerProps?.className)}
+      className={clsx('w-full px-10', outerContainerProps?.className)}
     >
       <div
         {...innerContainerProps}
