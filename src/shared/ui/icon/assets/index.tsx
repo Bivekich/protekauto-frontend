@@ -40,6 +40,9 @@ import Trash from './Trash';
 import Pencil from './Pencil';
 import Email from './Email';
 import PhoneBlack from './PhoneBlack';
+import Error from './Error';
+import VerifyWithBG from './VerifyWithBG';
+import RefundWithBG from './RefundWithBG';
 
 export const iconsList = {
   phone: <Phone />,
@@ -84,4 +87,7 @@ export const iconsList = {
   pencil: <Pencil />,
   email: <Email />,
   phone_black: <PhoneBlack />,
+  error: <Error />,
+  verify_with_bg: <VerifyWithBG />,
+  refund_with_bg: <RefundWithBG />,
 };
