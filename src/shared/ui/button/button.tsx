@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import Link from 'next/link';
 
 import { cn } from '@/shared/lib/css';
 import { Icon } from '@/shared';
@@ -21,6 +22,7 @@ const buttonVariants = cva(
           'text-primary-red text-2xl font-semibold font-golos flex items-center gap-4 hover:gap-6 transition-all',
         outlined:
           'border border-primary-red rounded-[12px] bg-white font-medium text-[20px] hover:opacity-70',
+        text: 'bg-transparent text-primary-red p-0 hover:underline font-medium',
       },
       size: {
         default: 'h-16 py-[14px] px-5',
@@ -41,6 +43,7 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  href?: string;
 }
 
 const Button = React.forwardRef<
@@ -48,9 +51,32 @@ const Button = React.forwardRef<
   ButtonProps
 >(
   (
-    { className, variant, size, asChild = false, children, onCopy, ...props },
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      children,
+      onCopy,
+      href,
+      ...props
+    },
     ref
   ) => {
+    // Если передан href, рендерим Link
+    if (href) {
+      return (
+        <Link
+          href={href}
+          className={cn(buttonVariants({ variant, size, className }))}
+        >
+          {children}
+          {variant === 'arrow' && <Icon name={'arrow_red'} />}
+        </Link>
+      );
+    }
+
+    // Иначе рендерим кнопку или div
     const Comp = asChild ? 'div' : 'button';
     return (
       <Comp

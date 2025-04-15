@@ -3,6 +3,7 @@ import { Golos_Text } from 'next/font/google';
 import './globals.css';
 import { Footer, Header } from '@/widgets';
 import localFont from 'next/font/local';
+import { AuthProvider } from '@/shared/providers/AuthProvider';
 
 const golosText = Golos_Text({
   variable: '--font-golos-text',
@@ -29,11 +30,13 @@ export default function RootLayout({
       <body
         className={`${golosText.variable} ${customFont.variable} antialiased h-screen overflow-x-hidden`}
       >
-        <Header />
-        <main className={'w-full font-druk'} id={'main'}>
-          {children}
-        </main>
-        <Footer />
+        <AuthProvider>
+          <Header />
+          <main className={'w-full font-druk'} id={'main'}>
+            {children}
+          </main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

@@ -13,6 +13,7 @@ export const ShippingTop = () => {
           {card?.image && (
             <Image
               {...card.image}
+              alt={card.image.alt || `Изображение для ${card.title}`}
               className={'absolute top-4'}
               style={{ right: card.image.right }}
             />

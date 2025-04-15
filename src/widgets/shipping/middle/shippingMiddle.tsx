@@ -40,7 +40,7 @@ export const ShippingMiddle = () => {
             key={icon.alt}
             className={'p-10 border border-ice-grey rounded-xl'}
           >
-            <Image {...icon} />
+            <Image {...icon} alt={icon.alt || 'Логотип службы доставки'} />
           </div>
         ))}
       </div>

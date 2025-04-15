@@ -23,7 +23,10 @@ export const MainBanner = () => {
       <div className={'flex w-full justify-between items-center'}>
         {plotData.map((data) => (
           <div key={data.text} className={'flex gap-4 items-center'}>
-            <Image {...data.image} />
+            <Image
+              {...data.image}
+              alt={data.image.alt || `Изображение ${data.text}`}
+            />
             <p className={'text-paragraph-sm'}>{data.text}</p>
           </div>
         ))}

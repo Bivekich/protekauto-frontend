@@ -1,0 +1,75 @@
+.verification-input-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.verification-input-character {
+  width: 4rem;
+  height: 4rem;
+  position: relative;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+  overflow: visible;
+}
+
+/* Стили для видимости цифр */
+.verification-input-character input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+  opacity: 1 !important;
+  caret-color: transparent;
+  z-index: 1;
+}
+
+.verification-input-character-inactive {
+  border-color: #ccc;
+  background-color: white;
+}
+
+.verification-input-character-selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.verification-input-character-filled {
+  border-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* Стили для курсора ввода */
+.verification-input-character-selected::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 2.5rem;
+  background-color: #3b82f6;
+  animation: blink 1s step-end infinite;
+  z-index: 3;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
