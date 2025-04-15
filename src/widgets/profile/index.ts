@@ -4,3 +4,4 @@ export * from './balance';
 export * from './garage';
 export * from './alerts';
 export * from './orders';
+export * from './messages';

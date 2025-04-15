@@ -16,6 +16,8 @@ export const Select: FC<ISelectProps> = ({
   onChange,
   value,
   defaultValue,
+  className,
+  optionClassName,
 }) => {
   return (
     <SelectCore
@@ -24,7 +26,7 @@ export const Select: FC<ISelectProps> = ({
       defaultValue={defaultValue}
     >
       <SelectTrigger
-        className={`font-golos font-normal text-base px-6 h-[66px] data-[placeholder]:text-placeholder`}
+        className={`font-golos font-normal text-base px-6 h-[66px] data-[placeholder]:text-placeholder ${className}`}
       >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
@@ -33,7 +35,7 @@ export const Select: FC<ISelectProps> = ({
           <SelectItem
             value={value}
             key={value}
-            className={'font-golos font-normal text-base px-6 h-[66px]'}
+            className={`font-golos font-normal text-base px-6 h-[66px] ${optionClassName}`}
           >
             {label}
           </SelectItem>

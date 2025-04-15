@@ -6,4 +6,6 @@ export interface ISelectProps {
   onChange?: (value: string) => void;
   value?: string;
   defaultValue?: string;
+  className?: string;
+  optionClassName?: string;
 }

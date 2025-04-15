@@ -43,6 +43,10 @@ import PhoneBlack from './PhoneBlack';
 import Error from './Error';
 import VerifyWithBG from './VerifyWithBG';
 import RefundWithBG from './RefundWithBG';
+import ArrowBack from './ArrowBack';
+import MailOpened from './MailOpened';
+import TimerPulse from './TimerPulse';
+import Note from './Note';
 
 export const iconsList = {
   phone: <Phone />,
@@ -90,4 +94,8 @@ export const iconsList = {
   error: <Error />,
   verify_with_bg: <VerifyWithBG />,
   refund_with_bg: <RefundWithBG />,
+  arrow_back: <ArrowBack />,
+  mail_opened: <MailOpened />,
+  timer_pulse: <TimerPulse />,
+  note: <Note />,
 };

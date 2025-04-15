@@ -11,7 +11,7 @@ export const InputLeftElement: FC<PropsWithChildren> = ({ children }) => {
   return (
     <div
       className={
-        'absolute left-1 top-0 bottom-0 m-auto h-fit w-fit px-7 z-10 bg-white'
+        'absolute left-1 top-0 bottom-0 m-auto h-fit w-fit px-4 z-10 bg-white'
       }
     >
       {children}
@@ -25,7 +25,7 @@ export const InputRightElement: FC<
   return (
     <div
       className={
-        'absolute right-1 top-0 bottom-0 m-auto h-fit w-fit px-7 z-10 bg-white' +
+        'absolute right-1 top-0 bottom-0 m-auto h-fit w-fit px-4 z-10 bg-white' +
         className
       }
     >

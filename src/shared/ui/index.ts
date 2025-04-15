@@ -13,3 +13,4 @@ export * from './labelWrapper';
 export * from './switch';
 export * from './accordion';
 export * from './badge';
+export * from './checkbox';

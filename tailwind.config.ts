@@ -59,6 +59,8 @@ export default {
         placeholder: '#435772',
         'primary-red': '#C00D0D',
         'ice-grey': '#CBD5E3',
+        'text-2': '#8893A1',
+        'text-input': '#747474',
       },
       borderRadius: {
         lg: 'var(--radius)',
