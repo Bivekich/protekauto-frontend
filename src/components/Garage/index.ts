@@ -1,0 +1,12 @@
+export { default as GaragePage } from './GaragePage';
+export { default as GarageItem } from './GarageItem';
+export { default as GarageSearch } from './GarageSearch';
+export { default as GarageHistoryItem } from './GarageHistoryItem';
+export { default as GarageCars } from './GarageCars';
+export { default as GarageHistory } from './GarageHistory';
+export { default as GarageAutoSearch } from './GarageAutoSearch';
+export { default as GarageCarsList } from './GarageCarsList';
+export { default as GarageHistoryList } from './GarageHistoryList';
+export { default as GarageEmpty } from './GarageEmpty';
+export { default as GarageAddCarForm } from './GarageAddCarForm';
+export { default as GarageAddFromHistory } from './GarageAddFromHistory';

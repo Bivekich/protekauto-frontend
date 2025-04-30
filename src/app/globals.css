@@ -1,0 +1,31 @@
+@import 'tailwindcss';
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --primary: #0d336c;
+  --secondary: #ec1c24;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-onest: var(--font-onest);
+  --font-golos-text: var(--font-golos-text);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-onest), sans-serif;
+}
+
+@layer base {
+  .font-onest {
+    font-family: var(--font-onest), sans-serif;
+  }
+
+  .font-golos-text {
+    font-family: var(--font-golos-text), sans-serif;
+  }
+}
