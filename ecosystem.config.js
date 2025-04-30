@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'protekauto-frontend',
       script: 'npm',
-      args: 'run start:prod',
+      args: 'run start',
       env: {
         NODE_ENV: 'production',
         PORT: 3005,
