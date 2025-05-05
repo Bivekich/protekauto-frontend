@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 import { Onest, Golos_Text } from 'next/font/google';
 import './globals.css';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import SubscribeBlock from '@/components/SubscribeBlock';
+import { Header, Footer, SubscribeBlock, AccessChecker } from '@/components';
 import { AuthProvider } from '@/shared';
 
 const onest = Onest({
@@ -31,12 +29,14 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${onest.variable} ${golosText.variable} font-onest`}>
-        <AuthProvider>
-          <Header />
-          <main>{children}</main>
-          <SubscribeBlock />
-          <Footer />
-        </AuthProvider>
+        <AccessChecker>
+          <AuthProvider>
+            <Header />
+            <main>{children}</main>
+            <SubscribeBlock />
+            <Footer />
+          </AuthProvider>
+        </AccessChecker>
       </body>
     </html>
   );

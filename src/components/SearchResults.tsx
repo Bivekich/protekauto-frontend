@@ -25,19 +25,9 @@ type SortOption = 'price_asc' | 'price_desc' | 'rating' | 'delivery';
 
 // Тестовые данные
 const MOCK_PRODUCTS: Product[] = [
+  // Основные товары
   {
     id: '1',
-    brand: 'STELLOX',
-    sku: '1023245SX',
-    name: 'Комплект ГРМ',
-    price: 17323,
-    rating: 5.0,
-    stock: 44444,
-    deliveryDays: 5,
-    isRecommended: true,
-  },
-  {
-    id: '2',
     brand: 'INA',
     sku: '530059210',
     name: 'Комплект роликов',
@@ -47,7 +37,7 @@ const MOCK_PRODUCTS: Product[] = [
     deliveryDays: 41,
   },
   {
-    id: '3',
+    id: '2',
     brand: 'Ganz',
     sku: 'GIE37312',
     name: 'Ролик ремня ГРМ VW AD GANZ GIE37312',
@@ -57,7 +47,29 @@ const MOCK_PRODUCTS: Product[] = [
     deliveryDays: 6,
   },
   {
+    id: '3',
+    brand: 'INA',
+    sku: '530059210',
+    name: 'Комплект роликов',
+    price: 3796,
+    rating: 5.0,
+    stock: 100,
+    deliveryDays: 41,
+  },
+  // Аналоги от других производителей
+  {
     id: '4',
+    brand: 'STELLOX',
+    sku: '1023245SX',
+    name: 'Комплект ГРМ',
+    price: 2333,
+    rating: 5.0,
+    stock: 44444,
+    deliveryDays: 5,
+    isRecommended: true,
+  },
+  {
+    id: '5',
     brand: 'AIX',
     sku: 'AIX10127',
     name: 'Кольцо уплотнительное клапанной крышки Chevrolet',
@@ -67,7 +79,7 @@ const MOCK_PRODUCTS: Product[] = [
     deliveryDays: 5,
   },
   {
-    id: '5',
+    id: '6',
     brand: 'ABSEL',
     sku: 'WG052006K',
     name: 'Комплект ремня ГРМ',
@@ -77,7 +89,17 @@ const MOCK_PRODUCTS: Product[] = [
     deliveryDays: 5,
   },
   {
-    id: '6',
+    id: '7',
+    brand: 'Ganz',
+    sku: 'GIE34006',
+    name: 'РЕМКОМПЛЕКТ ГРМ VAG+SKODA 2012- MOT.1,2TSI/1,4TSI',
+    price: 5300,
+    rating: 5.0,
+    stock: 44444,
+    deliveryDays: 5,
+  },
+  {
+    id: '8',
     brand: 'Gates',
     sku: 'K015680XS',
     name: 'Ремень ГРМ [163 зуб.,20mm] + 2 ролика + крепеж 788',
@@ -105,22 +127,6 @@ export default function SearchResults({ query }: SearchResultsProps) {
       )
     : MOCK_PRODUCTS;
 
-  // Сортировка товаров
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case 'price_asc':
-        return a.price - b.price;
-      case 'price_desc':
-        return b.price - a.price;
-      case 'rating':
-        return b.rating - a.rating;
-      case 'delivery':
-        return a.deliveryDays - b.deliveryDays;
-      default:
-        return 0;
-    }
-  });
-
   // Обработчики изменения количества
   const decreaseQuantity = (id: string) => {
     if (quantity[id] > 1) {
@@ -133,11 +139,11 @@ export default function SearchResults({ query }: SearchResultsProps) {
   };
 
   return (
-    <div className="py-8">
+    <div className="py-8 bg-[#F5F8FB]">
       {/* Шапка результатов поиска */}
       <div className="px-[30px] md:px-[130px] py-[20px] md:py-[30px] flex flex-col gap-[14px]">
         <h1 className="text-[16px] md:text-[18px] font-semibold text-[#181D23]">
-          {query}
+          {query || 'INA 530059210'}
         </h1>
 
         <div className="flex flex-col md:flex-row justify-between w-full gap-4 md:gap-0">
@@ -146,8 +152,11 @@ export default function SearchResults({ query }: SearchResultsProps) {
               Комплект ГРМ
             </h2>
             <p className="text-[#8E9AAC]">
-              Найдено {filteredProducts.length} предложения STELLOX от{' '}
-              {sortedProducts[0]?.price.toLocaleString()}₽
+              Найдено {filteredProducts.length} предложений STELLOX от{' '}
+              {Math.min(
+                ...filteredProducts.map((product) => product.price)
+              ).toLocaleString('ru-RU')}
+              ₽
             </p>
           </div>
 
@@ -292,461 +301,996 @@ export default function SearchResults({ query }: SearchResultsProps) {
             </div>
           </div>
 
-          {/* Сортировка - только для десктопа */}
-          <div className="hidden md:flex md:flex-col bg-white rounded-xl p-5 gap-3 mt-[30px]">
-            <span className="text-[18px] font-bold text-[#000814]">
-              Сортировка
-            </span>
-            <div className="flex flex-col gap-3">
+          {/* Фильтры в левой колонке */}
+          <div className="mt-[30px] bg-white rounded-xl p-5">
+            <div className="flex justify-between items-center">
+              <span className="text-[18px] font-bold text-[#000814]">
+                Бесплатный подбор
+              </span>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M6 9L12 15L18 9"
+                  stroke="#000814"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+
+            <div className="flex flex-col gap-3 mt-4">
               <div className="flex items-center gap-[10px]">
                 <input
-                  type="radio"
-                  id="sort-price-asc"
-                  name="sort"
-                  checked={sortBy === 'price_asc'}
-                  onChange={() => setSortBy('price_asc')}
-                  className="w-4 h-4"
+                  type="checkbox"
+                  id="bosch"
+                  className="w-4 h-4 border border-[#D0D0D0] rounded"
                 />
-                <label htmlFor="sort-price-asc" className="text-[#181D23]">
-                  Сначала дешевле
+                <label htmlFor="bosch" className="text-[#181D23]">
+                  Bosch
                 </label>
               </div>
               <div className="flex items-center gap-[10px]">
                 <input
-                  type="radio"
-                  id="sort-price-desc"
-                  name="sort"
-                  checked={sortBy === 'price_desc'}
-                  onChange={() => setSortBy('price_desc')}
-                  className="w-4 h-4"
+                  type="checkbox"
+                  id="varta"
+                  className="w-4 h-4 border border-[#D0D0D0] rounded"
                 />
-                <label htmlFor="sort-price-desc" className="text-[#181D23]">
-                  Сначала дороже
+                <label htmlFor="varta" className="text-[#181D23]">
+                  Varta
                 </label>
               </div>
               <div className="flex items-center gap-[10px]">
                 <input
-                  type="radio"
-                  id="sort-rating"
-                  name="sort"
-                  checked={sortBy === 'rating'}
-                  onChange={() => setSortBy('rating')}
-                  className="w-4 h-4"
+                  type="checkbox"
+                  id="mutlu"
+                  className="w-4 h-4 border border-[#D0D0D0] rounded"
                 />
-                <label htmlFor="sort-rating" className="text-[#181D23]">
-                  По рейтингу
+                <label htmlFor="mutlu" className="text-[#181D23]">
+                  Mutlu
                 </label>
               </div>
               <div className="flex items-center gap-[10px]">
                 <input
-                  type="radio"
-                  id="sort-delivery"
-                  name="sort"
-                  checked={sortBy === 'delivery'}
-                  onChange={() => setSortBy('delivery')}
-                  className="w-4 h-4"
+                  type="checkbox"
+                  id="exide"
+                  className="w-4 h-4 border border-[#D0D0D0] rounded"
                 />
-                <label htmlFor="sort-delivery" className="text-[#181D23]">
-                  По сроку доставки
+                <label htmlFor="exide" className="text-[#181D23]">
+                  Exide
                 </label>
               </div>
             </div>
+
+            <div className="flex items-center gap-[6px] text-[#EC1C24] text-[16px] font-semibold mt-4">
+              <span>Показать все</span>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M18 15L12 9L6 15"
+                  stroke="#EC1C24"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
           </div>
 
-          {/* Фильтры */}
-          <div className="border-t border-b border-[#E9E9E9] py-[10px] flex flex-col gap-[10px] mt-[30px]">
-            <div className="bg-white rounded-xl p-5 flex flex-col gap-5">
-              <div className="flex justify-between items-center">
-                <span className="text-[18px] font-bold text-[#000814]">
-                  Бренд
+          {/* Фильтр по емкости */}
+          <div className="mt-[30px] bg-white rounded-xl p-5">
+            <div className="flex justify-between items-center">
+              <span className="text-[18px] font-bold text-[#000814]">
+                Емкость (A/ч)
+              </span>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M6 9L12 15L18 9"
+                  stroke="#000814"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+
+            <div className="flex gap-2 mt-4">
+              <div className="flex border rounded-lg w-1/2">
+                <span className="px-2 py-1 bg-[#F5F8FB] text-[#8893A1] rounded-l-lg">
+                  от
                 </span>
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M6 9L12 15L18 9"
-                    stroke="#000814"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <input
+                  type="text"
+                  className="w-full px-2 py-1 outline-none"
+                  value="1"
+                />
               </div>
-
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-[10px]">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 border border-[#D0D0D0] rounded"
-                  />
-                  <span className="text-[#181D23]">Bosch</span>
-                </div>
-                <div className="flex items-center gap-[10px]">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 border border-[#D0D0D0] rounded"
-                  />
-                  <span className="text-[#181D23]">Varta</span>
-                </div>
-                <div className="flex items-center gap-[10px]">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 border border-[#D0D0D0] rounded"
-                  />
-                  <span className="text-[#181D23]">Mutlu</span>
-                </div>
-                <div className="flex items-center gap-[10px]">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 border border-[#D0D0D0] rounded"
-                  />
-                  <span className="text-[#181D23]">Exide</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-[6px] text-[#EC1C24] text-[16px] font-semibold">
-                <span>Показать все</span>
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M18 15L12 9L6 15"
-                    stroke="#EC1C24"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+              <div className="flex border rounded-lg w-1/2">
+                <span className="px-2 py-1 bg-[#F5F8FB] text-[#8893A1] rounded-l-lg">
+                  до
+                </span>
+                <input
+                  type="text"
+                  className="w-full px-2 py-1 outline-none"
+                  value="30"
+                />
               </div>
             </div>
 
-            {/* Дополнительные фильтры (можно добавить по аналогии) */}
+            <div className="mt-4 h-[6px] bg-[#E9E9E9] rounded-full relative">
+              <div className="absolute top-0 left-0 right-0 h-full rounded-full">
+                <div className="absolute left-[0%] w-[40%] h-full bg-[#EC1C24] rounded-full"></div>
+                <div className="absolute left-0 w-[16px] h-[16px] bg-[#EC1C24] rounded-full -mt-[5px] border-2 border-white"></div>
+                <div className="absolute left-[40%] w-[16px] h-[16px] bg-[#EC1C24] rounded-full -mt-[5px] border-2 border-white"></div>
+              </div>
+            </div>
           </div>
 
-          {/* Мобильные кнопки фильтров */}
-          {isMobileFiltersOpen && (
-            <div className="flex gap-3 mt-5">
-              <button
-                className="flex-1 bg-white border border-[#0D336C] text-[#0D336C] py-3 rounded-xl font-semibold"
-                onClick={() => setIsMobileFiltersOpen(false)}
+          {/* Фильтр по полярности */}
+          <div className="mt-[30px] bg-white rounded-xl p-5">
+            <div className="flex justify-between items-center">
+              <span className="text-[18px] font-bold text-[#000814]">
+                Полярность
+              </span>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                Отмена
-              </button>
-              <button
-                className="flex-1 bg-[#EC1C24] text-white py-3 rounded-xl font-semibold"
-                onClick={() => setIsMobileFiltersOpen(false)}
-              >
-                Применить
-              </button>
+                <path
+                  d="M6 9L12 15L18 9"
+                  stroke="#000814"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </div>
-          )}
+
+            <div className="flex flex-col gap-3 mt-4">
+              <div className="flex items-center gap-[10px]">
+                <input
+                  type="checkbox"
+                  id="reverse"
+                  className="w-4 h-4 border border-[#D0D0D0] rounded"
+                />
+                <label htmlFor="reverse" className="text-[#181D23]">
+                  Обратная
+                </label>
+              </div>
+              <div className="flex items-center gap-[10px]">
+                <input
+                  type="checkbox"
+                  id="direct"
+                  className="w-4 h-4 border border-[#D0D0D0] rounded"
+                />
+                <label htmlFor="direct" className="text-[#181D23]">
+                  Прямая
+                </label>
+              </div>
+              <div className="flex items-center gap-[10px]">
+                <input
+                  type="checkbox"
+                  id="universal"
+                  className="w-4 h-4 border border-[#D0D0D0] rounded"
+                />
+                <label htmlFor="universal" className="text-[#181D23]">
+                  Универсальная
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Правая панель с результатами */}
         <div className="flex-1 flex flex-col gap-[20px] md:gap-[30px]">
-          {/* Топ предложения */}
+          {/* Карточки лучших предложений */}
           <div className="flex flex-col gap-[20px] md:gap-[30px]">
-            {sortedProducts.slice(0, 3).map((product, index) => (
-              <div key={product.id} className="flex flex-col gap-[5px]">
-                <div className="pb-[10px] px-[10px] md:px-[20px]">
-                  <span className="text-[16px] md:text-[18px] font-semibold text-[#000814]">
-                    {index === 0 && 'Самая низкая цена'}
-                    {index === 1 && 'Самый дешевый аналог'}
-                    {index === 2 && 'Лучший срок поставки'}
-                  </span>
+            <div className="flex flex-col md:flex-row gap-[30px] w-full">
+              {/* Самая низкая цена */}
+              <div className="flex flex-col w-full md:w-1/3">
+                <div className="bg-[#F5F8FB] py-2 px-5 rounded-t-xl">
+                  <h3 className="text-black font-semibold text-lg">
+                    Самая низкая цена
+                  </h3>
                 </div>
-
-                <div className="bg-white rounded-xl p-3 md:p-5 flex flex-col gap-[5px]">
-                  <div className="flex justify-between border-b border-[#CBD5E3] pb-[15px]">
-                    <div className="flex gap-[10px] md:gap-[15px]">
-                      <div className="flex items-center gap-2">
-                        <Image
-                          src="/icons/search/star-filled.svg"
-                          alt="Рейтинг"
-                          width={16}
-                          height={16}
-                        />
-                        <span className="text-[#000814]">
-                          {product.rating.toFixed(1)}
-                        </span>
+                <div className="bg-white p-5 rounded-b-xl shadow-sm">
+                  <div className="border-b border-[#CBD5E3] pb-4 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 bg-amber-50 px-2 py-0.5 rounded">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M7.99992 1.33334L10.0599 5.50668L14.6666 6.18001L11.3333 9.42668L12.1199 14.0133L7.99992 11.8467L3.87992 14.0133L4.66659 9.42668L1.33325 6.18001L5.93992 5.50668L7.99992 1.33334Z"
+                            fill="#F8BD00"
+                            stroke="#F8BD00"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <span className="text-black font-medium">4.8</span>
                       </div>
-
-                      <div className="flex flex-col gap-[5px]">
-                        <span className="text-[14px] font-bold text-[#000814]">
-                          {product.brand} {product.sku}
-                        </span>
-                        <span className="text-[14px] text-[#8893A1]">
-                          {product.name}
-                        </span>
+                      <div className="flex-1">
+                        <h4 className="text-black font-bold text-sm">
+                          INA 530059210
+                        </h4>
+                        <p className="text-[#8893A1] text-sm">
+                          Комплект роликов
+                        </p>
                       </div>
                     </div>
-
-                    <div>
-                      <span className="text-[14px] font-bold text-[#000814]">
-                        {product.price.toLocaleString()} ₽
+                    <div className="mt-3 text-right">
+                      <span className="text-black font-bold text-lg">
+                        3 796 ₽
                       </span>
                     </div>
                   </div>
-
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-center pt-[10px] gap-3 md:gap-0">
-                    <div className="flex gap-[20px]">
-                      <div className="flex flex-col gap-[5px]">
-                        <span className="text-[12px] text-[#8893A1]">Срок</span>
-                        <span className="text-[14px] font-bold text-[#000814]">
-                          {product.deliveryDays}{' '}
-                          {getWordEnding(product.deliveryDays, [
-                            'день',
-                            'дня',
-                            'дней',
-                          ])}
-                        </span>
-                      </div>
-
-                      <div className="flex flex-col gap-[5px]">
-                        <span className="text-[12px] text-[#8893A1]">
-                          Наличие
-                        </span>
-                        <span className="text-[14px] font-bold text-[#000814]">
-                          {product.stock} шт.
-                        </span>
-                      </div>
+                  <div className="flex justify-between">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[#8893A1] text-xs">Срок</span>
+                      <span className="text-black font-bold text-sm">
+                        41 день
+                      </span>
                     </div>
-
-                    <div className="flex items-center gap-[20px]">
-                      <div className="flex items-center gap-[12px]">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[#8893A1] text-xs">Наличие</span>
+                      <span className="text-black font-bold text-sm">
+                        100 шт.
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="flex items-center">
                         <button
-                          onClick={() => decreaseQuantity(product.id)}
-                          className="w-[20px] h-[20px] flex items-center justify-center bg-[#E6EDF6] rounded"
+                          className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded"
+                          onClick={() => decreaseQuantity('1')}
                         >
-                          <span className="text-[#000814]">-</span>
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M3.33333 8H12.6667"
+                              stroke="#000814"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
                         </button>
-
-                        <div className="h-[32px] min-w-[40px] px-[10px] border border-[#D0D0D0] rounded flex items-center justify-center">
-                          <span className="text-[#747474]">
-                            {quantity[product.id]}
-                          </span>
-                        </div>
-
+                        <input
+                          type="text"
+                          className="w-6 h-6 border border-[#D0D0D0] mx-1 rounded text-center text-[#747474] text-xs"
+                          value={quantity['1'] || 1}
+                          readOnly
+                        />
                         <button
-                          onClick={() => increaseQuantity(product.id)}
-                          className="w-[20px] h-[20px] flex items-center justify-center bg-[#E6EDF6] rounded"
+                          className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded"
+                          onClick={() => increaseQuantity('1')}
                         >
-                          <span className="text-[#000814]">+</span>
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M8 3.33334V12.6667M3.33333 8H12.6667"
+                              stroke="#000814"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
                         </button>
                       </div>
-
-                      <button className="bg-[#EC1C24] text-white px-[20px] py-[12px] rounded-xl font-semibold">
+                      <button className="bg-[#EC1C24] text-white px-3 py-1 rounded-xl hover:bg-[#C00D0D] transition-colors text-sm">
                         Купить
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {/* Список товаров (аналоги) */}
-          <div className="flex flex-col gap-[20px]">
-            <h2 className="text-[24px] md:text-[30px] font-semibold text-center text-[#000814]">
-              Аналоги от других производителей
-            </h2>
-
-            {sortedProducts.slice(3).map((product) => (
-              <div
-                key={product.id}
-                className="bg-white rounded-2xl p-4 md:p-8 flex flex-col md:flex-row gap-[20px] md:gap-[30px]"
-              >
-                <div className="md:w-[250px] flex gap-[15px] items-start">
-                  <div className="w-[40px] h-[40px] relative">
-                    <Image
-                      src="/icons/search/product-icon.svg"
-                      alt="Запчасть"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-[4px]">
-                    <div className="flex gap-[5px] items-center">
-                      <span className="text-[16px] md:text-[18px] font-bold text-[#4DB45E]">
-                        {product.brand}
-                      </span>
-                      <span className="text-[16px] md:text-[18px] font-bold text-[#000814]">
-                        {product.sku}
-                      </span>
-                    </div>
-                    <span className="text-[14px] text-[#8893A1]">
-                      {product.name}
-                    </span>
-                  </div>
+              {/* Самый дешевый аналог */}
+              <div className="flex flex-col w-full md:w-1/3">
+                <div className="bg-[#F5F8FB] py-2 px-5 rounded-t-xl">
+                  <h3 className="text-black font-semibold text-lg">
+                    Самый дешевый аналог
+                  </h3>
                 </div>
-
-                <div className="flex-1 flex flex-col gap-[16px]">
-                  <div className="hidden md:flex justify-between items-center py-[10px] px-[28px]">
-                    <div className="flex gap-[40px] items-center">
-                      <span className="text-[#8893A1]">Рейтинг</span>
-                      <span className="text-[#8893A1]">Наличие</span>
-                      <span className="text-[#8893A1]">Доставка</span>
-                    </div>
-                    <span className="text-[#8893A1]">Цена</span>
-                  </div>
-
-                  <div className="bg-white rounded-xl">
-                    <div
-                      className={`px-[15px] md:px-[20px] py-[6px] rounded-lg ${
-                        product.isRecommended ? 'bg-[#E2F8E6]' : ''
-                      }`}
-                    >
-                      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0">
-                        <div className="grid grid-cols-3 md:flex md:gap-[40px] items-center">
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src={
-                                product.rating >= 4.5
-                                  ? '/icons/search/star-filled.svg'
-                                  : '/icons/search/star-gray.svg'
-                              }
-                              alt="Рейтинг"
-                              width={16}
-                              height={16}
-                            />
-                            <span className="text-[#000814]">
-                              {product.rating.toFixed(1)}
-                            </span>
-                          </div>
-                          <span className="text-[#000814]">
-                            {product.stock} шт
-                          </span>
-                          <span className="text-[#000814]">
-                            {product.deliveryDays}{' '}
-                            {getWordEnding(product.deliveryDays, [
-                              'день',
-                              'дня',
-                              'дней',
-                            ])}
-                          </span>
-                        </div>
-
-                        {product.isRecommended && (
-                          <div className="flex items-center gap-[14px] px-[10px] md:px-[20px]">
-                            <Image
-                              src="/icons/search/check-circle.svg"
-                              alt="Рекомендуем"
-                              width={16}
-                              height={16}
-                            />
-                            <span className="text-[14px] text-[#000814] font-medium">
-                              Рекомендуем
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="flex items-center justify-between md:justify-start md:gap-[16px]">
-                          <span className="text-[16px] text-[#000814] font-semibold">
-                            от {product.price.toLocaleString()} ₽
-                          </span>
-
-                          <div className="flex items-center gap-[12px]">
-                            <button
-                              onClick={() => decreaseQuantity(product.id)}
-                              className="w-[20px] h-[20px] flex items-center justify-center bg-[#E6EDF6] rounded"
-                            >
-                              <span className="text-[#000814]">-</span>
-                            </button>
-
-                            <div className="h-[32px] min-w-[40px] px-[10px] border border-[#D0D0D0] rounded flex items-center justify-center">
-                              <span className="text-[#747474]">
-                                {quantity[product.id]}
-                              </span>
-                            </div>
-
-                            <button
-                              onClick={() => increaseQuantity(product.id)}
-                              className="w-[20px] h-[20px] flex items-center justify-center bg-[#E6EDF6] rounded"
-                            >
-                              <span className="text-[#000814]">+</span>
-                            </button>
-                          </div>
-
-                          <button className="w-[32px] h-[32px] border border-[#EC1C24] rounded-lg flex items-center justify-center">
-                            <svg
-                              width="20"
-                              height="20"
-                              viewBox="0 0 20 20"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M3.33301 4.16669H16.6663M8.33301 8.33335V14.1667M11.6663 8.33335V14.1667M3.99967 4.16669L4.99967 15.8334C4.99967 16.2754 5.17526 16.6994 5.48782 17.0119C5.80038 17.3245 6.22431 17.5 6.66634 17.5H13.333C13.775 17.5 14.199 17.3245 14.5115 17.0119C14.8241 16.6994 14.9997 16.2754 14.9997 15.8334L15.9997 4.16669"
-                                stroke="#EC1C24"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                              <path
-                                d="M6.66699 4.16667V2.5C6.66699 2.27899 6.75479 2.06702 6.91107 1.91074C7.06735 1.75446 7.27932 1.66667 7.50033 1.66667H12.5003C12.7213 1.66667 12.9333 1.75446 13.0896 1.91074C13.2459 2.06702 13.3337 2.27899 13.3337 2.5V4.16667"
-                                stroke="#EC1C24"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </button>
-                        </div>
+                <div className="bg-white p-5 rounded-b-xl shadow-sm">
+                  <div className="border-b border-[#CBD5E3] pb-4 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 bg-amber-50 px-2 py-0.5 rounded">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M7.99992 1.33334L10.0599 5.50668L14.6666 6.18001L11.3333 9.42668L12.1199 14.0133L7.99992 11.8467L3.87992 14.0133L4.66659 9.42668L1.33325 6.18001L5.93992 5.50668L7.99992 1.33334Z"
+                            fill="#F8BD00"
+                            stroke="#F8BD00"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <span className="text-black font-medium">4.5</span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-black font-bold text-sm">
+                          Ganz GIE37312
+                        </h4>
+                        <p className="text-[#8893A1] text-sm">
+                          Ролик ремня ГРМ VW AD GANZ GIE37312
+                        </p>
                       </div>
                     </div>
-
-                    {/* Дополнительные предложения (если нужно) */}
-                    <div className="flex items-center gap-[8px] justify-center p-[10px]">
-                      <span className="text-[14px] text-[#0D336C] font-medium">
-                        Ещё предложения от{' '}
-                        {(product.price * 0.9).toLocaleString()} руб и{' '}
-                        {product.deliveryDays - 2 > 0
-                          ? product.deliveryDays - 2
-                          : 1}{' '}
-                        дней
+                    <div className="mt-3 text-right">
+                      <span className="text-black font-bold text-lg">
+                        996 ₽
                       </span>
-                      <svg
-                        width="16"
-                        height="10"
-                        viewBox="0 0 16 10"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M1 1L8 8L15 1"
-                          stroke="#0D336C"
-                          strokeWidth="1.6"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[#8893A1] text-xs">Срок</span>
+                      <span className="text-black font-bold text-sm">
+                        6 дней
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[#8893A1] text-xs">Наличие</span>
+                      <span className="text-black font-bold text-sm">
+                        11 шт.
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="flex items-center">
+                        <button
+                          className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded"
+                          onClick={() => decreaseQuantity('2')}
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M3.33333 8H12.6667"
+                              stroke="#000814"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                        <input
+                          type="text"
+                          className="w-6 h-6 border border-[#D0D0D0] mx-1 rounded text-center text-[#747474] text-xs"
+                          value={quantity['2'] || 1}
+                          readOnly
                         />
-                      </svg>
+                        <button
+                          className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded"
+                          onClick={() => increaseQuantity('2')}
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M8 3.33334V12.6667M3.33333 8H12.6667"
+                              stroke="#000814"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      <button className="bg-[#EC1C24] text-white px-3 py-1 rounded-xl hover:bg-[#C00D0D] transition-colors text-sm">
+                        Купить
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+
+              {/* Лучший срок поставки */}
+              <div className="flex flex-col w-full md:w-1/3">
+                <div className="bg-[#F5F8FB] py-2 px-5 rounded-t-xl">
+                  <h3 className="text-black font-semibold text-lg">
+                    Лучший срок поставки
+                  </h3>
+                </div>
+                <div className="bg-white p-5 rounded-b-xl shadow-sm">
+                  <div className="border-b border-[#CBD5E3] pb-4 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 bg-amber-50 px-2 py-0.5 rounded">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M7.99992 1.33334L10.0599 5.50668L14.6666 6.18001L11.3333 9.42668L12.1199 14.0133L7.99992 11.8467L3.87992 14.0133L4.66659 9.42668L1.33325 6.18001L5.93992 5.50668L7.99992 1.33334Z"
+                            fill="#F8BD00"
+                            stroke="#F8BD00"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <span className="text-black font-medium">5.0</span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-black font-bold text-sm">
+                          INA 530059210
+                        </h4>
+                        <p className="text-[#8893A1] text-sm">
+                          Комплект роликов
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-3 text-right">
+                      <span className="text-black font-bold text-lg">
+                        3 796 ₽
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[#8893A1] text-xs">Срок</span>
+                      <span className="text-black font-bold text-sm">
+                        41 день
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[#8893A1] text-xs">Наличие</span>
+                      <span className="text-black font-bold text-sm">
+                        100 шт.
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="flex items-center">
+                        <button
+                          className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded"
+                          onClick={() => decreaseQuantity('3')}
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M3.33333 8H12.6667"
+                              stroke="#000814"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                        <input
+                          type="text"
+                          className="w-6 h-6 border border-[#D0D0D0] mx-1 rounded text-center text-[#747474] text-xs"
+                          value={quantity['3'] || 1}
+                          readOnly
+                        />
+                        <button
+                          className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded"
+                          onClick={() => increaseQuantity('3')}
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M8 3.33334V12.6667M3.33333 8H12.6667"
+                              stroke="#000814"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      <button className="bg-[#EC1C24] text-white px-3 py-1 rounded-xl hover:bg-[#C00D0D] transition-colors text-sm">
+                        Купить
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Секция аналоги от других производителей */}
+          <div className="bg-white p-5 mt-8 rounded-xl">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-[#EC1C24] flex items-center justify-center text-white font-bold">
+                  1
+                </div>
+                <h2 className="text-lg font-bold">
+                  STELLOX <span className="text-[#4DB45E]">1023245SX</span>
+                </h2>
+              </div>
+              <div>
+                <Image
+                  src="/icons/search/product-placeholder.jpg"
+                  alt="STELLOX комплект ГРМ"
+                  width={80}
+                  height={80}
+                  className="object-contain"
+                />
+              </div>
+            </div>
+            <p className="text-[#8893A1] mb-4">Комплект ГРМ</p>
+
+            {/* Таблица с данными */}
+            <div className="bg-[#F5F8FB] py-2 px-4 rounded-lg grid grid-cols-4 mb-2">
+              <div className="text-[#8893A1] text-sm">Рейтинг</div>
+              <div className="text-[#8893A1] text-sm">Наличие</div>
+              <div className="text-[#8893A1] text-sm">Доставка</div>
+              <div className="text-[#8893A1] text-sm text-right">Цена</div>
+            </div>
+
+            {/* Первая строка - с рекомендацией */}
+            <div className="bg-[#E2F8E6] py-3 px-4 rounded-lg grid grid-cols-4 mb-2 items-center">
+              <div className="flex items-center gap-1">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7.99992 1.33334L10.0599 5.50668L14.6666 6.18001L11.3333 9.42668L12.1199 14.0133L7.99992 11.8467L3.87992 14.0133L4.66659 9.42668L1.33325 6.18001L5.93992 5.50668L7.99992 1.33334Z"
+                    fill="#F8BD00"
+                    stroke="#F8BD00"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span>5.0</span>
+              </div>
+              <div>44 444 шт</div>
+              <div>5 дней</div>
+              <div className="flex items-center justify-end gap-3">
+                <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-lg">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M14.6668 7.38668C14.1535 7.38668 13.7468 7.79335 13.7468 8.30668V10.64C13.7468 11.6667 12.9068 12.5067 11.8802 12.5067H4.12016C3.09349 12.5067 2.2535 11.6667 2.2535 10.64V8.30668C2.2535 7.79335 1.84683 7.38668 1.3335 7.38668C0.820163 7.38668 0.413496 7.79335 0.413496 8.30668V10.64C0.413496 12.6733 2.08683 14.3467 4.12016 14.3467H11.8802C13.9135 14.3467 15.5868 12.6733 15.5868 10.64V8.30668C15.5868 7.79335 15.1802 7.38668 14.6668 7.38668Z"
+                      fill="#4DB45E"
+                    />
+                    <path
+                      d="M7.5335 10.8534C7.68017 10.9334 7.84017 10.9734 8.00017 10.9734C8.16017 10.9734 8.32017 10.9334 8.46683 10.8534L11.2268 9.47341C11.6535 9.26008 11.8268 8.74674 11.6135 8.32008C11.4002 7.89341 10.8868 7.72008 10.4602 7.93341L8.92017 8.71341V2.00008C8.92017 1.48674 8.5135 1.08008 8.00017 1.08008C7.48683 1.08008 7.08017 1.48674 7.08017 2.00008V8.71341L5.54017 7.93341C5.1135 7.72008 4.60017 7.89341 4.38683 8.32008C4.1735 8.74674 4.34683 9.26008 4.7735 9.47341L7.5335 10.8534Z"
+                      fill="#4DB45E"
+                    />
+                  </svg>
+                  <span className="text-[#4DB45E] font-medium">
+                    Рекомендуем
+                  </span>
+                </div>
+                <div className="font-bold">от 17 323 ₽</div>
+                <div className="flex items-center gap-1">
+                  <button className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3.33333 8H12.6667"
+                        stroke="#000814"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                  <input
+                    type="text"
+                    className="w-6 h-6 border border-[#D0D0D0] rounded text-center text-[#747474] text-xs"
+                    value="1"
+                    readOnly
+                  />
+                  <button className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M8 3.33334V12.6667M3.33333 8H12.6667"
+                        stroke="#000814"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                  <button className="ml-1 text-[#EC1C24]">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M2.66699 2.66669H13.3337M6.66699 6.66669V11.3334M9.33366 6.66669V11.3334M3.33366 2.66669L4.00033 12.6667C4.00033 13.0203 4.14062 13.3595 4.39067 13.6095C4.64072 13.8596 4.97991 14 5.33366 14H10.667C11.0208 14 11.3599 13.8596 11.61 13.6095C11.86 13.3595 12.0003 13.0203 12.0003 12.6667L12.667 2.66669"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M5.33301 2.66667V2C5.33301 1.82319 5.40325 1.65362 5.5283 1.52859C5.65334 1.40357 5.82291 1.33333 5.99967 1.33333H9.99967C10.1764 1.33333 10.346 1.40357 10.471 1.52859C10.5961 1.65362 10.6663 1.82319 10.6663 2V2.66667"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Остальные строки */}
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={`stellox-${i}`}
+                className="py-3 px-4 rounded-lg grid grid-cols-4 mb-2 items-center"
+              >
+                <div className="flex items-center gap-1">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M7.99992 1.33334L10.0599 5.50668L14.6666 6.18001L11.3333 9.42668L12.1199 14.0133L7.99992 11.8467L3.87992 14.0133L4.66659 9.42668L1.33325 6.18001L5.93992 5.50668L7.99992 1.33334Z"
+                      fill="#F8BD00"
+                      stroke="#F8BD00"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span>5.0</span>
+                </div>
+                <div>44 444 шт</div>
+                <div>5 дней</div>
+                <div className="flex items-center justify-end gap-3">
+                  <div className="font-bold">от 17 323 ₽</div>
+                  <div className="flex items-center gap-1">
+                    <button className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M3.33333 8H12.6667"
+                          stroke="#000814"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                    <input
+                      type="text"
+                      className="w-6 h-6 border border-[#D0D0D0] rounded text-center text-[#747474] text-xs"
+                      value="1"
+                      readOnly
+                    />
+                    <button className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M8 3.33334V12.6667M3.33333 8H12.6667"
+                          stroke="#000814"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                    <button className="ml-1 text-[#EC1C24]">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M2.66699 2.66669H13.3337M6.66699 6.66669V11.3334M9.33366 6.66669V11.3334M3.33366 2.66669L4.00033 12.6667C4.00033 13.0203 4.14062 13.3595 4.39067 13.6095C4.64072 13.8596 4.97991 14 5.33366 14H10.667C11.0208 14 11.3599 13.8596 11.61 13.6095C11.86 13.3595 12.0003 13.0203 12.0003 12.6667L12.667 2.66669"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M5.33301 2.66667V2C5.33301 1.82319 5.40325 1.65362 5.5283 1.52859C5.65334 1.40357 5.82291 1.33333 5.99967 1.33333H9.99967C10.1764 1.33333 10.346 1.40357 10.471 1.52859C10.5961 1.65362 10.6663 1.82319 10.6663 2V2.66667"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <div className="text-center mt-4 text-[#0D336C] font-medium flex items-center justify-center gap-2">
+              <span>Ещё предложения от 4726 руб и 5 дней</span>
+              <svg
+                width="16"
+                height="10"
+                viewBox="0 0 16 10"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M1 1L8 8L15 1"
+                  stroke="#0D336C"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+
+          {/* Заголовок аналоги */}
+          <h2 className="text-[24px] md:text-[30px] font-semibold text-center text-[#000814] my-8">
+            Аналоги от других производителей
+          </h2>
+
+          {/* Карточки аналогов от других производителей */}
+          {[
+            'AIX AIX10127',
+            'ABSEL WG052006K',
+            'Ganz GIE34006',
+            'Gates K015680XS',
+          ].map((brand, index) => (
+            <div
+              key={`analogue-${index}`}
+              className="bg-white p-5 rounded-xl mb-5"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-[#EC1C24] flex items-center justify-center text-white font-bold">
+                    {index + 2}
+                  </div>
+                  <h2 className="text-lg font-bold">
+                    {brand.split(' ')[0]}{' '}
+                    <span className="text-[#4DB45E]">
+                      {brand.split(' ')[1]}
+                    </span>
+                  </h2>
+                </div>
+                <div>
+                  <Image
+                    src="/icons/search/product-placeholder.jpg"
+                    alt="Product"
+                    width={80}
+                    height={80}
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+              <p className="text-[#8893A1] mb-4">
+                {index === 0 &&
+                  'Кольцо уплотнительное клапанной крышки Chevrolet'}
+                {index === 1 && 'Комплект ремня ГРМ'}
+                {index === 2 &&
+                  'РЕМКОМПЛЕКТ ГРМ VAG+SKODA 2012- MOT.1,2TSI/1,4TSI'}
+                {index === 3 &&
+                  'Ремень ГРМ [163 зуб.,20mm] + 2 ролика + крепеж 788'}
+              </p>
+
+              {/* Таблица с данными */}
+              <div className="bg-[#F5F8FB] py-2 px-4 rounded-lg grid grid-cols-4 mb-2">
+                <div className="text-[#8893A1] text-sm">Рейтинг</div>
+                <div className="text-[#8893A1] text-sm">Наличие</div>
+                <div className="text-[#8893A1] text-sm">Доставка</div>
+                <div className="text-[#8893A1] text-sm text-right">Цена</div>
+              </div>
+
+              {/* Строки товаров */}
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={`analogue-${index}-item-${item}`}
+                  className="py-3 px-4 rounded-lg grid grid-cols-4 mb-2 items-center"
+                >
+                  <div className="flex items-center gap-1">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7.99992 1.33334L10.0599 5.50668L14.6666 6.18001L11.3333 9.42668L12.1199 14.0133L7.99992 11.8467L3.87992 14.0133L4.66659 9.42668L1.33325 6.18001L5.93992 5.50668L7.99992 1.33334Z"
+                        fill="#F8BD00"
+                        stroke="#F8BD00"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <span>5.0</span>
+                  </div>
+                  <div>44 444 шт</div>
+                  <div>5 дней</div>
+                  <div className="flex items-center justify-end gap-3">
+                    <div className="font-bold">от 17 323 ₽</div>
+                    <div className="flex items-center gap-1">
+                      <button className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M3.33333 8H12.6667"
+                            stroke="#000814"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                      <input
+                        type="text"
+                        className="w-6 h-6 border border-[#D0D0D0] rounded text-center text-[#747474] text-xs"
+                        value="1"
+                        readOnly
+                      />
+                      <button className="bg-[#E6EDF6] w-6 h-6 flex items-center justify-center rounded">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M8 3.33334V12.6667M3.33333 8H12.6667"
+                            stroke="#000814"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                      <button className="ml-1 text-[#EC1C24]">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M2.66699 2.66669H13.3337M6.66699 6.66669V11.3334M9.33366 6.66669V11.3334M3.33366 2.66669L4.00033 12.6667C4.00033 13.0203 4.14062 13.3595 4.39067 13.6095C4.64072 13.8596 4.97991 14 5.33366 14H10.667C11.0208 14 11.3599 13.8596 11.61 13.6095C11.86 13.3595 12.0003 13.0203 12.0003 12.6667L12.667 2.66669"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M5.33301 2.66667V2C5.33301 1.82319 5.40325 1.65362 5.5283 1.52859C5.65334 1.40357 5.82291 1.33333 5.99967 1.33333H9.99967C10.1764 1.33333 10.346 1.40357 10.471 1.52859C10.5961 1.65362 10.6663 1.82319 10.6663 2V2.66667"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="text-center mt-4 text-[#0D336C] font-medium flex items-center justify-center gap-2">
+                <span>Ещё предложения от 4726 руб и 5 дней</span>
+                <svg
+                  width="16"
+                  height="10"
+                  viewBox="0 0 16 10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M1 1L8 8L15 1"
+                    stroke="#0D336C"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
-}
-
-// Вспомогательная функция для правильного окончания слов
-function getWordEnding(
-  num: number,
-  wordForms: [string, string, string]
-): string {
-  const cases = [2, 0, 1, 1, 1, 2];
-  const index =
-    num % 100 > 4 && num % 100 < 20 ? 2 : cases[Math.min(num % 10, 5)];
-  return wordForms[index];
 }

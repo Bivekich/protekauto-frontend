@@ -56,6 +56,16 @@ const Header = () => {
     }
   };
 
+  // Функция для проверки нажатия Enter в поле поиска
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (searchText.trim()) {
+        router.push(`/search?q=${encodeURIComponent(searchText.trim())}`);
+      }
+    }
+  };
+
   // Заменяем кнопку авторизации в обоих местах (в фиксированной и обычной шапке)
   const authButton = (
     <button
@@ -79,10 +89,7 @@ const Header = () => {
 
   // Компонент поля поиска
   const searchField = (
-    <form
-      onSubmit={handleSearch}
-      className="relative flex items-center bg-white rounded-lg px-[30px] py-3 hover:bg-[#F5F8FB] border border-transparent hover:border-[#0D336C] transition-all focus-within:border-[#EC1C24] max-w-[500px] w-full"
-    >
+    <div className="relative flex items-center bg-white rounded-lg px-[30px] py-3 hover:bg-[#F5F8FB] border border-transparent hover:border-[#0D336C] transition-all focus-within:border-[#EC1C24] max-w-[500px] w-full">
       <input
         type="text"
         placeholder="Введите код запчасти или VIN номер автомобиля"
@@ -91,9 +98,10 @@ const Header = () => {
         } bg-transparent`}
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
+        onKeyDown={handleSearchKeyPress}
       />
       <button
-        type="submit"
+        onClick={handleSearch}
         className={`absolute right-[30px] ${
           searchText ? 'text-black' : 'text-[#8893A1]'
         } hover:text-[#EC1C24] transition-colors`}
@@ -116,7 +124,7 @@ const Header = () => {
           />
         </svg>
       </button>
-    </form>
+    </div>
   );
 
   return (
