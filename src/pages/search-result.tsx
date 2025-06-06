@@ -41,34 +41,39 @@ export default function SearchResult() {
       </Head>
       <Header />
       <CatalogInfoHeader title="Аккумуляторы" count={3587} productName="аккумулятор" />
-      <div className="w-layout-hflex flex-block-84">
-        <CatalogSortDropdown active={sortActive} onChange={setSortActive} />
-        <div className="w-layout-hflex flex-block-85" onClick={() => setShowFiltersMobile((v) => !v)}>
-          <span className="code-embed-9 w-embed">
-            <svg width="currentwidth" height="currentheight" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M21 4H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M10 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M21 12H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M8 12H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M21 20H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 20H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M14 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M8 10V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M16 18V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
-          <div>Фильтры</div>
+      <div className="w-layout-blockcontainer container w-container">
+        <div className="w-layout-hflex flex-block-84">
+          <CatalogSortDropdown active={sortActive} onChange={setSortActive} />
+          <div className="w-layout-hflex flex-block-85" onClick={() => setShowFiltersMobile((v) => !v)}>
+            <span className="code-embed-9 w-embed">
+              <svg width="currentwidth" height="currentheight" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 4H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M10 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M21 12H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8 12H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M21 20H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 20H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M14 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8 10V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M16 18V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+            <div>Фильтры</div>
+          </div>
         </div>
-      </div>
-      {showFiltersMobile && (
-              <>
-                <div className="filters-overlay" onClick={() => setShowFiltersMobile(false)}></div>
-                <div className="filters-sidebar-mobile">
-                  <button className="filters-close" onClick={() => setShowFiltersMobile(false)} type="button">×</button>
+        {showFiltersMobile && (
+                <>
+                  <div className="filters-overlay" onClick={() => setShowFiltersMobile(false)}></div>
+                  <div className="filters-sidebar-mobile"> 
+                  <div className="w-layout-hflex flex-block-84">
+                    <h3>Фильтры</h3>
+                    <button className="filters-close" onClick={() => setShowFiltersMobile(false)} type="button">×</button>
+                  </div>
                   <FiltersPanelMobile />
                 </div>
-              </>
-            )}
+                </>
+              )}
+      </div>
       <section>
         <div className="w-layout-blockcontainer container w-container">
           <div className="w-layout-vflex flex-block-36">
@@ -109,7 +114,7 @@ export default function SearchResult() {
 
             {/* --- Остальной JSX страницы --- */}
             <div className="w-layout-vflex flex-block-14">
-              {/* --- Основной контент: core-product, product-list-search --- */}
+              
               <div className="w-layout-hflex core-product-search">
                 <CoreProductCard
                   brand="STELLOX"

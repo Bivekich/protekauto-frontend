@@ -164,7 +164,7 @@ a {
   border-radius: 8px;
   background: #f5f5f5;
   color: #171717;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
@@ -208,4 +208,11 @@ a {
 .w-dropdown-link.w--current {
   color: #007bff;
   background-color: #f5f5f5;
+}
+
+.flex-block-84 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
