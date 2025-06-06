@@ -31,16 +31,25 @@ export default function SearchResult() {
         <meta content="Search result" property="twitter:title" />
         <meta content="width=device-width, initial-scale=1" name="viewport" />
         <meta content="Webflow" name="generator" />
-        <link href="/css/normalize.css" rel="stylesheet" type="text/css" />
-        <link href="/css/webflow.css" rel="stylesheet" type="text/css" />
-        <link href="/css/protekproject.webflow.css" rel="stylesheet" type="text/css" />
+
         <link href="https://fonts.googleapis.com" rel="preconnect" />
         <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
         <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <Header />
-      <CatalogInfoHeader title="Аккумуляторы" count={3587} productName="аккумулятор" />
+      <CatalogInfoHeader
+        title="Аккумуляторы"
+        count={3587}
+        productName="аккумулятор"
+        breadcrumbs={[
+          { label: "Главная", href: "/" },
+          { label: "Каталог", href: "/catalog" },
+          { label: "Результаты поиска" }
+        ]}
+        showCount={true}
+        showProductHelp={true}
+      />
       <div className="w-layout-blockcontainer container w-container">
         <div className="w-layout-hflex flex-block-84">
           <CatalogSortDropdown active={sortActive} onChange={setSortActive} />

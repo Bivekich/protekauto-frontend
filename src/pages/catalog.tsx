@@ -32,9 +32,23 @@ export default function Catalog() {
       <Head>
         <title>Catalog</title>
         <meta name="description" content="Catalog" />
+        <link href="https://fonts.googleapis.com" rel="preconnect" />
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
+        <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <Header />
-      <CatalogInfoHeader title="Аккумуляторы" count={3587} productName="аккумулятор" />
+      <CatalogInfoHeader
+        title="Аккумуляторы"
+        count={3587}
+        productName="аккумулятор"
+        breadcrumbs={[
+          { label: "Главная", href: "/" },
+          { label: "Каталог" }
+        ]}
+        showCount={true}
+        showProductHelp={true}
+      />
       <section className="main">
         <div className="w-layout-blockcontainer container w-container">
           <div className="w-layout-hflex flex-block-13">

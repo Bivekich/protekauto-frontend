@@ -6024,3 +6024,10 @@ body {
 .pcs-info--default {
   background-color: #bdbdbd !important;
 }
+
+/* Корректировка размера шрифта для корзины */
+.text-block-32,
+.text-block-21-copy-copy,
+.text-block-33 {
+  font-size: 14px !important;
+}

@@ -1,26 +1,25 @@
 import React from "react";
 
-interface ProductCardProps {
+interface CartRecommendedProductCardProps {
   image: string;
   discount: string;
   price: string;
   oldPrice: string;
   title: string;
   brand: string;
-  size?: "normal" | "small";
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ image, discount, price, oldPrice, title, brand, size = "normal" }) => (
-  <div className={size === "small" ? "w-layout-vflex flex-block-15 small-card" : "w-layout-vflex flex-block-15"}>
+const CartRecommendedProductCard: React.FC<CartRecommendedProductCardProps> = ({
+  image,
+  discount,
+  price,
+  oldPrice,
+  title,
+  brand,
+}) => (
+  <div className="w-layout-vflex flex-block-15">
     <div className="div-block-4">
-      <img
-        src={image}
-        loading="lazy"
-        width={size === "small" ? 150 : 210}
-        height={size === "small" ? 135 : 190}
-        alt=""
-        className={size === "small" ? "image-5 small-img" : "image-5"}
-      />
+      <img src={image} loading="lazy" width={210} height={190} alt="" className="image-5" />
       <div className="text-block-7">{discount}</div>
     </div>
     <div className="div-block-3">
@@ -44,4 +43,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ image, discount, price, oldPr
   </div>
 );
 
-export default ProductCard; 
+export default CartRecommendedProductCard; 
