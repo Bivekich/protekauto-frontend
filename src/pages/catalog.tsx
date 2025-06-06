@@ -64,8 +64,11 @@ export default function Catalog() {
             {showFiltersMobile && (
               <>
                 <div className="filters-overlay" onClick={() => setShowFiltersMobile(false)}></div>
-                <div className="filters-sidebar-mobile">
-                  <button className="filters-close" onClick={() => setShowFiltersMobile(false)} type="button">×</button>
+                <div className="filters-sidebar-mobile"> 
+                  <div className="w-layout-hflex flex-block-84">
+                    <h3>Фильтры</h3>
+                    <button className="filters-close" onClick={() => setShowFiltersMobile(false)} type="button">×</button>
+                  </div>
                   <FiltersPanelMobile />
                 </div>
               </>
