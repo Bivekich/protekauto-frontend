@@ -4,6 +4,13 @@ import { Geist, Geist_Mono } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CatalogSubscribe from "@/components/CatalogSubscribe";
+import MobileMenuBottomSection from "@/components/MobileMenuBottomSection";
+import HeroSlider from "@/components/index/HeroSlider";
+import CatalogSection from "@/components/index/CatalogSection";
+import HelpVinRequest from "@/components/index/HelpVinRequest";
+import AvailableParts from "@/components/index/AvailableParts";
+import NewsAndPromos from "@/components/index/NewsAndPromos";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,13 +28,22 @@ export default function Home() {
       <Head>
         <title>Protek</title>
         <meta name="description" content="Protek" />
+        <link href="https://fonts.googleapis.com" rel="preconnect" />
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
+        <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <Header />
-      {/* Вставь сюда содержимое <body> из index.html, преобразовав в JSX. Все пути к картинкам и svg поменяй на /images/... */}
-      {/* Пример: <img src="/images/logo.svg" ... /> */}
-      {/* Сохрани все классы для стилей. */}
-      {/* TODO: Перевести формы и интерактив на React позже */}
+      <HeroSlider />
+      <CatalogSection />
+      <HelpVinRequest />
+      <AvailableParts />
+      <NewsAndPromos />
+      <section className="section-3">
+        <CatalogSubscribe />
+      </section>
       <Footer />
+      <MobileMenuBottomSection />
     </>
   );
 }

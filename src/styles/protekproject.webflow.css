@@ -2568,14 +2568,13 @@ body {
   margin-bottom: -3px;
 }
 
-.tab_card-activ {
+.tab_c-activ {
   border-bottom: 3px solid var(--_button---primary);
   color: var(--_fonts---color--black);
-  font-size: var(--_fonts---font-size--core);
   margin-bottom: -3px;
   padding-bottom: 18px;
-  padding-left: 18px;
-  padding-right: 18px;
+  padding-left: 15px;
+  padding-right: 15px;
   font-weight: 600;
 }
 
@@ -6035,4 +6034,8 @@ body {
 
 .heading-9-copy-copy {
   font-size: 14px !important;
+}
+
+.w-select, .w-input, select, input, textarea, button {
+  font-family: Onest, sans-serif !important;
 }
