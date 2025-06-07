@@ -1,0 +1,189 @@
+/* Стили для кнопки логина */
+.loginButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 16px;
+}
+
+/* Оверлей для затемнения фона при открытой форме */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+/* Контейнер формы */
+.formContainer {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 95%;
+  max-width: 420px;
+  z-index: 101;
+  overflow: hidden;
+}
+
+/* Кнопка закрытия формы */
+.closeButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+.closeButton:hover {
+  color: #333;
+}
+
+/* Заголовок формы */
+.formTitle {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Шаг формы */
+.formStep {
+  width: 100%;
+}
+
+/* Группа полей формы */
+.formGroup {
+  margin-bottom: 20px;
+}
+
+/* Метка поля */
+.formLabel {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Поле ввода */
+.formInput {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.formInput:focus {
+  border-color: #e32636;
+  outline: none;
+}
+
+/* Контейнер для полей ввода кода */
+.codeInputContainer {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+/* Поле ввода для кода из СМС */
+.codeInput {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  font-size: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: border-color 0.3s;
+}
+
+.codeInput:focus {
+  border-color: #e32636;
+  outline: none;
+}
+
+/* Кнопка формы */
+.formButton {
+  width: 100%;
+  padding: 14px;
+  background-color: #e32636;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.formButton:hover {
+  background-color: #c61b29;
+}
+
+.formButton:disabled {
+  background-color: #f2f2f2;
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* Контейнер для кнопок действий (назад и далее) */
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+/* Кнопка "назад" */
+.backButton {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.backButton:hover {
+  color: #333;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 480px) {
+  .formContainer {
+    width: 90%;
+    padding: 20px;
+  }
+  
+  .codeInput {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  
+  .formTitle {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+} 
