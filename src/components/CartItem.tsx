@@ -76,19 +76,23 @@ const CartItem: React.FC<CartItemProps> = ({
     </div>
     <div className="w-layout-hflex add-to-cart-block">
       <div className="w-layout-hflex flex-block-39-copy">
-        <h4 className="heading-9-copy-copy">{delivery}</h4>
+        <h4 className="delivery-cart-s1">{delivery}</h4>
         <div className="text-block-21-copy-copy">{deliveryDate}</div>
       </div>
-      <div className="w-layout-hflex pcs">
-        <div className="minus-plus"><img loading="lazy" src="/images/minus_icon.svg" alt="-" /></div>
+      <div className="w-layout-hflex pcs-cart-s1">
+        <div className="minus-plus" onClick={() => onCountChange && onCountChange(count - 1)} style={{ cursor: 'pointer' }}>
+          <img loading="lazy" src="/images/minus_icon.svg" alt="-" />
+        </div>
         <div className="input-pcs">
           <div className="text-block-26">{count}</div>
         </div>
-        <div className="minus-plus"><img loading="lazy" src="/images/plus_icon.svg" alt="+" /></div>
+        <div className="minus-plus" onClick={() => onCountChange && onCountChange(count + 1)} style={{ cursor: 'pointer' }}>
+          <img loading="lazy" src="/images/plus_icon.svg" alt="+" />
+        </div>
       </div>
       <div className="w-layout-hflex flex-block-39-copy-copy">
-        <h4 className="heading-9-copy-copy">{price}</h4>
-        <div className="text-block-21-copy-copy">{pricePerItem}</div>
+        <h4 className="price-in-cart-s1">{price}</h4>
+        <div className="price-1-pcs-cart-s1">{pricePerItem}</div>
       </div>
       <div className="w-layout-hflex control-element">
         <div className="favorite-icon w-embed" onClick={onFavorite} style={{ cursor: 'pointer', color: favorite ? '#e53935' : undefined }}>

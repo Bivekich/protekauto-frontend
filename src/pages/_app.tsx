@@ -1,7 +1,8 @@
-import "@/styles/globals.css";
+// import "@/styles/globals.css"; 
 import "@/styles/normalize.css";
 import "@/styles/webflow.css";
 import "@/styles/protekproject.webflow.css";
+import "@/styles/my.css";
 import type { AppProps } from "next/app";
 import Script from "next/script";
 

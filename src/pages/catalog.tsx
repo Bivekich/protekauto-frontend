@@ -109,7 +109,7 @@ export default function Catalog() {
                 </div>
               </>
             )}
-            <div className="w-layout-vflex flex-block-14-copy">
+            <div className="w-layout-vflex flex-block-14-copy-copy">
               <CatalogTabs />
               {mockData.map((item, idx) => (
                 <CatalogProductCard

@@ -39,7 +39,7 @@ const BestPriceCard: React.FC<BestPriceCardProps> = ({ rating, title, descriptio
               <div className="text-block-24">{stock}</div>
             </div>
           </div>
-          <div className="w-layout-hflex pcs">
+          <div className="w-layout-hflex pcs-re">
             <div className="minus-plus">
               <img src="/images/minus_icon.svg" loading="lazy" alt="" />
             </div>

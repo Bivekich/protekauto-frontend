@@ -105,7 +105,7 @@ export default function SearchResult() {
                 </>
               )}
       </div>
-      <section>
+      <section >
         <div className="w-layout-blockcontainer container w-container">
           <div className="w-layout-vflex flex-block-36">
             <BestPriceCard
@@ -137,21 +137,40 @@ export default function SearchResult() {
       </section>
       <section className="main">
         <div className="w-layout-blockcontainer container w-container">
-          <div className="w-layout-hflex flex-block-13">
+          <div className="w-layout-hflex flex-block-13-copy">
             {/* Фильтры для десктопа */}
             <div className="filters-desktop">
               <Filters filters={searchResultFilters} />
             </div>
 
             {/* --- Остальной JSX страницы --- */}
-            <div className="w-layout-vflex flex-block-14">
+            <div className="w-layout-vflex flex-block-14-copy">
               
-              <div className="w-layout-hflex core-product-search">
+              <div className="w-layout-hflex core-product-search-s1">
                 <CoreProductCard
                   brand="STELLOX"
                   article="1023245SX"
                   name="Комплект ГРМ"
                   image="/images/image-10.png"
+                  offers={[
+                    {
+                      rating: "4,8",
+                      pcs: "444 шт",
+                      days: "5 дней",
+                      recommended: true,
+                      price: "от 17 323 ₽",
+                      count: "1"
+                    },
+                    {
+                      rating: "4,8",
+                      pcs: "232 шт",
+                      days: "Сегодня",
+                      recommended: false,
+                      price: "от 18 000 ₽",
+                      count: "1"
+                    }
+                  ]}
+                  showMoreText="Ещё предложения от 4726 руб и 5 дней"
                 />
               </div>
               {/* --- Аналоги от других производителей --- */}
