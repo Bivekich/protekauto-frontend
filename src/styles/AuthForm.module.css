@@ -115,14 +115,14 @@
 /* Контейнер для полей ввода кода */
 .codeInputContainer {
   display: flex;
-  gap: 10px;
+  gap: 5px;
   justify-content: space-between;
 }
 
 /* Поле ввода для кода из СМС */
 .codeInput {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   text-align: center;
   font-size: 20px;
   border: 1px solid #ddd;
@@ -183,6 +183,7 @@
   cursor: pointer;
   text-decoration: underline;
   padding: 0;
+  margin-right: auto;
 }
 
 .backButton:hover {
@@ -206,6 +207,12 @@
     font-size: 20px;
     margin-bottom: 20px;
   }
+}
+
+/* Кнопка отправки на второй странице */
+.submitButton {
+  max-width: 120px;
+  margin-left: 0;
 }
 
  

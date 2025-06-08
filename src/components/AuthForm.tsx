@@ -193,7 +193,7 @@ const SmsCodeStep = ({
           </button>
           <button 
             type="submit" 
-            className={styles.formButton}
+            className={`${styles.formButton} ${styles.submitButton}`}
             disabled={!code.every(digit => digit) || code.length !== 5}
           >
             Войти
