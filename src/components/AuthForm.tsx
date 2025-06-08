@@ -231,7 +231,6 @@ const SmsCodeStep = ({
               viewBox="0 0 24 24" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
-              style={{ marginRight: '5px' }}
             >
               <path 
                 d="M19 12H5" 
@@ -510,11 +509,11 @@ const AuthForm = () => {
     }
   };
 
-  // Варианты анимации для формы - выезжает сверху вниз
+  // Варианты анимации для формы
   const formVariants = {
-    hidden: { y: "-100%", opacity: 0 },
-    visible: { y: "0", opacity: 1, transition: { type: "spring", stiffness: 100, damping: 20 } },
-    exit: { y: "-100%", opacity: 0, transition: { duration: 0.3 } }
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.3 } },
+    exit: { opacity: 0, transition: { duration: 0.3 } }
   };
 
   // Варианты анимации для шагов
