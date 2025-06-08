@@ -12,6 +12,10 @@ const PhoneNumberStep = ({
   setPhoneNumber: (value: string) => void; 
   onNext: () => void;
 }) => {
+  // Состояние для отслеживания ошибки валидации
+  const [error, setError] = useState<string | null>(null);
+  const [touched, setTouched] = useState(false);
+
   // Функция для форматирования телефонного номера
   const formatPhoneNumber = (value: string) => {
     if (!value) return '';
@@ -37,22 +41,48 @@ const PhoneNumberStep = ({
   };
 
   // Валидация номера телефона
-  const isValidPhoneNumber = (phone: string) => {
+  const validatePhone = (phone: string): boolean => {
     const phoneDigits = phone.replace(/\D/g, '');
+    
     // Проверяем, что номер содержит 11 цифр и начинается с 7
-    return phoneDigits.length === 11 && phoneDigits.startsWith('7');
+    if (phoneDigits.length !== 11 || !phoneDigits.startsWith('7')) {
+      setError('Номер неверный. Укажите действующий российский номер');
+      return false;
+    }
+    
+    // Проверка кода оператора (начинается с 9 после кода страны)
+    if (phoneDigits[1] !== '9') {
+      setError('Номер неверный. Укажите действующий российский номер');
+      return false;
+    }
+    
+    setError(null);
+    return true;
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formattedPhone = formatPhoneNumber(e.target.value);
     setPhoneNumber(formattedPhone);
+    setTouched(true);
+    
+    // Валидируем номер при каждом изменении, если поле уже было тронуто
+    if (touched) {
+      validatePhone(formattedPhone);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isValidPhoneNumber(phoneNumber)) {
+    
+    // Финальная валидация при отправке
+    if (validatePhone(phoneNumber)) {
       onNext();
     }
+  };
+
+  const handleBlur = () => {
+    setTouched(true);
+    validatePhone(phoneNumber);
   };
 
   return (
@@ -65,15 +95,17 @@ const PhoneNumberStep = ({
             type="tel"
             value={phoneNumber}
             onChange={handlePhoneChange}
+            onBlur={handleBlur}
             placeholder="+7 (999) 999-99-99"
-            className={styles.formInput}
+            className={`${styles.formInput} ${error && touched ? styles.inputError : ''}`}
             required
           />
+          {error && touched && <div className={styles.errorMessage}>{error}</div>}
         </div>
         <button 
           type="submit" 
           className={styles.formButton}
-          disabled={!isValidPhoneNumber(phoneNumber)}
+          disabled={!!error || phoneNumber.length < 10}
         >
           Получить код
         </button>

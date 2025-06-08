@@ -98,6 +98,20 @@
   outline: none;
 }
 
+/* Стили для поля с ошибкой */
+.inputError {
+  border-color: #e32636;
+  background-color: #fff6f6;
+}
+
+/* Сообщение об ошибке */
+.errorMessage {
+  color: #e32636;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
 /* Контейнер для полей ввода кода */
 .codeInputContainer {
   display: flex;
