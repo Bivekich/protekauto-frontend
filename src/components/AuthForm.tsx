@@ -65,7 +65,7 @@ const PhoneNumberStep = ({
             type="tel"
             value={phoneNumber}
             onChange={handlePhoneChange}
-            placeholder="+7 (999) 999-99-99"
+            placeholder="+7"
             className={styles.formInput}
             required
           />
@@ -246,9 +246,9 @@ const AuthForm = () => {
 
   // Варианты анимации для формы
   const formVariants = {
-    hidden: { y: -50, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.3 } },
-    exit: { y: -50, opacity: 0, transition: { duration: 0.3 } }
+    hidden: { y: -20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.2 } },
+    exit: { y: -20, opacity: 0, transition: { duration: 0.2 } }
   };
 
   // Варианты анимации для шагов
@@ -262,13 +262,13 @@ const AuthForm = () => {
     center: {
       x: 0,
       opacity: 1,
-      transition: { duration: 0.3 }
+      transition: { duration: 0.2 }
     },
     exit: (direction: number) => {
       return {
         x: direction < 0 ? 100 : -100,
         opacity: 0,
-        transition: { duration: 0.3 }
+        transition: { duration: 0.2 }
       };
     }
   };
@@ -302,7 +302,7 @@ const AuthForm = () => {
         <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M15 3C8.376 3 3 8.376 3 15C3 21.624 8.376 27 15 27C21.624 27 27 21.624 27 15C27 8.376 21.624 3 15 3ZM15 7.8C17.316 7.8 19.2 9.684 19.2 12C19.2 14.316 17.316 16.2 15 16.2C12.684 16.2 10.8 14.316 10.8 12C10.8 9.684 12.684 7.8 15 7.8ZM15 24.6C12.564 24.6 9.684 23.616 7.632 21.144C9.73419 19.4955 12.3285 18.5995 15 18.5995C17.6715 18.5995 20.2658 19.4955 22.368 21.144C20.316 23.616 17.436 24.6 15 24.6Z" fill="currentColor" />
         </svg>
-        <div>Войти</div>
+        <div className="text-block-2">Войти</div>
       </button>
 
       <AnimatePresence>

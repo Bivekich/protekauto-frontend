@@ -8,6 +8,7 @@
   cursor: pointer;
   color: inherit;
   font-size: 16px;
+  height: 100%;
 }
 
 /* Оверлей для затемнения фона при открытой форме */
@@ -23,16 +24,14 @@
 
 /* Контейнер формы */
 .formContainer {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   padding: 30px;
-  width: 95%;
-  max-width: 480px;
+  width: 320px;
   z-index: 101;
   overflow: hidden;
 }
@@ -40,8 +39,8 @@
 /* Кнопка закрытия формы */
 .closeButton {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 10px;
+  right: 10px;
   background: transparent;
   border: none;
   font-size: 24px;
@@ -128,8 +127,8 @@
 .formButton {
   width: 100%;
   padding: 14px;
-  background-color: #e32636;
-  color: white;
+  background-color: #f5f5f5;
+  color: #999;
   border: none;
   border-radius: 5px;
   font-size: 16px;
@@ -137,16 +136,19 @@
   cursor: pointer;
   transition: all 0.3s;
   margin-top: 10px;
+  text-align: center;
 }
 
-.formButton:hover {
+.formButton:not(:disabled) {
+  background-color: #e32636;
+  color: white;
+}
+
+.formButton:hover:not(:disabled) {
   background-color: #c61b29;
 }
 
 .formButton:disabled {
-  background-color: #f9f9f9;
-  color: #b3b3b3;
-  border: 1px solid #e6e6e6;
   cursor: not-allowed;
 }
 
@@ -176,6 +178,10 @@
 /* Адаптивность для мобильных устройств */
 @media (max-width: 480px) {
   .formContainer {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 90%;
     padding: 20px;
   }
