@@ -1,541 +1,673 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import styles from '@/styles/AuthForm.module.css';
+import styles from '../styles/AuthForm.module.css';
 
-type AuthFormProps = {
-  isOpen: boolean;
-  onClose: () => void;
-};
+// Компонент для ввода номера телефона
+const PhoneNumberStep = ({ 
+  phoneNumber, 
+  setPhoneNumber, 
+  onNext 
+}: { 
+  phoneNumber: string; 
+  setPhoneNumber: (value: string) => void; 
+  onNext: () => void;
+}) => {
+  // Состояние для отслеживания ошибки валидации
+  const [error, setError] = useState<string | null>(null);
+  const [touched, setTouched] = useState(false);
 
-const AuthForm: React.FC<AuthFormProps> = ({ isOpen, onClose }) => {
-  const [step, setStep] = useState<number>(1);
-  const [phone, setPhone] = useState<string>('');
-  const [phoneError, setPhoneError] = useState<string>('');
-  const [code, setCode] = useState<string[]>(['', '', '', '']);
-  const [codeError, setCodeError] = useState<string>('');
-  const [fullName, setFullName] = useState<string>('');
-  const [nameError, setNameError] = useState<string>('');
-  const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  
-  // Блокируем прокрутку основной страницы при открытой форме
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+  // Функция для форматирования телефонного номера
+  const formatPhoneNumber = (value: string) => {
+    if (!value) return '';
     
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
-
-  // Форматирование номера телефона
-  const formatPhone = (value: string): string => {
     // Удаляем все нецифровые символы
-    let phoneDigits = value.replace(/\D/g, '');
+    const phoneDigits = value.replace(/\D/g, '');
     
-    // Если первая цифра 7 или 8, заменяем на +7
-    if (phoneDigits.startsWith('7') || phoneDigits.startsWith('8')) {
-      phoneDigits = phoneDigits.substring(1);
-      phoneDigits = '7' + phoneDigits;
+    // Если первая цифра 7, используем её, иначе добавляем 7 как код страны
+    const digits = phoneDigits.startsWith('7') ? phoneDigits : `7${phoneDigits}`;
+    
+    // Форматируем номер в виде +7 (XXX) XXX-XX-XX
+    if (digits.length <= 1) {
+      return '+7';
+    } else if (digits.length <= 4) {
+      return `+7 (${digits.slice(1, 4)}`;
+    } else if (digits.length <= 7) {
+      return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}`;
+    } else if (digits.length <= 9) {
+      return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}`;
+    } else {
+      return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`;
     }
-    
-    // Ограничиваем до 10 цифр (не считая +7)
-    if (phoneDigits.length > 10) {
-      phoneDigits = phoneDigits.substring(0, 10);
-    }
-    
-    // Форматируем номер
-    if (phoneDigits.length > 0) {
-      phoneDigits = '+7' + phoneDigits;
-    }
-    
-    // Добавляем скобки и дефисы
-    if (phoneDigits.length > 2) {
-      phoneDigits = phoneDigits.replace(/(\+7)(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/, function(match, p1, p2, p3, p4, p5) {
-        let result = p1;
-        if (p2) result += ' (' + p2;
-        if (p3) result += ') ' + p3;
-        if (p4) result += '-' + p4;
-        if (p5) result += '-' + p5;
-        return result;
-      });
-    }
-    
-    return phoneDigits;
   };
 
   // Валидация номера телефона
   const validatePhone = (phone: string): boolean => {
-    // Удаляем все нецифровые символы для проверки
     const phoneDigits = phone.replace(/\D/g, '');
     
-    // Проверяем длину (должно быть 11 цифр включая код страны)
-    if (phoneDigits.length !== 11) {
-      setPhoneError('Введите полный номер телефона');
+    // Проверяем, что номер содержит 11 цифр и начинается с 7
+    if (phoneDigits.length !== 11 || !phoneDigits.startsWith('7')) {
+      setError('Номер неверный. Укажите действующий российский номер');
       return false;
     }
     
-    setPhoneError('');
+    // Проверка кода оператора (начинается с 9 после кода страны)
+    if (phoneDigits[1] !== '9') {
+      setError('Номер неверный. Укажите действующий российский номер');
+      return false;
+    }
+    
+    setError(null);
     return true;
   };
 
-  // Обработчик изменения номера телефона
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedPhone = formatPhone(e.target.value);
-    setPhone(formattedPhone);
+    const formattedPhone = formatPhoneNumber(e.target.value);
+    setPhoneNumber(formattedPhone);
+    setTouched(true);
     
-    // Сбрасываем ошибку при вводе
-    if (phoneError) setPhoneError('');
-  };
-
-  // Обработчик изменения кода подтверждения
-  const handleCodeChange = (index: number, value: string) => {
-    // Разрешаем вводить только цифры
-    if (!/^\d*$/.test(value) && value !== '') return;
-    
-    // Обновляем значение в массиве кода
-    const newCode = [...code];
-    newCode[index] = value;
-    setCode(newCode);
-    
-    // Автоматически переходим к следующему полю
-    if (value !== '' && index < 3) {
-      codeInputRefs.current[index + 1]?.focus();
-    }
-    
-    // Сбрасываем ошибку при вводе
-    if (codeError) setCodeError('');
-  };
-
-  // Обработчик нажатия backspace в поле кода
-  const handleCodeKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && code[index] === '' && index > 0) {
-      codeInputRefs.current[index - 1]?.focus();
+    // Валидируем номер при каждом изменении, если поле уже было тронуто
+    if (touched) {
+      validatePhone(formattedPhone);
     }
   };
 
-  // Валидация кода
-  const validateCode = (): boolean => {
-    if (code.some(digit => digit === '')) {
-      setCodeError('Введите полный код из 4 цифр');
-      return false;
-    }
-    
-    setCodeError('');
-    return true;
-  };
-
-  // Валидация имени
-  const validateName = (): boolean => {
-    if (fullName.trim().length < 3) {
-      setNameError('Введите полное имя');
-      return false;
-    }
-    
-    // Проверяем наличие имени и фамилии (минимум 2 слова)
-    const nameParts = fullName.trim().split(' ');
-    if (nameParts.length < 2 || nameParts.some(part => part.length < 2)) {
-      setNameError('Введите имя и фамилию');
-      return false;
-    }
-    
-    setNameError('');
-    return true;
-  };
-
-  // Обработчик изменения имени
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullName(e.target.value);
-    
-    // Сбрасываем ошибку при вводе
-    if (nameError) setNameError('');
-  };
-
-  // Обработчик отправки первого шага формы
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (validatePhone(phone)) {
-      setStep(2);
+    // Финальная валидация при отправке
+    if (validatePhone(phoneNumber)) {
+      onNext();
     }
   };
 
-  // Обработчик отправки второго шага формы
-  const handleCodeSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (validateCode()) {
-      setStep(3);
-    }
-  };
-
-  // Обработчик отправки третьего шага формы
-  const handleNameSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (validateName()) {
-      // Здесь будет логика регистрации/авторизации
-      console.log('Форма отправлена', { phone, code: code.join(''), fullName });
-      onClose();
-      // Сбрасываем состояние формы
-      resetForm();
-    }
-  };
-
-  // Сброс состояния формы
-  const resetForm = () => {
-    setStep(1);
-    setPhone('');
-    setPhoneError('');
-    setCode(['', '', '', '']);
-    setCodeError('');
-    setFullName('');
-    setNameError('');
-  };
-
-  // Обработчик кнопки "назад"
-  const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    }
-  };
-
-  // Закрытие формы
-  const handleCloseForm = () => {
-    onClose();
-    // Сбросим состояние формы через небольшую задержку,
-    // чтобы не было видно сброса во время анимации закрытия
-    setTimeout(resetForm, 300);
-  };
-
-  // Определяем, какую форму показывать в зависимости от шага
-  const renderForm = () => {
-    switch (step) {
-      case 1:
-        return (
-          <motion.form 
-            key="phone-form"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3 }}
-            className={styles.formStep}
-            onSubmit={handlePhoneSubmit}
-          >
-            <h2 className={styles.formTitle} id="form-title">Вход в личный кабинет</h2>
-            
-            <div className={styles.formGroup}>
-              <label htmlFor="phone" className={styles.formLabel}>Номер телефона</label>
-              <input
-                id="phone"
-                type="tel"
-                className={`${styles.formInput} ${phoneError ? styles.inputError : ''}`}
-                value={phone}
-                onChange={handlePhoneChange}
-                placeholder="+7 (___) ___-__-__"
-                autoComplete="tel"
-                required
-                aria-invalid={phoneError ? "true" : "false"}
-                aria-describedby={phoneError ? "phone-error" : undefined}
-              />
-              {phoneError && (
-                <div id="phone-error" className={styles.errorMessage}>{phoneError}</div>
-              )}
-            </div>
-            
-            <button 
-              type="submit" 
-              className={styles.formButton}
-              disabled={!phone}
-              aria-label="Продолжить"
-            >
-              Продолжить
-              <svg 
-                width="16" 
-                height="16" 
-                viewBox="0 0 16 16" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-                style={{ marginLeft: '8px' }}
-              >
-                <path 
-                  d="M8 3L13 8L8 13M13 8H3" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </motion.form>
-        );
-      
-      case 2:
-        return (
-          <motion.form 
-            key="code-form"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3 }}
-            className={styles.formStep}
-            onSubmit={handleCodeSubmit}
-          >
-            <h2 className={styles.formTitle}>Введите код из СМС</h2>
-            
-            <div className={styles.formGroup}>
-              <div className={styles.codeInputContainer}>
-                {code.map((digit, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    className={`${styles.codeInput} ${codeError ? styles.inputError : ''}`}
-                    value={digit}
-                    onChange={(e) => handleCodeChange(index, e.target.value)}
-                    onKeyDown={(e) => handleCodeKeyDown(index, e)}
-                    maxLength={1}
-                    ref={el => { codeInputRefs.current[index] = el; }}
-                    autoFocus={index === 0}
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    aria-label={`Цифра ${index + 1} кода подтверждения`}
-                  />
-                ))}
-              </div>
-              {codeError && (
-                <div className={styles.errorMessage}>{codeError}</div>
-              )}
-            </div>
-            
-            <div className={styles.formActions}>
-              <button 
-                type="button" 
-                className={styles.backButton}
-                onClick={handleBack}
-                aria-label="Вернуться назад"
-              >
-                <svg 
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 16 16" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                  style={{ marginRight: '5px' }}
-                >
-                  <path 
-                    d="M10 12L6 8L10 4" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Назад
-              </button>
-              
-              <button 
-                type="submit" 
-                className={`${styles.formButton} ${styles.submitButton}`}
-                disabled={code.some(digit => digit === '')}
-                aria-label="Подтвердить код"
-              >
-                Подтвердить
-                <svg 
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 16 16" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                  style={{ marginLeft: '8px' }}
-                >
-                  <path 
-                    d="M3 8.5L6.5 12L13 5" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
-          </motion.form>
-        );
-      
-      case 3:
-        return (
-          <motion.form 
-            key="name-form"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3 }}
-            className={styles.formStep}
-            onSubmit={handleNameSubmit}
-          >
-            <h2 className={styles.formTitle}>Как к вам обращаться?</h2>
-            
-            <div className={styles.formGroup}>
-              <label htmlFor="fullName" className={styles.formLabel}>Имя и Фамилия</label>
-              <input
-                id="fullName"
-                type="text"
-                className={`${styles.formInput} ${nameError ? styles.inputError : ''}`}
-                value={fullName}
-                onChange={handleNameChange}
-                placeholder="Иван Иванов"
-                autoComplete="name"
-                required
-                autoFocus
-                aria-invalid={nameError ? "true" : "false"}
-                aria-describedby={nameError ? "name-error" : undefined}
-              />
-              {nameError && (
-                <div id="name-error" className={styles.errorMessage}>{nameError}</div>
-              )}
-            </div>
-            
-            <div className={styles.formActions}>
-              <button 
-                type="button" 
-                className={styles.backButton}
-                onClick={handleBack}
-                aria-label="Вернуться назад"
-              >
-                <svg 
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 16 16" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                  style={{ marginRight: '5px' }}
-                >
-                  <path 
-                    d="M10 12L6 8L10 4" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Назад
-              </button>
-              
-              <button 
-                type="submit" 
-                className={`${styles.formButton} ${styles.submitButton}`}
-                disabled={!fullName.trim()}
-                aria-label="Завершить регистрацию"
-              >
-                Завершить
-                <svg 
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 16 16" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                  style={{ marginLeft: '8px' }}
-                >
-                  <path 
-                    d="M3 8L7 12L13 5" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
-          </motion.form>
-        );
-      
-      default:
-        return null;
-    }
-  };
-
-  // Рендерим индикатор прогресса
-  const renderProgressIndicator = () => {
-    return (
-      <div className={styles.progressIndicator} role="progressbar" aria-valuenow={step} aria-valuemin={1} aria-valuemax={3}>
-        <div 
-          className={`${styles.progressDot} ${step === 1 ? styles.progressDotActive : ''}`} 
-          aria-label="Шаг 1: Ввод номера телефона"
-        />
-        <div 
-          className={`${styles.progressDot} ${step === 2 ? styles.progressDotActive : ''}`}
-          aria-label="Шаг 2: Ввод кода подтверждения"
-        />
-        <div 
-          className={`${styles.progressDot} ${step === 3 ? styles.progressDotActive : ''}`}
-          aria-label="Шаг 3: Ввод имени и фамилии"
-        />
-      </div>
-    );
+  const handleBlur = () => {
+    setTouched(true);
+    validatePhone(phoneNumber);
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div 
-            className={styles.overlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={handleCloseForm}
-            role="presentation"
+    <div className={styles.formStep}>
+      <h2 className={styles.formTitle}>Вход или регистрация</h2>
+      <form onSubmit={handleSubmit}>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Введите номер телефона</label>
+          <input
+            type="tel"
+            value={phoneNumber}
+            onChange={handlePhoneChange}
+            onBlur={handleBlur}
+            placeholder="+7 (999) 999-99-99"
+            className={`${styles.formInput} ${error && touched ? styles.inputError : ''}`}
+            required
           />
-          
-          <motion.div 
-            className={styles.formContainer}
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="form-title"
-          >
-            <button 
-              className={styles.closeButton} 
-              onClick={handleCloseForm}
-              aria-label="Закрыть форму"
-            >
+          {error && touched && (
+            <div className={styles.errorMessage}>
               <svg 
-                width="20" 
-                height="20" 
+                className={styles.errorIcon}
+                width="16" 
+                height="16" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
               >
                 <path 
-                  d="M18 6L6 18M6 6L18 18" 
+                  d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" 
                   stroke="currentColor" 
                   strokeWidth="2" 
                   strokeLinecap="round" 
                   strokeLinejoin="round"
                 />
+                <path 
+                  d="M12 8V12" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                />
+                <circle 
+                  cx="12" 
+                  cy="16" 
+                  r="0.5" 
+                  fill="currentColor" 
+                  stroke="currentColor" 
+                  strokeWidth="1"
+                />
               </svg>
-            </button>
-            
-            {renderProgressIndicator()}
-            
-            <AnimatePresence mode="wait">
-              {renderForm()}
-            </AnimatePresence>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+              {error}
+            </div>
+          )}
+        </div>
+        <button 
+          type="submit" 
+          className={styles.formButton}
+          disabled={!!error || phoneNumber.length < 10}
+        >
+          Получить код
+        </button>
+      </form>
+    </div>
+  );
+};
+
+// Компонент для ввода SMS-кода
+const SmsCodeStep = ({ 
+  onPrev, 
+  onNext 
+}: { 
+  onPrev: () => void; 
+  onNext: () => void;
+}) => {
+  const [code, setCode] = useState<string[]>(Array(5).fill(''));
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Подготавливаем рефы для каждого инпута
+  useEffect(() => {
+    inputRefs.current = inputRefs.current.slice(0, 5);
+  }, []);
+
+  const handleChange = (index: number, value: string) => {
+    if (value.length <= 1 && /^[0-9]*$/.test(value)) {
+      const newCode = [...code];
+      newCode[index] = value;
+      setCode(newCode);
+
+      // Автоматически переходим к следующему полю
+      if (value && index < 4) {
+        inputRefs.current[index + 1]?.focus();
+      }
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Если нажат Backspace и поле пустое, переходим к предыдущему полю
+    if (e.key === 'Backspace' && !code[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (code.every(digit => digit) && code.length === 5) {
+      onNext();
+    }
+  };
+
+  return (
+    <div className={styles.formStep}>
+      <h2 className={styles.formTitle}>Вход или регистрация</h2>
+      <form onSubmit={handleSubmit}>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Введите код из СМС</label>
+          <div className={styles.codeInputContainer}>
+            {Array(5).fill(null).map((_, index) => (
+              <input
+                key={index}
+                ref={el => {
+                  inputRefs.current[index] = el;
+                  return undefined;
+                }}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                value={code[index]}
+                onChange={e => handleChange(index, e.target.value)}
+                onKeyDown={e => handleKeyDown(index, e)}
+                className={styles.codeInput}
+                required
+              />
+            ))}
+          </div>
+        </div>
+        <div className={styles.formActions}>
+          <button 
+            type="button" 
+            className={styles.backButton}
+            onClick={onPrev}
+          >
+            <svg 
+              width="16" 
+              height="16" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ marginRight: '5px' }}
+            >
+              <path 
+                d="M19 12H5" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+              <path 
+                d="M12 19L5 12L12 5" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+            </svg>
+            Ввести другой номер
+          </button>
+          <button 
+            type="submit" 
+            className={`${styles.formButton} ${styles.submitButton}`}
+            disabled={!code.every(digit => digit) || code.length !== 5}
+          >
+            Войти
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+// Компонент для ввода имени и фамилии
+const ProfileInfoStep = ({ 
+  onSubmit 
+}: { 
+  onSubmit: () => void;
+}) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [firstNameError, setFirstNameError] = useState<string | null>(null);
+  const [lastNameError, setLastNameError] = useState<string | null>(null);
+  const [touched, setTouched] = useState({
+    firstName: false,
+    lastName: false
+  });
+
+  // Проверка имени на валидность
+  const validateFirstName = (name: string) => {
+    if (!name.trim()) {
+      setFirstNameError('Поле имени не может быть пустым');
+      return false;
+    }
+    
+    // Проверка на корректность имени (только буквы, минимум 2 символа)
+    if (!/^[А-Яа-яЁёA-Za-z]{2,}$/.test(name.trim())) {
+      setFirstNameError('Вы указали неверное имя');
+      return false;
+    }
+    
+    setFirstNameError(null);
+    return true;
+  };
+
+  // Проверка фамилии на валидность
+  const validateLastName = (name: string) => {
+    if (!name.trim()) {
+      setLastNameError('Поле фамилии не может быть пустым');
+      return false;
+    }
+    
+    // Проверка на корректность фамилии (только буквы, минимум 2 символа)
+    if (!/^[А-Яа-яЁёA-Za-z]{2,}$/.test(name.trim())) {
+      setLastNameError('Вы указали неверную фамилию');
+      return false;
+    }
+    
+    setLastNameError(null);
+    return true;
+  };
+
+  const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFirstName(value);
+    if (touched.firstName) {
+      validateFirstName(value);
+    }
+  };
+
+  const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLastName(value);
+    if (touched.lastName) {
+      validateLastName(value);
+    }
+  };
+
+  const handleFirstNameBlur = () => {
+    setTouched(prev => ({ ...prev, firstName: true }));
+    validateFirstName(firstName);
+  };
+
+  const handleLastNameBlur = () => {
+    setTouched(prev => ({ ...prev, lastName: true }));
+    validateLastName(lastName);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const isFirstNameValid = validateFirstName(firstName);
+    const isLastNameValid = validateLastName(lastName);
+    
+    // Устанавливаем состояние "тронутости" для обоих полей
+    setTouched({ firstName: true, lastName: true });
+    
+    if (isFirstNameValid && isLastNameValid) {
+      onSubmit();
+    }
+  };
+
+  return (
+    <div className={styles.formStep}>
+      <h2 className={styles.formTitle}>Вход или регистрация</h2>
+      <form onSubmit={handleSubmit}>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Введите имя</label>
+          <input
+            type="text"
+            value={firstName}
+            onChange={handleFirstNameChange}
+            onBlur={handleFirstNameBlur}
+            placeholder="Иван"
+            className={`${styles.formInput} ${firstNameError && touched.firstName ? styles.inputError : ''}`}
+            required
+          />
+          {firstNameError && touched.firstName && (
+              <div className={styles.errorMessage}>
+                <svg 
+                  className={styles.errorIcon}
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path 
+                    d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
+                  <path 
+                    d="M12 8V12" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
+                  <circle 
+                    cx="12" 
+                    cy="16" 
+                    r="0.5" 
+                    fill="currentColor" 
+                    stroke="currentColor" 
+                    strokeWidth="1"
+                  />
+                </svg>
+                {firstNameError}
+              </div>
+            )}
+        </div>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>Фамилию</label>
+          <input
+            type="text"
+            value={lastName}
+            onChange={handleLastNameChange}
+            onBlur={handleLastNameBlur}
+            placeholder="Иванов"
+            className={`${styles.formInput} ${lastNameError && touched.lastName ? styles.inputError : ''}`}
+            required
+          />
+          {lastNameError && touched.lastName && (
+              <div className={styles.errorMessage}>
+                <svg 
+                  className={styles.errorIcon}
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path 
+                    d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
+                  <path 
+                    d="M12 8V12" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
+                  <circle 
+                    cx="12" 
+                    cy="16" 
+                    r="0.5" 
+                    fill="currentColor" 
+                    stroke="currentColor" 
+                    strokeWidth="1"
+                  />
+                </svg>
+                {lastNameError}
+              </div>
+            )}
+        </div>
+        <button 
+          type="submit" 
+          className={styles.formButton}
+          disabled={!!(firstNameError || lastNameError) || !firstName || !lastName}
+        >
+          Сохранить
+        </button>
+      </form>
+    </div>
+  );
+};
+
+// Главный компонент формы
+const AuthForm = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [phoneNumber, setPhoneNumber] = useState('+7');
+
+  // Блокировка прокрутки при открытии формы
+  useEffect(() => {
+    if (isOpen) {
+      // Сохраняем текущую позицию прокрутки
+      const scrollY = window.scrollY;
+      // Блокируем прокрутку
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+    } else {
+      // Восстанавливаем прокрутку
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
+    
+    // Очистка при размонтировании
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+    };
+  }, [isOpen]);
+
+  // Функция для открытия/закрытия формы
+  const toggleForm = () => {
+    setIsOpen(!isOpen);
+    // Сбрасываем шаг при закрытии формы
+    if (isOpen) {
+      setTimeout(() => {
+        setCurrentStep(0);
+        setPhoneNumber('+7'); // Сбрасываем телефон к начальному значению
+      }, 300); // Задержка для завершения анимации закрытия
+    }
+  };
+
+  // Варианты анимации для формы - выезжает сверху вниз
+  const formVariants = {
+    hidden: { y: "-100%", opacity: 0 },
+    visible: { y: "0", opacity: 1, transition: { type: "spring", stiffness: 100, damping: 20 } },
+    exit: { y: "-100%", opacity: 0, transition: { duration: 0.3 } }
+  };
+
+  // Варианты анимации для шагов
+  const stepVariants = {
+    enter: (direction: number) => {
+      return {
+        x: direction > 0 ? 100 : -100,
+        opacity: 0
+      };
+    },
+    center: {
+      x: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300, damping: 30 }
+    },
+    exit: (direction: number) => {
+      return {
+        x: direction < 0 ? 100 : -100,
+        opacity: 0,
+        transition: { duration: 0.3 }
+      };
+    }
+  };
+
+  // Направление анимации
+  const [direction, setDirection] = useState(0);
+
+  // Обработчики переходов между шагами
+  const handleNext = () => {
+    setDirection(1);
+    setCurrentStep(currentStep + 1);
+  };
+
+  const handlePrev = () => {
+    setDirection(-1);
+    setCurrentStep(currentStep - 1);
+  };
+
+  const handleComplete = () => {
+    // Здесь можно добавить логику сохранения данных пользователя
+    toggleForm();
+  };
+
+  return (
+    <>
+      <button 
+        className={styles.loginButton} 
+        onClick={toggleForm}
+        aria-label="Войти или зарегистрироваться"
+      >
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 3C8.376 3 3 8.376 3 15C3 21.624 8.376 27 15 27C21.624 27 27 21.624 27 15C27 8.376 21.624 3 15 3ZM15 7.8C17.316 7.8 19.2 9.684 19.2 12C19.2 14.316 17.316 16.2 15 16.2C12.684 16.2 10.8 14.316 10.8 12C10.8 9.684 12.684 7.8 15 7.8ZM15 24.6C12.564 24.6 9.684 23.616 7.632 21.144C9.73419 19.4955 12.3285 18.5995 15 18.5995C17.6715 18.5995 20.2658 19.4955 22.368 21.144C20.316 23.616 17.436 24.6 15 24.6Z" fill="currentColor" />
+        </svg>
+        <div>Войти</div>
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <div className={styles.overlay} onClick={toggleForm} />
+            <motion.div 
+              className={styles.formContainer}
+              variants={formVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <button 
+                className={styles.closeButton} 
+                onClick={toggleForm}
+                aria-label="Закрыть форму"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path
+                    d="M18 6L6 18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M6 6L18 18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className={styles.visuallyHidden}>Закрыть</span>
+              </button>
+              
+              <AnimatePresence custom={direction} mode="wait">
+                {currentStep === 0 && (
+                  <motion.div
+                    key="step1"
+                    custom={direction}
+                    variants={stepVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                  >
+                    <PhoneNumberStep 
+                      phoneNumber={phoneNumber} 
+                      setPhoneNumber={setPhoneNumber} 
+                      onNext={handleNext} 
+                    />
+                  </motion.div>
+                )}
+                
+                {currentStep === 1 && (
+                  <motion.div
+                    key="step2"
+                    custom={direction}
+                    variants={stepVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                  >
+                    <SmsCodeStep 
+                      onPrev={handlePrev} 
+                      onNext={handleNext} 
+                    />
+                  </motion.div>
+                )}
+                
+                {currentStep === 2 && (
+                  <motion.div
+                    key="step3"
+                    custom={direction}
+                    variants={stepVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                  >
+                    <ProfileInfoStep 
+                      onSubmit={handleComplete} 
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
