@@ -24,15 +24,15 @@
 /* Контейнер формы */
 .formContainer {
   position: fixed;
-  top: 80px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   padding: 30px;
   width: 95%;
-  max-width: 420px;
+  max-width: 480px;
   z-index: 101;
   overflow: hidden;
 }
@@ -92,6 +92,7 @@
   border-radius: 5px;
   font-size: 16px;
   transition: border-color 0.3s;
+  background-color: #fff;
 }
 
 .formInput:focus {
@@ -115,6 +116,7 @@
   border: 1px solid #ddd;
   border-radius: 5px;
   transition: border-color 0.3s;
+  background-color: #fff;
 }
 
 .codeInput:focus {
@@ -133,7 +135,8 @@
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  margin-top: 10px;
 }
 
 .formButton:hover {
@@ -141,8 +144,9 @@
 }
 
 .formButton:disabled {
-  background-color: #f2f2f2;
-  color: #999;
+  background-color: #f9f9f9;
+  color: #b3b3b3;
+  border: 1px solid #e6e6e6;
   cursor: not-allowed;
 }
 

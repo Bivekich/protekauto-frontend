@@ -19,24 +19,28 @@ const PhoneNumberStep = ({
     // Удаляем все нецифровые символы
     const phoneDigits = value.replace(/\D/g, '');
     
+    // Если первая цифра 7, используем её, иначе добавляем 7 как код страны
+    const digits = phoneDigits.startsWith('7') ? phoneDigits : `7${phoneDigits}`;
+    
     // Форматируем номер в виде +7 (XXX) XXX-XX-XX
-    if (phoneDigits.length <= 1) {
-      return `+7 (${phoneDigits}`;
-    } else if (phoneDigits.length <= 4) {
-      return `+7 (${phoneDigits.slice(1, 4)}`;
-    } else if (phoneDigits.length <= 7) {
-      return `+7 (${phoneDigits.slice(1, 4)}) ${phoneDigits.slice(4, 7)}`;
-    } else if (phoneDigits.length <= 9) {
-      return `+7 (${phoneDigits.slice(1, 4)}) ${phoneDigits.slice(4, 7)}-${phoneDigits.slice(7, 9)}`;
+    if (digits.length <= 1) {
+      return '+7';
+    } else if (digits.length <= 4) {
+      return `+7 (${digits.slice(1, 4)}`;
+    } else if (digits.length <= 7) {
+      return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}`;
+    } else if (digits.length <= 9) {
+      return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}`;
     } else {
-      return `+7 (${phoneDigits.slice(1, 4)}) ${phoneDigits.slice(4, 7)}-${phoneDigits.slice(7, 9)}-${phoneDigits.slice(9, 11)}`;
+      return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`;
     }
   };
 
   // Валидация номера телефона
   const isValidPhoneNumber = (phone: string) => {
     const phoneDigits = phone.replace(/\D/g, '');
-    return phoneDigits.length === 11;
+    // Проверяем, что номер содержит 11 цифр и начинается с 7
+    return phoneDigits.length === 11 && phoneDigits.startsWith('7');
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -226,7 +230,7 @@ const ProfileInfoStep = ({
 const AuthForm = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('+7');
 
   // Функция для открытия/закрытия формы
   const toggleForm = () => {
@@ -235,6 +239,7 @@ const AuthForm = () => {
     if (isOpen) {
       setTimeout(() => {
         setCurrentStep(0);
+        setPhoneNumber('+7'); // Сбрасываем телефон к начальному значению
       }, 300); // Задержка для завершения анимации закрытия
     }
   };
