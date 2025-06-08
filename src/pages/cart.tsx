@@ -19,9 +19,8 @@ export default function CartPage() {
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <Header />
-      <div className="w-layout-blockcontainer container info w-container">
-          <CartInfo />
-      </div>
+      <CartInfo />
+
       <section className="main">
         <div className="w-layout-blockcontainer container w-container">
           <div className="w-layout-vflex cart-list">

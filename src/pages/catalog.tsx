@@ -2,7 +2,7 @@ import Head from "next/head";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductListCard from "@/components/ProductListCard";
-import Filters from "@/components/Filters";
+import Filters, { FilterConfig } from "@/components/Filters";
 import CatalogProductCard from "@/components/CatalogProductCard";
 import CatalogTabs from "@/components/CatalogTabs";
 import CatalogPagination from "@/components/CatalogPagination";
@@ -21,6 +21,28 @@ const mockData = Array(12).fill({
   title: 'Аккумуляторная батарея TYUMEN BATTERY "STANDARD", 6CT-60L, 60',
   brand: "Borsehung",
 });
+
+const catalogFilters: FilterConfig[] = [
+  {
+    type: "dropdown",
+    title: "Производитель",
+    options: ["Bosch", "Varta", "Mutlu", "Exide", "Topla", "TAB", "Rocket", "Akom", "Medalist", "Tyumen", "FB", "Delkor"],
+    multi: true,
+    showAll: true,
+  },
+  {
+    type: "dropdown",
+    title: "Полярность",
+    options: ["Обратная", "Прямая", "Универсальная"],
+    multi: false,
+  },
+  {
+    type: "range",
+    title: "Емкость (А/ч)",
+    min: 1,
+    max: 20000,
+  },
+];
 
 export default function Catalog() {
   const [sortActive, setSortActive] = useState(0);
@@ -73,7 +95,7 @@ export default function Catalog() {
             </div>
             {/* Фильтры для десктопа */}
             <div className="filters-desktop">
-              <Filters />
+              <Filters filters={catalogFilters} />
             </div>
             {showFiltersMobile && (
               <>
@@ -83,11 +105,11 @@ export default function Catalog() {
                     <h3>Фильтры</h3>
                     <button className="filters-close" onClick={() => setShowFiltersMobile(false)} type="button">×</button>
                   </div>
-                  <FiltersPanelMobile />
+                  <FiltersPanelMobile filters={catalogFilters} />
                 </div>
               </>
             )}
-            <div className="w-layout-vflex flex-block-14-copy">
+            <div className="w-layout-vflex flex-block-14-copy-copy">
               <CatalogTabs />
               {mockData.map((item, idx) => (
                 <CatalogProductCard

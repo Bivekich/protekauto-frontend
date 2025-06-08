@@ -2,7 +2,7 @@ import Head from "next/head";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CatalogSubscribe from "@/components/CatalogSubscribe";
-import Filters from "@/components/Filters";
+import Filters, { FilterConfig } from "@/components/Filters";
 import BestPriceCard from "@/components/BestPriceCard";
 import CoreProductCard from "@/components/CoreProductCard";
 import AnalogueBlock from "@/components/AnalogueBlock";
@@ -16,6 +16,28 @@ const sortOptions = [
   "По цене",
   "По рейтингу",
   "По количеству"
+];
+
+const searchResultFilters: FilterConfig[] = [
+  {
+    type: "dropdown",
+    title: "Производитель",
+    options: ["Bosch", "Varta", "Mutlu", "Exide", "Topla", "TAB", "Rocket", "Akom", "Medalist", "Tyumen", "FB", "Delkor"],
+    multi: true,
+    showAll: true,
+  },
+  {
+    type: "dropdown",
+    title: "Полярность",
+    options: ["Обратная", "Прямая", "Универсальная"],
+    multi: false,
+  },
+  {
+    type: "range",
+    title: "Емкость (А/ч)",
+    min: 1,
+    max: 20000,
+  },
 ];
 
 export default function SearchResult() {
@@ -78,12 +100,12 @@ export default function SearchResult() {
                     <h3>Фильтры</h3>
                     <button className="filters-close" onClick={() => setShowFiltersMobile(false)} type="button">×</button>
                   </div>
-                  <FiltersPanelMobile />
+                  <FiltersPanelMobile filters={searchResultFilters} />
                 </div>
                 </>
               )}
       </div>
-      <section>
+      <section >
         <div className="w-layout-blockcontainer container w-container">
           <div className="w-layout-vflex flex-block-36">
             <BestPriceCard
@@ -115,21 +137,40 @@ export default function SearchResult() {
       </section>
       <section className="main">
         <div className="w-layout-blockcontainer container w-container">
-          <div className="w-layout-hflex flex-block-13">
+          <div className="w-layout-hflex flex-block-13-copy">
             {/* Фильтры для десктопа */}
             <div className="filters-desktop">
-              <Filters />
+              <Filters filters={searchResultFilters} />
             </div>
 
             {/* --- Остальной JSX страницы --- */}
-            <div className="w-layout-vflex flex-block-14">
+            <div className="w-layout-vflex flex-block-14-copy">
               
-              <div className="w-layout-hflex core-product-search">
+              <div className="w-layout-hflex core-product-search-s1">
                 <CoreProductCard
                   brand="STELLOX"
                   article="1023245SX"
                   name="Комплект ГРМ"
                   image="/images/image-10.png"
+                  offers={[
+                    {
+                      rating: "4,8",
+                      pcs: "444 шт",
+                      days: "5 дней",
+                      recommended: true,
+                      price: "от 17 323 ₽",
+                      count: "1"
+                    },
+                    {
+                      rating: "4,8",
+                      pcs: "232 шт",
+                      days: "Сегодня",
+                      recommended: false,
+                      price: "от 18 000 ₽",
+                      count: "1"
+                    }
+                  ]}
+                  showMoreText="Ещё предложения от 4726 руб и 5 дней"
                 />
               </div>
               {/* --- Аналоги от других производителей --- */}

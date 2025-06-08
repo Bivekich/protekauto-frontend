@@ -4,7 +4,7 @@ const AnalogueBlock: React.FC = () => (
   <>
     <h2 className="heading-11">Аналлоги от других производителей</h2>
     {/* Аналог 1: AIX */}
-    <div className="w-layout-hflex core-product-search">
+    <div className="w-layout-hflex core-product-search-s2">
       <div className="w-layout-vflex core-product">
         <div className="w-layout-vflex flex-block-47">
           <div className="div-block-19"><img src="/images/info.svg" loading="lazy" alt="" className="image-9" /></div>
@@ -62,7 +62,7 @@ const AnalogueBlock: React.FC = () => (
       </div>
     </div>
     {/* Аналог 2 */}
-    <div className="w-layout-hflex core-product-search">
+    <div className="w-layout-hflex core-product-search-s2">
       <div className="w-layout-vflex core-product">
         <div className="w-layout-vflex flex-block-47">
           <div className="div-block-19"><img src="/images/info.svg" loading="lazy" alt="" className="image-9" /></div>
@@ -120,7 +120,7 @@ const AnalogueBlock: React.FC = () => (
       </div>
     </div>
     {/* Аналог 3 */}
-    <div className="w-layout-hflex core-product-search">
+    <div className="w-layout-hflex core-product-search-s2">
       <div className="w-layout-vflex core-product">
         <div className="w-layout-vflex flex-block-47">
           <div className="div-block-19"><img src="/images/info.svg" loading="lazy" alt="" className="image-9" /></div>
@@ -178,7 +178,7 @@ const AnalogueBlock: React.FC = () => (
       </div>
     </div>
     {/* Аналог 4 */}
-    <div className="w-layout-hflex core-product-search">
+    <div className="w-layout-hflex core-product-search-s2">
       <div className="w-layout-vflex core-product">
         <div className="w-layout-vflex flex-block-47">
           <div className="div-block-19"><img src="/images/info.svg" loading="lazy" alt="" className="image-9" /></div>

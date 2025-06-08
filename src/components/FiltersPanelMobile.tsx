@@ -1,35 +1,15 @@
 import React from "react";
 import FilterDropdown from "./filters/FilterDropdown";
 import FilterRange from "./filters/FilterRange";
+import type { FilterConfig } from "./Filters";
 
-const brands = [
-  "Bosch", "Varta", "Mutlu", "Exide", "Topla", "TAB", "Rocket", "Akom", "Medalist", "Tyumen", "FB", "Delkor"
-];
-const polarities = ["Обратная", "Прямая", "Универсальная"];
+interface FiltersPanelMobileProps {
+  filters: FilterConfig[];
+}
 
-const filters = [
-  {
-    title: "Производитель",
-    content: <FilterDropdown title="Производитель" options={brands} multi showAll isMobile />,
-  },
-  {
-    title: "Емкость (А/ч)",
-    content: <FilterRange title="Емкость (А/ч)" min={1} max={20000} isMobile />,
-  },
-  {
-    title: "Полярность",
-    content: <FilterDropdown title="Полярность" options={polarities} isMobile />,
-  },
-  {
-    title: "Производитель",
-    content: <FilterDropdown title="Производитель" options={brands} multi showAll isMobile />,
-  },
-];
-
-const FiltersPanelMobile: React.FC = () => {
+const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ filters }) => {
   return (
     <div className="filters-panel-mobile-accordion">
-
       <div className="filter-block-mobile" style={{ padding: 12 }}>
         <form className="form" onSubmit={e => e.preventDefault()} style={{ width: '100%' }}>
           <div style={{ position: 'relative', width: '100%' }}>
@@ -82,7 +62,6 @@ const FiltersPanelMobile: React.FC = () => {
           </div>
         </form>
       </div>
-
       <style>{`
         .text-field.w-input::placeholder {
           color: #bdbdbd;
@@ -90,9 +69,24 @@ const FiltersPanelMobile: React.FC = () => {
         }
       `}</style>
       {/* Все фильтры всегда раскрыты */}
-      {filters.map((f, idx) => (
-        <div className="filter-block-mobile" key={f.title + idx}>
-          {f.content}
+      {filters.map((filter, idx) => (
+        <div className="filter-block-mobile" key={filter.title + idx}>
+          {filter.type === "dropdown" ? (
+            <FilterDropdown
+              title={filter.title}
+              options={filter.options}
+              multi={filter.multi}
+              showAll={filter.showAll}
+              isMobile
+            />
+          ) : filter.type === "range" ? (
+            <FilterRange
+              title={filter.title}
+              min={filter.min}
+              max={filter.max}
+              isMobile
+            />
+          ) : null}
         </div>
       ))}
     </div>

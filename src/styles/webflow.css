@@ -45,15 +45,7 @@
 html {
   height: 100%;
 }
-body {
-  margin: 0;
-  min-height: 100%;
-  background-color: #fff;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #333;
-}
+
 img {
   max-width: 100%;
   vertical-align: middle;
@@ -1637,7 +1629,6 @@ textarea.w-select {
 .w-nav[data-animation='over-left'] .w-nav-overlay,
 .w-nav[data-animation='over-left'] [data-nav-menu-open] {
   right: auto;
-  z-index: 1;
   top: 0;
 }
 .w-nav[data-animation='over-right'] .w-nav-overlay {

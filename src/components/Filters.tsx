@@ -2,13 +2,29 @@ import React from "react";
 import FilterDropdown from "./filters/FilterDropdown";
 import FilterRange from "./filters/FilterRange";
 
-const brands = [
-  "Bosch", "Varta", "Mutlu", "Exide", "Topla", "TAB", "Rocket", "Akom", "Medalist", "Tyumen", "FB", "Delkor"
-];
-const polarities = ["Обратная", "Прямая", "Универсальная"];
+// Типизация для фильтра
+export type FilterConfig =
+  | {
+      type: "dropdown";
+      title: string;
+      options: string[];
+      multi?: boolean;
+      showAll?: boolean;
+    }
+  | {
+      type: "range";
+      title: string;
+      min: number;
+      max: number;
+    };
 
-const Filters: React.FC = () => (
+interface FiltersProps {
+  filters: FilterConfig[];
+}
+
+const Filters: React.FC<FiltersProps> = ({ filters }) => (
   <div className="w-layout-vflex flex-block-12">
+    {/* Поиск всегда первый */}
     <div className="div-block-2">
       <div className="form-block">
         <form className="form" onSubmit={e => e.preventDefault()}>
@@ -20,14 +36,43 @@ const Filters: React.FC = () => (
               </svg>
             </span>
           </a>
-          <input className="text-field w-input" maxLength={256} name="Search" placeholder="Введите код запчасти или VIN номер автомобиля" type="text" id="Search-4" required />
+          <input
+            className="text-field w-input"
+            maxLength={256}
+            name="Search"
+            placeholder="Введите код запчасти или VIN номер автомобиля"
+            type="text"
+            id="Search-4"
+            required
+          />
         </form>
       </div>
     </div>
-    <FilterDropdown title="Производитель" options={brands} multi showAll />
-    <FilterRange title="Емкость (А/ч)" min={1} max={20000} />
-    <FilterDropdown title="Полярность" options={polarities} />
-    <FilterDropdown title="Производитель" options={brands} multi showAll />
+    {/* Фильтры из пропса */}
+    {filters.map((filter, idx) => {
+      if (filter.type === "dropdown") {
+        return (
+          <FilterDropdown
+            key={filter.title + idx}
+            title={filter.title}
+            options={filter.options}
+            multi={filter.multi}
+            showAll={filter.showAll}
+          />
+        );
+      }
+      if (filter.type === "range") {
+        return (
+          <FilterRange
+            key={filter.title + idx}
+            title={filter.title}
+            min={filter.min}
+            max={filter.max}
+          />
+        );
+      }
+      return null;
+    })}
   </div>
 );
 
