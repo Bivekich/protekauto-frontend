@@ -25,9 +25,8 @@
 .formContainer {
   position: fixed;
   width: 400px;
-  top: 50px; /* Размещаем блок вверху страницы */
-  left: 50%;
-  transform: translateX(-50%); /* Центрируем по горизонтали */
+  top: 150px; /* Опускаю форму ниже */
+  left: calc(50% - 200px);
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
