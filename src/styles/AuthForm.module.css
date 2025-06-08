@@ -24,18 +24,16 @@
 /* Контейнер формы */
 .formContainer {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  height: 300px;
+  width: 400px;
+  top: calc(50vh - 150px);
+  left: calc(50vw - 200px);
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  width: 95%;
-  max-width: 480px;
   z-index: 101;
   overflow: hidden;
-  margin: 0 auto;
 }
 
 /* Кнопка закрытия формы */
@@ -197,9 +195,4 @@
   }
 }
 
-/* Для стандартных десктопных экранов */
-@media (min-width: 1600px) and (max-width: 2000px) {
-  .formContainer {
-    transform: translate(calc(-50% - 60px), -50%);
-  }
-} 
+ 
