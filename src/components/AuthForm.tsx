@@ -244,11 +244,11 @@ const AuthForm = () => {
     }
   };
 
-  // Варианты анимации для формы
+  // Варианты анимации для формы - выезжает сверху вниз
   const formVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.3 } },
-    exit: { opacity: 0, transition: { duration: 0.3 } }
+    hidden: { y: "-100%", opacity: 0 },
+    visible: { y: "0", opacity: 1, transition: { type: "spring", stiffness: 100, damping: 20 } },
+    exit: { y: "-100%", opacity: 0, transition: { duration: 0.3 } }
   };
 
   // Варианты анимации для шагов
@@ -262,7 +262,7 @@ const AuthForm = () => {
     center: {
       x: 0,
       opacity: 1,
-      transition: { duration: 0.3 }
+      transition: { type: "spring", stiffness: 300, damping: 30 }
     },
     exit: (direction: number) => {
       return {

@@ -24,13 +24,12 @@
 /* Контейнер формы */
 .formContainer {
   position: fixed;
-  height: 300px;
   width: 400px;
-  top: calc(50vh - 150px);
-  left: calc(50vw - 200px);
+  top: 70px; /* Расположение сразу под шапкой */
+  left: calc(50% - 200px);
   background-color: white;
   border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   padding: 20px;
   z-index: 101;
   overflow: hidden;
