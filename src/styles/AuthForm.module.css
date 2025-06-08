@@ -25,7 +25,7 @@
 .formContainer {
   position: fixed;
   width: 400px;
-  top: 70px; /* Расположение сразу под шапкой */
+  top: 120px; /* Опускаю форму ниже */
   left: calc(50% - 200px);
   background-color: white;
   border-radius: 10px;
