@@ -123,7 +123,6 @@ const SmsCodeStep = ({
   onNext: () => void;
 }) => {
   const [code, setCode] = useState<string[]>(Array(5).fill(''));
-  const [error, setError] = useState<string | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Подготавливаем рефы для каждого инпута
@@ -136,9 +135,6 @@ const SmsCodeStep = ({
       const newCode = [...code];
       newCode[index] = value;
       setCode(newCode);
-
-      // Сбрасываем ошибку при изменении кода
-      setError(null);
 
       // Автоматически переходим к следующему полю
       if (value && index < 4) {
@@ -154,29 +150,9 @@ const SmsCodeStep = ({
     }
   };
 
-  // Валидация кода
-  const validateCode = (codeArray: string[]): boolean => {
-    // Проверка, что все 5 цифр введены
-    if (!codeArray.every(digit => digit)) {
-      setError('Введите все 5 цифр кода');
-      return false;
-    }
-
-    // Проверка "правильности" кода (здесь можно будет заменить на реальную проверку)
-    // Для демонстрации считаем, что правильный код - 12345
-    const enteredCode = codeArray.join('');
-    if (enteredCode !== '12345') {
-      setError('Вы указали неверный код. Попробуйте снова');
-      return false;
-    }
-
-    setError(null);
-    return true;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateCode(code)) {
+    if (code.every(digit => digit) && code.length === 5) {
       onNext();
     }
   };
@@ -201,12 +177,11 @@ const SmsCodeStep = ({
                 value={code[index]}
                 onChange={e => handleChange(index, e.target.value)}
                 onKeyDown={e => handleKeyDown(index, e)}
-                className={`${styles.codeInput} ${error ? styles.inputError : ''}`}
+                className={styles.codeInput}
                 required
               />
             ))}
           </div>
-          {error && <div className={styles.errorMessage}>{error}</div>}
         </div>
         <div className={styles.formActions}>
           <button 
@@ -260,10 +235,83 @@ const ProfileInfoStep = ({
 }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [firstNameError, setFirstNameError] = useState<string | null>(null);
+  const [lastNameError, setLastNameError] = useState<string | null>(null);
+  const [touched, setTouched] = useState({
+    firstName: false,
+    lastName: false
+  });
+
+  // Проверка имени на валидность
+  const validateFirstName = (name: string) => {
+    if (!name.trim()) {
+      setFirstNameError('Поле имени не может быть пустым');
+      return false;
+    }
+    
+    // Проверка на корректность имени (только буквы, минимум 2 символа)
+    if (!/^[А-Яа-яЁёA-Za-z]{2,}$/.test(name.trim())) {
+      setFirstNameError('Вы указали неверное имя');
+      return false;
+    }
+    
+    setFirstNameError(null);
+    return true;
+  };
+
+  // Проверка фамилии на валидность
+  const validateLastName = (name: string) => {
+    if (!name.trim()) {
+      setLastNameError('Поле фамилии не может быть пустым');
+      return false;
+    }
+    
+    // Проверка на корректность фамилии (только буквы, минимум 2 символа)
+    if (!/^[А-Яа-яЁёA-Za-z]{2,}$/.test(name.trim())) {
+      setLastNameError('Вы указали неверную фамилию');
+      return false;
+    }
+    
+    setLastNameError(null);
+    return true;
+  };
+
+  const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFirstName(value);
+    if (touched.firstName) {
+      validateFirstName(value);
+    }
+  };
+
+  const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLastName(value);
+    if (touched.lastName) {
+      validateLastName(value);
+    }
+  };
+
+  const handleFirstNameBlur = () => {
+    setTouched(prev => ({ ...prev, firstName: true }));
+    validateFirstName(firstName);
+  };
+
+  const handleLastNameBlur = () => {
+    setTouched(prev => ({ ...prev, lastName: true }));
+    validateLastName(lastName);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (firstName && lastName) {
+    
+    const isFirstNameValid = validateFirstName(firstName);
+    const isLastNameValid = validateLastName(lastName);
+    
+    // Устанавливаем состояние "тронутости" для обоих полей
+    setTouched({ firstName: true, lastName: true });
+    
+    if (isFirstNameValid && isLastNameValid) {
       onSubmit();
     }
   };
@@ -277,27 +325,31 @@ const ProfileInfoStep = ({
           <input
             type="text"
             value={firstName}
-            onChange={e => setFirstName(e.target.value)}
+            onChange={handleFirstNameChange}
+            onBlur={handleFirstNameBlur}
             placeholder="Иван"
-            className={styles.formInput}
+            className={`${styles.formInput} ${firstNameError && touched.firstName ? styles.inputError : ''}`}
             required
           />
+          {firstNameError && touched.firstName && <div className={styles.errorMessage}>{firstNameError}</div>}
         </div>
         <div className={styles.formGroup}>
           <label className={styles.formLabel}>Фамилию</label>
           <input
             type="text"
             value={lastName}
-            onChange={e => setLastName(e.target.value)}
+            onChange={handleLastNameChange}
+            onBlur={handleLastNameBlur}
             placeholder="Иванов"
-            className={styles.formInput}
+            className={`${styles.formInput} ${lastNameError && touched.lastName ? styles.inputError : ''}`}
             required
           />
+          {lastNameError && touched.lastName && <div className={styles.errorMessage}>{lastNameError}</div>}
         </div>
         <button 
           type="submit" 
           className={styles.formButton}
-          disabled={!firstName || !lastName}
+          disabled={!!(firstNameError || lastNameError) || !firstName || !lastName}
         >
           Сохранить
         </button>

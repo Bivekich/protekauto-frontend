@@ -107,10 +107,9 @@
 /* Сообщение об ошибке */
 .errorMessage {
   color: #e32636;
-  font-size: 14px;
-  margin-top: 10px;
+  font-size: 12px;
+  margin-top: 5px;
   font-weight: 500;
-  text-align: center;
 }
 
 /* Контейнер для полей ввода кода */
