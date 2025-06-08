@@ -17,34 +17,22 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 100;
-  animation: fadeIn 0.3s ease-in-out;
-  backdrop-filter: blur(3px);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
 }
 
 /* Контейнер формы */
 .formContainer {
   position: fixed;
-  width: 600px;
+  width: 400px;
   top: 150px; /* Опускаю форму ниже */
   left: calc(50% - 300px);
   background-color: white;
   border-radius: 10px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-  padding: 30px;
-  z-index: 101;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  z-index: 1001; /* Увеличиваю z-index, чтобы форма была поверх оверлея */
   overflow: hidden;
-  transition: all 0.3s ease-in-out;
-}
-
-.formContainer:hover {
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
 }
 
 /* Кнопка закрытия формы */
@@ -56,28 +44,16 @@
   border: none;
   font-size: 24px;
   cursor: pointer;
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #999;
-  border-radius: 50%;
-  transition: all 0.2s ease;
 }
 
 .closeButton:hover {
   color: #333;
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.closeButton:active {
-  transform: scale(0.95);
-}
-
-.closeButton:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(227, 38, 54, 0.3);
 }
 
 /* Заголовок формы */
@@ -86,7 +62,6 @@
   font-weight: 700;
   margin-bottom: 20px;
   text-align: center;
-  color: #333;
 }
 
 /* Шаг формы */
@@ -97,7 +72,6 @@
 /* Группа полей формы */
 .formGroup {
   margin-bottom: 15px;
-  position: relative;
 }
 
 /* Метка поля */
@@ -106,60 +80,29 @@
   font-size: 14px;
   margin-bottom: 8px;
   color: #333;
-  font-weight: 500;
-  transition: color 0.3s;
-}
-
-/* Индикатор прогресса формы */
-.progressIndicator {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.progressDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #ddd;
-  margin: 0 5px;
-  transition: all 0.3s ease;
-}
-
-.progressDotActive {
-  background-color: #e32636;
-  transform: scale(1.2);
 }
 
 /* Поле ввода */
 .formInput {
   width: 100%;
-  padding: 12px 15px;
-  border: 2px solid #ddd;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 15px;
-  transition: all 0.3s;
+  transition: border-color 0.3s;
   background-color: #fff;
-}
-
-.formInput:hover {
-  border-color: #bbb;
 }
 
 .formInput:focus {
   border-color: #e32636;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(227, 38, 54, 0.1);
 }
 
 /* Стили для поля с ошибкой */
 .inputError {
   border-color: #e32636;
   background-color: #fff6f6;
-}
-
-.inputError:focus {
-  box-shadow: 0 0 0 3px rgba(227, 38, 54, 0.2);
+  box-shadow: 0 0 0 1px #e32636;
 }
 
 /* Сообщение об ошибке */
@@ -170,23 +113,26 @@
   font-weight: 500;
   display: flex;
   align-items: center;
-  animation: errorShake 0.4s ease-in-out;
+  padding-left: 2px;
 }
 
-.errorMessage::before {
-  content: "";
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e32636'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
-  background-size: contain;
+/* Иконка ошибки */
+.errorIcon {
   margin-right: 5px;
+  min-width: 16px;
 }
 
-@keyframes errorShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+/* Класс для визуального скрытия элементов, но сохранения их для скринридеров */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Контейнер для полей ввода кода */
@@ -204,96 +150,45 @@
   text-align: center;
   font-size: 22px;
   font-weight: 600;
-  border: 2px solid #ddd;
+  border: 1px solid #ddd;
   border-radius: 5px;
-  transition: all 0.3s;
+  transition: border-color 0.3s;
   background-color: #fff;
 }
 
 .codeInput:focus {
   border-color: #e32636;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(227, 38, 54, 0.1);
-}
-
-.codeInput:hover {
-  border-color: #bbb;
 }
 
 /* Кнопка формы */
 .formButton {
   width: 100%;
   max-width: 300px;
-  padding: 14px;
+  padding: 10px;
   background-color: #e32636;
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  margin-top: 10px;
+  margin-top: 8px;
   margin-left: auto;
   margin-right: auto;
   display: block;
-  position: relative;
-  overflow: hidden;
-}
-
-.formButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  transition: all 0.4s;
 }
 
 .formButton:hover {
-  background-color: #d1202f;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(227, 38, 54, 0.2);
-}
-
-.formButton:hover::before {
-  left: 100%;
-}
-
-.formButton:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(227, 38, 54, 0.2);
-}
-
-.formButton:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(227, 38, 54, 0.3);
+  background-color: #c61b29;
 }
 
 .formButton:disabled {
-  background-color: #f0f0f0;
-  color: #999;
+  background-color: #f9f9f9;
+  color: #b3b3b3;
   border: 1px solid #e6e6e6;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.formButton:disabled::before {
-  display: none;
-}
-
-/* Кнопка отправки на второй странице */
-.submitButton {
-  max-width: 180px;
-  margin-left: 0;
 }
 
 /* Контейнер для кнопок действий (назад и далее) */
@@ -311,47 +206,40 @@
   color: #666;
   font-size: 14px;
   cursor: pointer;
-  text-decoration: none;
-  padding: 8px 12px;
+  text-decoration: underline;
+  padding: 5px 0;
   margin-right: auto;
   display: flex;
   align-items: center;
-  border-radius: 4px;
-  transition: all 0.2s;
 }
 
 .backButton:hover {
   color: #333;
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.backButton:active {
-  transform: translateX(-2px);
-}
-
-.backButton:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Адаптивность для мобильных устройств */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
   .formContainer {
     width: 90%;
-    left: 5%;
     padding: 20px;
   }
   
   .codeInput {
-    width: 45px;
-    height: 45px;
-    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
   }
   
   .formTitle {
     font-size: 20px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
   }
+}
+
+/* Кнопка отправки на второй странице */
+.submitButton {
+  max-width: 180px;
+  margin-left: 0;
 }
 
  
