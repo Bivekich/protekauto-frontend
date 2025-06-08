@@ -127,6 +127,7 @@
 /* Кнопка формы */
 .formButton {
   width: 100%;
+  max-width: 300px;
   padding: 10px;
   background-color: #e32636;
   color: white;
@@ -137,6 +138,9 @@
   cursor: pointer;
   transition: all 0.3s;
   margin-top: 8px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 
 .formButton:hover {
