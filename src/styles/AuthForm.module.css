@@ -115,8 +115,10 @@
 /* Контейнер для полей ввода кода */
 .codeInputContainer {
   display: flex;
-  gap: 5px;
-  justify-content: space-between;
+  gap: 2px;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 280px;
 }
 
 /* Поле ввода для кода из СМС */
@@ -211,7 +213,7 @@
 
 /* Кнопка отправки на второй странице */
 .submitButton {
-  max-width: 120px;
+  max-width: 200px;
   margin-left: 0;
 }
 
