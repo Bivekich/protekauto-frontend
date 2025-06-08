@@ -123,6 +123,7 @@ const SmsCodeStep = ({
   onNext: () => void;
 }) => {
   const [code, setCode] = useState<string[]>(Array(5).fill(''));
+  const [error, setError] = useState<string | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Подготавливаем рефы для каждого инпута
@@ -135,6 +136,9 @@ const SmsCodeStep = ({
       const newCode = [...code];
       newCode[index] = value;
       setCode(newCode);
+
+      // Сбрасываем ошибку при изменении кода
+      setError(null);
 
       // Автоматически переходим к следующему полю
       if (value && index < 4) {
@@ -150,9 +154,29 @@ const SmsCodeStep = ({
     }
   };
 
+  // Валидация кода
+  const validateCode = (codeArray: string[]): boolean => {
+    // Проверка, что все 5 цифр введены
+    if (!codeArray.every(digit => digit)) {
+      setError('Введите все 5 цифр кода');
+      return false;
+    }
+
+    // Проверка "правильности" кода (здесь можно будет заменить на реальную проверку)
+    // Для демонстрации считаем, что правильный код - 12345
+    const enteredCode = codeArray.join('');
+    if (enteredCode !== '12345') {
+      setError('Вы указали неверный код. Попробуйте снова');
+      return false;
+    }
+
+    setError(null);
+    return true;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (code.every(digit => digit) && code.length === 5) {
+    if (validateCode(code)) {
       onNext();
     }
   };
@@ -177,11 +201,12 @@ const SmsCodeStep = ({
                 value={code[index]}
                 onChange={e => handleChange(index, e.target.value)}
                 onKeyDown={e => handleKeyDown(index, e)}
-                className={styles.codeInput}
+                className={`${styles.codeInput} ${error ? styles.inputError : ''}`}
                 required
               />
             ))}
           </div>
+          {error && <div className={styles.errorMessage}>{error}</div>}
         </div>
         <div className={styles.formActions}>
           <button 
