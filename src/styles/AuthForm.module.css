@@ -8,7 +8,6 @@
   cursor: pointer;
   color: inherit;
   font-size: 16px;
-  height: 100%;
 }
 
 /* Оверлей для затемнения фона при открытой форме */
@@ -24,14 +23,16 @@
 
 /* Контейнер формы */
 .formContainer {
-  position: absolute;
-  top: calc(100% + 5px);
-  right: 0;
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  padding: 30px;
-  width: 320px;
+  padding: 20px;
+  width: 95%;
+  max-width: 480px;
   z-index: 101;
   overflow: hidden;
 }
@@ -39,8 +40,8 @@
 /* Кнопка закрытия формы */
 .closeButton {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 15px;
   background: transparent;
   border: none;
   font-size: 24px;
@@ -59,9 +60,9 @@
 
 /* Заголовок формы */
 .formTitle {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   text-align: center;
 }
 
@@ -72,24 +73,24 @@
 
 /* Группа полей формы */
 .formGroup {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 /* Метка поля */
 .formLabel {
   display: block;
-  font-size: 16px;
-  margin-bottom: 10px;
+  font-size: 14px;
+  margin-bottom: 8px;
   color: #333;
 }
 
 /* Поле ввода */
 .formInput {
   width: 100%;
-  padding: 12px 15px;
+  padding: 10px 12px;
   border: 1px solid #ddd;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 15px;
   transition: border-color 0.3s;
   background-color: #fff;
 }
@@ -126,29 +127,26 @@
 /* Кнопка формы */
 .formButton {
   width: 100%;
-  padding: 14px;
-  background-color: #f5f5f5;
-  color: #999;
+  padding: 10px;
+  background-color: #e32636;
+  color: white;
   border: none;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  margin-top: 10px;
-  text-align: center;
+  margin-top: 8px;
 }
 
-.formButton:not(:disabled) {
-  background-color: #e32636;
-  color: white;
-}
-
-.formButton:hover:not(:disabled) {
+.formButton:hover {
   background-color: #c61b29;
 }
 
 .formButton:disabled {
+  background-color: #f9f9f9;
+  color: #b3b3b3;
+  border: 1px solid #e6e6e6;
   cursor: not-allowed;
 }
 
@@ -178,10 +176,6 @@
 /* Адаптивность для мобильных устройств */
 @media (max-width: 480px) {
   .formContainer {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     width: 90%;
     padding: 20px;
   }
