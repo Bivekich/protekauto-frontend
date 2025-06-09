@@ -27,35 +27,32 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   // Мобильная версия - всегда открытый список
   if (isMobile) {
     return (
-      <div className="mobile-filter-list">
-        <h3 className="mobile-filter-title">{title}</h3>
-        <div className="mobile-options-container">
-          {visibleOptions.map(option => (
-            <div 
-              className={`mobile-option ${selected.includes(option) ? "selected" : ""}`} 
-              key={option} 
-              onClick={() => handleSelect(option)}
-            >
-              {multi && (
-                <div className="mobile-checkbox">
-                  {selected.includes(option) && (
-                    <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-                      <path d="M5.33333 12L0 6.89362L1.86667 5.10638L5.33333 8.42553L14.1333 0L16 1.78723L5.33333 12Z" fill="currentColor" />
-                    </svg>
-                  )}
+      <div className="filter-block-mobile">
+        <div className="dropdown w-dropdown w--open">
+          <div className="dropdown-toggle w-dropdown-toggle" style={{ cursor: 'default', background: 'none', boxShadow: 'none' }}>
+            <h4 className="heading-2">{title}</h4>
+          </div>
+          <nav className="dropdown-list w-dropdown-list" style={{ display: 'block', position: 'static', boxShadow: 'none', background: 'transparent', padding: 0 }}>
+            <div className="w-layout-vflex flex-block-17">
+              {visibleOptions.map(option => (
+                <div className="div-block-8" key={option} onClick={() => handleSelect(option)}>
+                  <div className={`div-block-7${selected.includes(option) ? " active" : ""}`}>
+                    {selected.includes(option) && (
+                      <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                        <path d="M5.33333 12L0 6.89362L1.86667 5.10638L5.33333 8.42553L14.1333 0L16 1.78723L5.33333 12Z" fill="currentColor" />
+                      </svg>
+                    )}
+                  </div>
+                  <div className="text-block-12">{option}</div>
+                </div>
+              ))}
+              {showAll && options.length > 4 && (
+                <div className="show-all-option" onClick={() => setShowAllOptions(!showAllOptions)} style={{ color: '#007bff', cursor: 'pointer', fontSize: 15 }}>
+                  {showAllOptions ? "Скрыть" : "Показать все"}
                 </div>
               )}
-              <span>{option}</span>
             </div>
-          ))}
-          {showAll && options.length > 4 && (
-            <div 
-              className="mobile-show-all" 
-              onClick={() => setShowAllOptions(!showAllOptions)}
-            >
-              {showAllOptions ? "Скрыть" : "Показать все"}
-            </div>
-          )}
+          </nav>
         </div>
       </div>
     );

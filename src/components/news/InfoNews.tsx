@@ -4,11 +4,11 @@ const InfoNews = () => (
   <div className="w-layout-blockcontainer container info w-container">
     <div className="w-layout-vflex flex-block-9">
       <div className="w-layout-hflex flex-block-7">
-        <a href="#" className="link-block w-inline-block">
+        <a href="/" className="link-block w-inline-block">
           <div>Главная</div>
         </a>
         <div className="text-block-3">→</div>
-        <a href="#" className="link-block-2 w-inline-block">
+        <a href="/news" className="link-block-2 w-inline-block">
           <div>Новости</div>
         </a>
       </div>

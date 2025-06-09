@@ -1,6 +1,13 @@
 import Head from "next/head";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CatalogSubscribe from "@/components/CatalogSubscribe";
+import MobileMenuBottomSection from "@/components/MobileMenuBottomSection";
+import Help from "@/components/Help";
+import InfoPayments from "@/components/payments/InfoPayments";
+import PaymentsDetails from "@/components/payments/PaymentsDetails";
+import DeliveryInfo from "@/components/payments/DeliveryInfo";
+import PaymentsCompony from "@/components/payments/PaymentsCompony";
 
 export default function PaymentsMethod() {
   return (
@@ -10,11 +17,24 @@ export default function PaymentsMethod() {
         <meta name="description" content="Payments Method" />
       </Head>
       <Header />
-      {/* Вставь сюда содержимое <body> из payments-method.html, преобразовав в JSX. Все пути к картинкам и svg поменяй на /images/... */}
-      {/* Пример: <img src="/images/logo.svg" ... /> */}
-      {/* Сохрани все классы для стилей. */}
-      {/* TODO: Перевести формы и интерактив на React позже */}
+      <InfoPayments />
+      
+      <section className="main">
+        <div className="w-layout-blockcontainer container w-container">
+          <div className="w-layout-hflex flex-block-67">
+          <PaymentsDetails />
+            <DeliveryInfo />
+            <PaymentsCompony />
+            <Help />
+          </div>
+        </div>
+      </section>
+      <section className="section-3">
+        <CatalogSubscribe />
+      </section>
       <Footer />
+      <MobileMenuBottomSection />
+
     </>
   );
 } 

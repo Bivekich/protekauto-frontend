@@ -5,8 +5,39 @@ import "@/styles/protekproject.webflow.css";
 import "@/styles/my.css";
 import type { AppProps } from "next/app";
 import Script from "next/script";
+import React, { useEffect } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    function setBodyPadding() {
+      const header = document.querySelector("header.section-4");
+      if (header && header instanceof HTMLElement) {
+        document.body.style.paddingTop = header.offsetHeight + "px";
+      }
+    }
+    setBodyPadding();
+    window.addEventListener("resize", setBodyPadding);
+
+    // Скрытие контейнера навигации при скролле
+    function handleScroll() {
+      const navContainer = document.querySelector(".w-layout-blockcontainer.container.nav.w-container");
+      if (navContainer && navContainer instanceof HTMLElement) {
+        if (window.scrollY > 0) {
+          navContainer.classList.add("hide-top-head");
+        } else {
+          navContainer.classList.remove("hide-top-head");
+        }
+      }
+    }
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("resize", setBodyPadding);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
     <>
       <Component {...pageProps} />

@@ -30,10 +30,10 @@ const MobileMenuBottomSection: React.FC = () => (
   <nav className="mobile-menu-buttom-section">
     <div className="w-layout-blockcontainer mobile-menu-bottom w-container">
       <div className="w-layout-hflex flex-block-87">
-        <MobileMenuButton icon={GarageIcon} label="Гараж" />
-        <MobileMenuButton icon={FavoriteIcon} label="Избранное" />
-        <MobileMenuButton icon={CartIcon} label="Корзина" counter={<div className="text-block-39">12</div>} status="danger" />
-        <MobileMenuButton icon={CabinetIcon} label="Кабинет" counter={<div className="text-block-39">!</div>} status="success" />
+        <MobileMenuButton icon={GarageIcon} label="Гараж" href="/favorite" />
+        <MobileMenuButton icon={FavoriteIcon} label="Избранное" href="/favorite" />
+        <MobileMenuButton icon={CartIcon} label="Корзина" href="/cart" counter={<div className="text-block-39">12</div>} status="danger" />
+        <MobileMenuButton icon={CabinetIcon} label="Кабинет" href="/login" counter={<div className="text-block-39">!</div>} status="success" />
       </div>
     </div>
   </nav>
