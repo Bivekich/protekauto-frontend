@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 type NewsCardProps = {
   title: string;
@@ -24,7 +25,7 @@ const NewsCard = ({ title, description, category, date, image }: NewsCardProps) 
       </div>
     </div>
     <div className="div-block-15">
-      <img src={image} loading="lazy" alt="" className="image-7" />
+      <img src={image} loading="lazy" width="Auto" height="Auto" alt="" className="image-7" />
     </div>
   </div>
 );

@@ -80,61 +80,86 @@ const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max
   // Мобильная версия - без dropdown
   if (isMobile) {
     return (
-      <div className="mobile-range-filter">
-        <h3 className="mobile-filter-title">{title}</h3>
-        <div className="input-fields" style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-          <div className="input-field" style={{ position: 'relative', flex: 1 }}>
-            <label htmlFor="from" className="field-label" style={{ position: 'absolute', left: 3, top: '50%', transform: 'translateY(-50%)', color: '#888', fontSize: 15, pointerEvents: 'none' }}>от</label>
-            <input
-              className="text-field-2"
-              maxLength={6}
-              name="from"
-              placeholder={String(min)}
-              type="text"
-              id="from"
-              value={from}
-              onChange={handleFromInput}
-              style={{ padding: '8px 10px 8px 36px', fontSize: 16, width: '100%' }}
-            />
+      <div className="filter-block-mobile">
+        <div className="dropdown w-dropdown w--open">
+          <div className="dropdown-toggle w-dropdown-toggle" style={{ cursor: 'default', background: 'none', boxShadow: 'none' }}>
+            <h4 className="heading-2">{title}</h4>
           </div>
-          <div className="input-field" style={{ position: 'relative', flex: 1 }}>
-            <label htmlFor="to" className="field-label" style={{ position: 'absolute', left: 3, top: '50%', transform: 'translateY(-50%)', color: '#888', fontSize: 15, pointerEvents: 'none' }}>до</label>
-            <input
-              className="text-field-2"
-              maxLength={6}
-              name="to"
-              placeholder={String(max)}
-              type="text"
-              id="to"
-              value={to}
-              onChange={handleToInput}
-              style={{ padding: '8px 10px 8px 36px', fontSize: 16, width: '100%' }}
-            />
-          </div>
-        </div>
-        <div className="range-slider-container" ref={trackRef}>
-          <div className="range-track"></div>
-          <div
-            className="range-fill"
-            style={{
-              left: pxFrom,
-              width: pxTo - pxFrom,
-            }}
-          ></div>
-          <div
-            className="range-handle range-handle-from"
-            style={{ left: pxFrom - 8 }}
-            onMouseDown={onMouseDown("from")}
-          ></div>
-          <div
-            className="range-handle range-handle-to"
-            style={{ left: pxTo - 8 }}
-            onMouseDown={onMouseDown("to")}
-          ></div>
-        </div>
-        <div className="range-values">
-          <span>{min}</span>
-          <span>{max}</span>
+          <nav className="dropdown-list w-dropdown-list" style={{ display: 'block', position: 'static', boxShadow: 'none', background: 'transparent', padding: 0 }}>
+            <div className="form-block-2">
+              <form className="form-2" onSubmit={e => e.preventDefault()} style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                <div className="div-block-5" style={{ position: 'relative', flex: 1 }}>
+                  <label htmlFor="from" className="field-label" style={{ position: 'absolute', left: 3, top: '50%', transform: 'translateY(-50%)', color: '#888', fontSize: 15, pointerEvents: 'none' }}>от</label>
+                  <input
+                    className="text-field-2 w-input"
+                    maxLength={6}
+                    name="from"
+                    placeholder={String(min)}
+                    type="text"
+                    id="from"
+                    value={from}
+                    onChange={handleFromInput}
+                    style={{ padding: '8px 10px 8px 36px', fontSize: 16, width: '100%' }}
+                  />
+                </div>
+                <div className="div-block-5" style={{ position: 'relative', flex: 1 }}>
+                  <label htmlFor="to" className="field-label" style={{ position: 'absolute', left: 3, top: '50%', transform: 'translateY(-50%)', color: '#888', fontSize: 15, pointerEvents: 'none' }}>до</label>
+                  <input
+                    className="text-field-2 w-input"
+                    maxLength={6}
+                    name="to"
+                    placeholder={String(max)}
+                    type="text"
+                    id="to"
+                    value={to}
+                    onChange={handleToInput}
+                    style={{ padding: '8px 10px 8px 36px', fontSize: 16, width: '100%' }}
+                  />
+                </div>
+              </form>
+            </div>
+            <div className="div-block-6" style={{ position: 'relative', height: 32, marginTop: 12 }} ref={trackRef}>
+              <div className="track" style={{ position: 'absolute', top: 14, left: 0, right: 0, height: 4, borderRadius: 2 }}></div>
+              <div
+                className="track fill"
+                style={{
+                  position: 'absolute',
+                  top: 14,
+                  left: pxFrom,
+                  width: pxTo - pxFrom - 20,
+                  height: 4,
+                  borderRadius: 2,
+                  zIndex: 2,
+                }}
+              ></div>
+              <div
+                className="start"
+                style={{
+                  position: 'absolute',
+                  top: 6,
+                  left: pxFrom ,
+                  zIndex: 3,
+                  cursor: 'pointer'
+                }}
+                onMouseDown={onMouseDown("from")}
+              ></div>
+              <div
+                className="start end"
+                style={{
+                  position: 'absolute',
+                  top: 6,
+                  left: pxTo - 20,
+                  zIndex: 3,
+                  cursor: 'pointer'
+                }}
+                onMouseDown={onMouseDown("to")}
+              ></div>
+            </div>
+            <div className="range-values" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 14, color: '#888' }}>
+              <span>{min}</span>
+              <span>{max}</span>
+            </div>
+          </nav>
         </div>
       </div>
     );
