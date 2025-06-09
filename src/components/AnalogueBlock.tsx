@@ -44,7 +44,7 @@ const AnalogueBlock: React.FC = () => (
             </div>
             <div className="w-layout-hflex add-to-cart-block">
               <div className="w-layout-hflex flex-block-82">
-                <div className="w-layout-hflex pcs">
+                <div className="w-layout-hflex pcs-re-s1">
                   <div className="minus-plus"><img src="/images/minus_icon.svg" loading="lazy" alt="" /></div>
                   <div className="input-pcs">
                     <div className="text-block-26">1</div>
@@ -102,7 +102,7 @@ const AnalogueBlock: React.FC = () => (
             </div>
             <div className="w-layout-hflex add-to-cart-block">
               <div className="w-layout-hflex flex-block-82">
-                <div className="w-layout-hflex pcs">
+                <div className="w-layout-hflex pcs-re-s1">
                   <div className="minus-plus"><img src="/images/minus_icon.svg" loading="lazy" alt="" /></div>
                   <div className="input-pcs">
                     <div className="text-block-26">1</div>
@@ -160,7 +160,7 @@ const AnalogueBlock: React.FC = () => (
             </div>
             <div className="w-layout-hflex add-to-cart-block">
               <div className="w-layout-hflex flex-block-82">
-                <div className="w-layout-hflex pcs">
+                <div className="w-layout-hflex pcs-re-s1">
                   <div className="minus-plus"><img src="/images/minus_icon.svg" loading="lazy" alt="" /></div>
                   <div className="input-pcs">
                     <div className="text-block-26">1</div>
@@ -218,7 +218,7 @@ const AnalogueBlock: React.FC = () => (
             </div>
             <div className="w-layout-hflex add-to-cart-block">
               <div className="w-layout-hflex flex-block-82">
-                <div className="w-layout-hflex pcs">
+                <div className="w-layout-hflex pcs-re-s1">
                   <div className="minus-plus"><img src="/images/minus_icon.svg" loading="lazy" alt="" /></div>
                   <div className="input-pcs">
                     <div className="text-block-26">1</div>

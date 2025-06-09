@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Link from "next/link";
 
 const tabs = [
   "Техническое обслуживание",
@@ -63,9 +64,9 @@ const CatalogSection = () => {
                       <option value="Third">Third choice</option>
                     </select>
                   ))}
-                  <div className="div-block-10">
+                  <Link href="/card" className="div-block-10" style={{ display: 'block' }}>
                     <input type="submit" data-wait="Please wait..." className="submit-button w-button" value="Подобрать автозапчасть" />
-                  </div>
+                  </Link>
                 </form>
                 <div className="w-form-done">
                   <div>Thank you! Your submission has been received!</div>

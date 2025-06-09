@@ -78,7 +78,7 @@ export default function Catalog() {
               <CatalogSortDropdown active={sortActive} onChange={setSortActive} />
               <div className="w-layout-hflex flex-block-85" onClick={() => setShowFiltersMobile((v) => !v)}>
                 <span className="code-embed-9 w-embed">
-                  <svg width="currentwidth" height="currentheight" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M21 4H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M10 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M21 12H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -97,18 +97,11 @@ export default function Catalog() {
             <div className="filters-desktop">
               <Filters filters={catalogFilters} />
             </div>
-            {showFiltersMobile && (
-              <>
-                <div className="filters-overlay" onClick={() => setShowFiltersMobile(false)}></div>
-                <div className="filters-sidebar-mobile"> 
-                  <div className="w-layout-hflex flex-block-84">
-                    <h3>Фильтры</h3>
-                    <button className="filters-close" onClick={() => setShowFiltersMobile(false)} type="button">×</button>
-                  </div>
-                  <FiltersPanelMobile filters={catalogFilters} />
-                </div>
-              </>
-            )}
+            <FiltersPanelMobile
+              filters={catalogFilters}
+              open={showFiltersMobile}
+              onClose={() => setShowFiltersMobile(false)}
+            />
             <div className="w-layout-vflex flex-block-14-copy-copy">
               <CatalogTabs />
               {mockData.map((item, idx) => (

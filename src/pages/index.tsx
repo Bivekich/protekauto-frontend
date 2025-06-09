@@ -8,9 +8,9 @@ import CatalogSubscribe from "@/components/CatalogSubscribe";
 import MobileMenuBottomSection from "@/components/MobileMenuBottomSection";
 import HeroSlider from "@/components/index/HeroSlider";
 import CatalogSection from "@/components/index/CatalogSection";
-import HelpVinRequest from "@/components/index/HelpVinRequest";
 import AvailableParts from "@/components/index/AvailableParts";
 import NewsAndPromos from "@/components/index/NewsAndPromos";
+import AboutHelp from "@/components/about/AboutHelp";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +36,7 @@ export default function Home() {
       <Header />
       <HeroSlider />
       <CatalogSection />
-      <HelpVinRequest />
+      <AboutHelp />
       <AvailableParts />
       <NewsAndPromos />
       <section className="section-3">

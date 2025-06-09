@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Link from "next/link";
 
 const tabData = [
   {
@@ -99,7 +100,7 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
             <div className="w-layout-hflex flex-block-92">
               <div className="w-layout-vflex flex-block-91">
                 {tabData[activeTab].links.map((link) => (
-                  <a href="#" className="link-2" key={link} onClick={onClose}>{link}</a>
+                  <Link href="/catalog" className="link-2" key={link} onClick={onClose}>{link}</Link>
                 ))}
               </div>
               <div className="w-layout-vflex flex-block-91-copy">
@@ -118,8 +119,9 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
                 data-w-tab={`Tab ${idx + 1}`}
                 className={`tab-link w-inline-block w-tab-link${activeTab === idx ? " w--current" : ""}`}
                 onClick={() => {
-                  setActiveTab(idx);
-                  onClose();
+                  if (activeTab !== idx) {
+                    setActiveTab(idx);
+                  }
                 }}
                 style={{ cursor: "pointer" }}
               >
@@ -147,7 +149,7 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
                   <div className="w-layout-hflex flex-block-92">
                     <div className="w-layout-vflex flex-block-91">
                       {tab.links.map((link) => (
-                        <a href="#" className="link-2" key={link} onClick={onClose}>{link}</a>
+                        <Link href="/catalog" className="link-2" key={link} onClick={onClose}>{link}</Link>
                       ))}
                     </div>
                     <div className="w-layout-vflex flex-block-91-copy">

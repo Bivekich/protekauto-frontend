@@ -5,6 +5,7 @@ import CatalogSubscribe from "@/components/CatalogSubscribe";
 import InfoNews from "@/components/news/InfoNews";
 import NewsMenu from "@/components/news/NewsMenu";
 import NewsCard from "@/components/news/NewsCard";
+import MobileMenuBottomSection from "@/components/MobileMenuBottomSection";
 
 export default function News() {
   return (
@@ -46,6 +47,7 @@ export default function News() {
         <CatalogSubscribe />
       </section>
       <Footer />
+      <MobileMenuBottomSection />
     </>
   );
 } 

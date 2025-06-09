@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 interface CatalogProductCardProps {
@@ -18,19 +19,21 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
   brand,
 }) => (
   <div className="w-layout-vflex flex-block-15-copy">
-    <div className="div-block-4">
-      <img src={image} loading="lazy" width={210} height={190} alt="" className="image-5" />
-      <div className="text-block-7">{discount}</div>
-    </div>
-    <div className="div-block-3">
-      <div className="w-layout-hflex flex-block-16">
-        <div className="text-block-8">{price}</div>
-        <div className="text-block-9">{oldPrice}</div>
+    <Link href="/card" className="card-link" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+      <div className="div-block-4">
+        <img src={image} loading="lazy" width={210} height={190} alt="" className="image-5" />
+        <div className="text-block-7">{discount}</div>
       </div>
-      <div className="text-block-10">{title}</div>
-      <div className="text-block-11">{brand}</div>
-    </div>
-    <a href="#" className="link-block-4-copy w-inline-block">
+      <div className="div-block-3">
+        <div className="w-layout-hflex flex-block-16">
+          <div className="text-block-8">{price}</div>
+          <div className="text-block-9">{oldPrice}</div>
+        </div>
+        <div className="text-block-10">{title}</div>
+        <div className="text-block-11">{brand}</div>
+      </div>
+    </Link>
+    <Link href="/cart" className="link-block-4-copy w-inline-block">
       <div className="div-block-25">
         <div className="icon-setting w-embed">
           <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -39,7 +42,7 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
         </div>
       </div>
       <div className="text-block-6">Купить</div>
-    </a>
+    </Link>
   </div>
 );
 

@@ -16,7 +16,7 @@ const ProductBuyBlock = () => {
           <img loading="lazy" src="images/plus_icon.svg" alt="" />
         </div>
       </div>
-      <a href="#" className="button-icon w-inline-block">
+      <a href="/cart" className="button-icon w-inline-block">
         <img loading="lazy" src="images/cart_icon.svg" alt="" className="image-11" />
       </a>
     </div>
