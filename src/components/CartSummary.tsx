@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import Link from "next/link";
 
 const CartSummary: React.FC = () => {
   const [deliveryType, setDeliveryType] = useState("Доставка курьером");
   const [address, setAddress] = useState("Калининградская область, Калиниград, улица Понартская, 5, кв./офис 1, Подъезд 1, этаж 1");
   const [consent, setConsent] = useState(false);
+  const [error, setError] = useState("");
 
   const handleEditDelivery = () => {
     const value = prompt("Введите способ доставки", deliveryType);
@@ -12,6 +14,16 @@ const CartSummary: React.FC = () => {
   const handleEditAddress = () => {
     const value = prompt("Введите адрес доставки", address);
     if (value !== null) setAddress(value);
+  };
+
+  const handleSubmit = () => {
+    if (deliveryType.trim() === "" || address.trim() === "" || !consent) {
+      setError("Пожалуйста, заполните все поля и согласитесь с правилами.");
+    } else {
+      setError("");
+      // Здесь можно добавить переход на страницу оформления заказа
+      window.location.href = "/cart-step-2";
+    }
   };
 
   return (
@@ -52,7 +64,8 @@ const CartSummary: React.FC = () => {
           <div className="text-block-32">Итого</div>
           <h4 className="heading-9-copy-copy">39 389 ₽</h4>
         </div>
-        <a href="#" className="submit-button fill w-button">Оформить заказ</a>
+        <button className="submit-button fill w-button" onClick={handleSubmit}>Оформить заказ</button>
+        {error && <div style={{ color: 'red', marginTop: 10 }}>{error}</div>}
         <div className="w-layout-hflex privacy-consent" style={{ cursor: 'pointer' }} onClick={() => setConsent((v) => !v)}>
           <div
             className={"div-block-7" + (consent ? " active" : "")}

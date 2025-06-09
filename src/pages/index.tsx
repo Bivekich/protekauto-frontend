@@ -36,7 +36,9 @@ export default function Home() {
       <Header />
       <HeroSlider />
       <CatalogSection />
+      <div className="w-layout-blockcontainer container2 w-container">
       <AboutHelp />
+      </div>
       <AvailableParts />
       <NewsAndPromos />
       <section className="section-3">

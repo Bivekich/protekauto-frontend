@@ -1,9 +1,42 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 
 const slides = [
-  { id: 0, content: <div className="w-slide">Слайд 1</div> },
-  { id: 1, content: <div className="w-slide">Слайд 2</div> },
-  { id: 2, content: <div className="w-slide">Слайд 3</div> },
+  {
+    id: 0,
+    heading: "ШИРОКИЙ ВЫБОР АВТОЗАПЧАСТЕЙ",
+    text: "Сотрудничаем только с проверенными поставщиками.Постоянно обновляем ассортимент, чтобы предложить самые лучшие и актуальные детали.",
+    img: "/images/imgfb.png",
+    features: [
+      { icon: "/images/1.png", text: "Быстрая доставка по всей стране" },
+      { icon: "/images/2.png", text: "Высокое качество продукции" },
+      { icon: "/images/3.png", text: "Выгодные цены" },
+      { icon: "/images/4.png", text: "Профессиональная консультация" },
+    ],
+  },
+  {
+    id: 1,
+    heading: "УЗКИЙ ВЫБОР АВТОЗАПЧАСТЕЙ",
+    text: "Сотрудничаем только с проверенными поставщиками.Постоянно обновляем ассортимент, чтобы предложить самые лучшие и актуальные детали.",
+    img: "/images/imgfb.png",
+    features: [
+      { icon: "/images/1.png", text: "Быстрая доставка по всей стране" },
+      { icon: "/images/2.png", text: "Высокое качество продукции" },
+      { icon: "/images/3.png", text: "Выгодные цены" },
+      { icon: "/images/4.png", text: "Профессиональная консультация" },
+    ],
+  },
+  {
+    id: 2,
+    heading: "ЛУЧШИЙ ВЫБОР АВТОЗАПЧАСТЕЙ",
+    text: "Сотрудничаем только с проверенными поставщиками.Постоянно обновляем ассортимент, чтобы предложить самые лучшие и актуальные детали.",
+    img: "/images/imgfb.png",
+    features: [
+      { icon: "/images/1.png", text: "Быстрая доставка по всей стране" },
+      { icon: "/images/2.png", text: "Высокое качество продукции" },
+      { icon: "/images/3.png", text: "Выгодные цены" },
+      { icon: "/images/4.png", text: "Профессиональная консультация" },
+    ],
+  },
 ];
 
 const AUTOPLAY_DELAY = 4000;
@@ -38,23 +71,48 @@ const HeroSlider = () => {
 
   const sliderContent = (
     <div className="slider w-slider">
-      <div className="w-slider-mask">
+      <div className="mask w-slider-mask">
         {slides.map((slide, idx) => (
           <div
             key={slide.id}
-            className={`w-slide${active === idx ? " active" : ""}`}
-            style={{ display: active === idx ? "block" : "none" }}
+            className={`slide w-slide${active === idx ? " w--active" : ""}`}
           >
-            {slide.content}
+            <div className="w-layout-vflex flex-block-100">
+              <div className="div-block-35">
+                <img
+                  src={slide.img}
+                  loading="lazy"
+                  sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                  srcSet={`${slide.img} 500w, ${slide.img} 800w, ${slide.img} 1027w`}
+                  alt=""
+                  className="image-21"
+                />
+              </div>
+              <div className="w-layout-vflex flex-block-99">
+                <h2 className="heading-17">{slide.heading}</h2>
+                <div className="text-block-51">{slide.text}</div>
+              </div>
+              <div className="w-layout-hflex flex-block-101">
+                {slide.features.map((feature, i) => (
+                  <div className="w-layout-hflex flex-block-102" key={i}>
+                    <img src={feature.icon} loading="lazy" alt="" className="image-20" />
+                    <div className="text-block-52">{feature.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         ))}
       </div>
       <div className="left-arrow w-slider-arrow-left" onClick={() => handleManual(prev)} style={{ cursor: "pointer" }}>
-        <div className="icon-2 w-icon-slider-left"></div>
+        <div className="div-block-34">
+          <div className="icon-2 w-icon-slider-left"></div>
+        </div>
       </div>
       <div className="right-arrow w-slider-arrow-right" onClick={() => handleManual(next)} style={{ cursor: "pointer" }}>
-        <div className="w-icon-slider-right"></div>
-        <div className="icon-2 w-icon-slider-left" style={{ transform: 'rotate(180deg)' }}></div>
+        <div className="div-block-34">
+          <div className="icon-2 w-icon-slider-right"></div>
+        </div>
       </div>
       <div className="slide-nav w-slider-nav w-slider-nav-invert w-round">
         {slides.map((_, idx) => (
@@ -78,7 +136,7 @@ const HeroSlider = () => {
       {isMobile ? (
         sliderContent
       ) : (
-        <div className="w-layout-blockcontainer container2 w-container">
+        <div className="w-layout-blockcontainer container2-copy w-container">
           {sliderContent}
         </div>
       )}
