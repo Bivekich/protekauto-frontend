@@ -21,7 +21,7 @@ const HeroSlider = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const goTo = useCallback((idx) => setActive((idx + total) % total), [total]);
+  const goTo = useCallback((idx: number) => setActive((idx + total) % total), [total]);
   const next = useCallback(() => goTo(active + 1), [active, goTo]);
   const prev = useCallback(() => goTo(active - 1), [active, goTo]);
 
@@ -31,7 +31,7 @@ const HeroSlider = () => {
     return () => { if (timer.current) clearTimeout(timer.current); };
   }, [active, total]);
 
-  const handleManual = (fn) => {
+  const handleManual = (fn: () => void) => {
     if (timer.current) clearTimeout(timer.current);
     fn();
   };
