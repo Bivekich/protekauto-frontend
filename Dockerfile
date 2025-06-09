@@ -12,6 +12,14 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Set build arguments for environment variables
+ARG NEXT_PUBLIC_CMS_GRAPHQL_URL
+ARG NEXT_PUBLIC_UPLOAD_URL
+
+# Set environment variables for build time
+ENV NEXT_PUBLIC_CMS_GRAPHQL_URL=$NEXT_PUBLIC_CMS_GRAPHQL_URL
+ENV NEXT_PUBLIC_UPLOAD_URL=$NEXT_PUBLIC_UPLOAD_URL
+
 # Build the application
 RUN npm run build
 

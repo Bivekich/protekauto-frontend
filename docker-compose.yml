@@ -5,12 +5,15 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_CMS_GRAPHQL_URL: ${NEXT_PUBLIC_CMS_GRAPHQL_URL:-http://localhost:4000/graphql}
+        NEXT_PUBLIC_UPLOAD_URL: ${NEXT_PUBLIC_UPLOAD_URL:-http://localhost:4000/upload}
     container_name: protekauto-frontend
     ports:
       - "3001:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:4000/graphql}
+      - NEXT_PUBLIC_CMS_GRAPHQL_URL=${NEXT_PUBLIC_CMS_GRAPHQL_URL:-http://localhost:4000/graphql}
       - NEXT_PUBLIC_UPLOAD_URL=${NEXT_PUBLIC_UPLOAD_URL:-http://localhost:4000/upload}
     restart: unless-stopped
     networks:
