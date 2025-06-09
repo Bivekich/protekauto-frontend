@@ -1,8 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import BottomHead from "@/components/BottomHead";
+import AuthModal from "@/components/auth/AuthModal";
+import type { Client } from "@/types/auth";
+import { useIsClient } from "@/lib/useIsomorphicLayoutEffect";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<Client | null>(null);
+  const router = useRouter();
+  const isClient = useIsClient();
+
+  // Проверяем авторизацию при загрузке компонента (только на клиенте)
+  useEffect(() => {
+    if (!isClient) return;
+    
+    const token = localStorage.getItem('authToken');
+    const userData = localStorage.getItem('userData');
+    
+    if (token && userData) {
+      try {
+        const user = JSON.parse(userData);
+        setCurrentUser(user);
+      } catch (error) {
+        console.error('Ошибка парсинга данных пользователя:', error);
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+      }
+    }
+  }, [isClient]);
 
   return (
     <header className="section-4">
@@ -66,10 +93,22 @@ const Header = () => {
                   <div className="code-embed-7 w-embed"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 25L13.405 23.5613C7.74 18.4714 4 15.1035 4 10.9946C4 7.6267 6.662 5 10.05 5C11.964 5 13.801 5.88283 15 7.26703C16.199 5.88283 18.036 5 19.95 5C23.338 5 26 7.6267 26 10.9946C26 15.1035 22.26 18.4714 16.595 23.5613L15 25Z" fill="currentColor" /></svg></div>
                   <div className="text-block-2">Избранное</div>
                 </a>
-                <a href="#" className="button_h login w-inline-block">
+                <button 
+                  onClick={() => {
+                    if (currentUser) {
+                      // Если пользователь авторизован, переходим в личный кабинет
+                      router.push('/profile-orders');
+                    } else {
+                      // Если не авторизован, открываем модальное окно
+                      setAuthModalOpen(true);
+                    }
+                  }}
+                  className="button_h login w-inline-block"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                >
                   <div className="code-embed-8 w-embed"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 3C8.376 3 3 8.376 3 15C3 21.624 8.376 27 15 27C21.624 27 27 21.624 27 15C27 8.376 21.624 3 15 3ZM15 7.8C17.316 7.8 19.2 9.684 19.2 12C19.2 14.316 17.316 16.2 15 16.2C12.684 16.2 10.8 14.316 10.8 12C10.8 9.684 12.684 7.8 15 7.8ZM15 24.6C12.564 24.6 9.684 23.616 7.632 21.144C9.73419 19.4955 12.3285 18.5995 15 18.5995C17.6715 18.5995 20.2658 19.4955 22.368 21.144C20.316 23.616 17.436 24.6 15 24.6Z" fill="currentColor" /></svg></div>
-                  <div className="text-block-2">Войти</div>
-                </a>
+                  <div className="text-block-2">{currentUser ? 'Личный кабинет' : 'Войти'}</div>
+                </button>
                 <a href="#" className="button_h w-inline-block">
                   <div className="code-embed-7 w-embed"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.1998 22.2C8.8798 22.2 7.81184 23.28 7.81184 24.6C7.81184 25.92 8.8798 27 10.1998 27C11.5197 27 12.5997 25.92 12.5997 24.6C12.5997 23.28 11.5197 22.2 10.1998 22.2ZM3 3V5.4H5.39992L9.71977 14.508L8.09982 17.448C7.90783 17.784 7.79984 18.18 7.79984 18.6C7.79984 19.92 8.8798 21 10.1998 21H24.5993V18.6H10.7037C10.5357 18.6 10.4037 18.468 10.4037 18.3L10.4397 18.156L11.5197 16.2H20.4594C21.3594 16.2 22.1513 15.708 22.5593 14.964L26.8552 7.176C26.9542 6.99286 27.004 6.78718 26.9997 6.57904C26.9955 6.37089 26.9373 6.16741 26.8309 5.98847C26.7245 5.80952 26.5736 5.66124 26.3927 5.55809C26.2119 5.45495 26.0074 5.40048 25.7992 5.4H8.05183L6.92387 3H3ZM22.1993 22.2C20.8794 22.2 19.8114 23.28 19.8114 24.6C19.8114 25.92 20.8794 27 22.1993 27C23.5193 27 24.5993 25.92 24.5993 24.6C24.5993 23.28 23.5193 22.2 22.1993 22.2Z" fill="currentColor" /></svg></div>
                   <div className="text-block-2">Корзина</div>
@@ -83,6 +122,30 @@ const Header = () => {
         </div>
       </section>
       <BottomHead menuOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      
+      <AuthModal 
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onSuccess={(client, token) => {
+          setCurrentUser(client);
+          if (isClient) {
+            if (token) {
+              localStorage.setItem('authToken', token);
+            }
+            
+            // Сохраняем данные пользователя
+            localStorage.setItem('userData', JSON.stringify(client));
+          }
+          
+          console.log('Пользователь авторизован:', client);
+          
+          // Закрываем модальное окно
+          setAuthModalOpen(false);
+          
+          // Перенаправляем в личный кабинет
+          router.push('/profile-orders');
+        }}
+      />
     </header>
   );
 };
