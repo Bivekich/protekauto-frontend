@@ -1,4 +1,4 @@
-// import "@/styles/globals.css"; 
+import "@/styles/globals.css"; 
 import "@/styles/normalize.css";
 import "@/styles/webflow.css";
 import "@/styles/protekproject.webflow.css";
