@@ -3,42 +3,66 @@ import "@/styles/normalize.css";
 import "@/styles/webflow.css";
 import "@/styles/protekproject.webflow.css";
 import "@/styles/my.css";
+import "@/styles/maintenance.css";
 import type { AppProps } from "next/app";
 import Script from "next/script";
 import { ApolloProvider } from '@apollo/client';
 import { apolloClient } from '@/lib/apollo';
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import MaintenanceMode from '@/components/MaintenanceMode';
 
 export default function App({ Component, pageProps }: AppProps) {
-  useEffect(() => {
-    function setBodyPadding() {
-      const header = document.querySelector("header.section-4");
-      if (header && header instanceof HTMLElement) {
-        document.body.style.paddingTop = header.offsetHeight + "px";
-      }
-    }
-    setBodyPadding();
-    window.addEventListener("resize", setBodyPadding);
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    // Скрытие контейнера навигации при скролле
-    function handleScroll() {
-      const navContainer = document.querySelector(".w-layout-blockcontainer.container.nav.w-container");
-      if (navContainer && navContainer instanceof HTMLElement) {
-        if (window.scrollY > 0) {
-          navContainer.classList.add("hide-top-head");
-        } else {
-          navContainer.classList.remove("hide-top-head");
+  useEffect(() => {
+    // Проверяем переменную окружения или localStorage для режима обслуживания
+    const maintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
+    const savedAuth = localStorage.getItem('maintenance_authenticated');
+    
+    setIsMaintenanceMode(maintenanceMode);
+    setIsAuthenticated(savedAuth === 'true');
+
+    if (!maintenanceMode || savedAuth === 'true') {
+      function setBodyPadding() {
+        const header = document.querySelector("header.section-4");
+        if (header && header instanceof HTMLElement) {
+          document.body.style.paddingTop = header.offsetHeight + "px";
         }
       }
-    }
-    window.addEventListener("scroll", handleScroll);
-    handleScroll();
+      setBodyPadding();
+      window.addEventListener("resize", setBodyPadding);
 
-    return () => {
-      window.removeEventListener("resize", setBodyPadding);
-      window.removeEventListener("scroll", handleScroll);
-    };
+      // Скрытие контейнера навигации при скролле
+      function handleScroll() {
+        const navContainer = document.querySelector(".w-layout-blockcontainer.container.nav.w-container");
+        if (navContainer && navContainer instanceof HTMLElement) {
+          if (window.scrollY > 0) {
+            navContainer.classList.add("hide-top-head");
+          } else {
+            navContainer.classList.remove("hide-top-head");
+          }
+        }
+      }
+      window.addEventListener("scroll", handleScroll);
+      handleScroll();
+
+      return () => {
+        window.removeEventListener("resize", setBodyPadding);
+        window.removeEventListener("scroll", handleScroll);
+      };
+    }
   }, []);
+
+  const handlePasswordCorrect = () => {
+    localStorage.setItem('maintenance_authenticated', 'true');
+    setIsAuthenticated(true);
+  };
+
+  // Показываем заглушку если включен режим обслуживания и пользователь не аутентифицирован
+  if (isMaintenanceMode && !isAuthenticated) {
+    return <MaintenanceMode onPasswordCorrect={handlePasswordCorrect} />;
+  }
 
   return (
     <ApolloProvider client={apolloClient}>
