@@ -12,6 +12,11 @@ const MaintenanceMode: React.FC<MaintenanceModeProps> = ({ onPasswordCorrect }) 
 
   const correctPassword = 'protek2024'; // Замените на ваш пароль
 
+  // Дебаг информация (удалите в продакшене)
+  useEffect(() => {
+    console.log('Maintenance Mode Environment Variable:', process.env.NEXT_PUBLIC_MAINTENANCE_MODE);
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress(prev => prev >= 100 ? 0 : prev + 1);

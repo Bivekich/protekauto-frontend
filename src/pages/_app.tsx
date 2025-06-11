@@ -14,14 +14,16 @@ import MaintenanceMode from '@/components/MaintenanceMode';
 export default function App({ Component, pageProps }: AppProps) {
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Проверяем переменную окружения или localStorage для режима обслуживания
     const maintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
-    const savedAuth = localStorage.getItem('maintenance_authenticated');
+    const savedAuth = typeof window !== 'undefined' ? localStorage.getItem('maintenance_authenticated') : null;
     
     setIsMaintenanceMode(maintenanceMode);
     setIsAuthenticated(savedAuth === 'true');
+    setIsLoading(false);
 
     if (!maintenanceMode || savedAuth === 'true') {
       function setBodyPadding() {
@@ -55,9 +57,16 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   const handlePasswordCorrect = () => {
-    localStorage.setItem('maintenance_authenticated', 'true');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('maintenance_authenticated', 'true');
+    }
     setIsAuthenticated(true);
   };
+
+  // Показываем загрузку во время проверки на сервере
+  if (isLoading) {
+    return null;
+  }
 
   // Показываем заглушку если включен режим обслуживания и пользователь не аутентифицирован
   if (isMaintenanceMode && !isAuthenticated) {
