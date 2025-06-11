@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
+import { useQuery } from "@apollo/client";
+import { GET_LAXIMO_BRANDS } from "@/lib/graphql";
+import { LaximoBrand } from "@/types/laximo";
 
 const tabs = [
   "Техническое обслуживание",
@@ -8,18 +11,65 @@ const tabs = [
   "Коммерческие",
 ];
 
-const brands = [
-  "Audi", "BMW", "Cadillac", "Chevrolet", "Citroen", "Fiat", "Mazda"
-];
-
 const CatalogSection = () => {
   const [activeTab, setActiveTab] = useState(0);
   const router = useRouter();
+  
+  const { data, loading, error } = useQuery<{ laximoBrands: LaximoBrand[] }>(GET_LAXIMO_BRANDS, {
+    errorPolicy: 'all'
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     router.push("/catalog");
   };
+
+  // Статические данные автомобильных брендов
+  const staticBrands = [
+    { name: "Audi" },
+    { name: "BMW" },
+    { name: "Cadillac" },
+    { name: "Chevrolet" },
+    { name: "Citroen" },
+    { name: "Fiat" },
+    { name: "Mazda" }
+  ];
+
+  // Определяем какие данные использовать
+  let brands = staticBrands;
+  
+  if (data?.laximoBrands && data.laximoBrands.length > 0) {
+    // Если есть данные от Laximo API, используем их
+    brands = data.laximoBrands.map(brand => ({
+      name: brand.name,
+      code: brand.code
+    }));
+  } else if (error) {
+    console.warn('Laximo API недоступен, используются статические данные:', error.message);
+  }
+
+  const handleBrandClick = (brand: { name: string; code?: string }) => {
+    if (brand.code) {
+      router.push(`/vehicle-search/${brand.code}`);
+    } else {
+      console.warn('Brand code not available for', brand.name);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section>
+        <div className="w-layout-blockcontainer container2 w-container">
+          <div className="w-layout-vflex flex-block-5">
+            <h2 className="heading-4">Каталоги автозапчастей</h2>
+            <div className="text-center">Загрузка брендов...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+
 
   return (
     <section>
@@ -43,10 +93,15 @@ const CatalogSection = () => {
               <div className="w-layout-hflex flex-block-27">
                 {[...Array(7)].map((_, colIdx) => (
                   <div className="w-layout-vflex flex-block-26" key={colIdx}>
-                    {brands.map((brand, idx) => (
-                      <a href="#" className="link-block-6 w-inline-block" key={idx}>
-                        <div>{brand}</div>
-                      </a>
+                    {brands.slice(colIdx * Math.ceil(brands.length / 7), (colIdx + 1) * Math.ceil(brands.length / 7)).map((brand, idx) => (
+                      <button 
+                        onClick={() => handleBrandClick(brand)}
+                        className="link-block-6 w-inline-block text-left" 
+                        key={idx}
+                        style={{ background: 'none', border: 'none', padding: 0 }}
+                      >
+                        <div>{brand.name}</div>
+                      </button>
                     ))}
                   </div>
                 ))}

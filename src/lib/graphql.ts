@@ -224,4 +224,310 @@ export const DELETE_CLIENT_BANK_DETAILS = gql`
   mutation DeleteClientBankDetails($id: ID!) {
     deleteClientBankDetails(id: $id)
   }
-` 
+`
+
+// Laximo интеграция
+export const GET_LAXIMO_BRANDS = gql`
+  query GetLaximoBrands {
+    laximoBrands {
+      brand
+      code
+      icon
+      name
+      supportdetailapplicability
+      supportparameteridentification2
+      supportquickgroups
+      supportvinsearch
+      supportframesearch
+      vinexample
+      frameexample
+      features {
+        name
+        example
+      }
+      extensions {
+        operations {
+          description
+          kind
+          name
+          fields {
+            description
+            example
+            name
+            pattern
+          }
+        }
+      }
+    }
+  }
+`
+
+// Новые запросы для поиска автомобилей
+export const GET_LAXIMO_CATALOG_INFO = gql`
+  query GetLaximoCatalogInfo($catalogCode: String!) {
+    laximoCatalogInfo(catalogCode: $catalogCode) {
+      brand
+      code
+      icon
+      name
+      supportdetailapplicability
+      supportparameteridentification2
+      supportquickgroups
+      supportvinsearch
+      vinexample
+      features {
+        name
+        example
+      }
+      permissions
+    }
+  }
+`
+
+export const GET_LAXIMO_WIZARD2 = gql`
+  query GetLaximoWizard2($catalogCode: String!, $ssd: String) {
+    laximoWizard2(catalogCode: $catalogCode, ssd: $ssd) {
+      allowlistvehicles
+      automatic
+      conditionid
+      determined
+      name
+      type
+      options {
+        key
+        value
+      }
+    }
+  }
+`
+
+export const FIND_LAXIMO_VEHICLE = gql`
+  query FindLaximoVehicle($catalogCode: String!, $vin: String!) {
+    laximoFindVehicle(catalogCode: $catalogCode, vin: $vin) {
+      vehicleid
+      name
+      brand
+      catalog
+      model
+      modification
+      year
+      bodytype
+      engine
+      notes
+      ssd
+    }
+  }
+`;
+
+export const FIND_LAXIMO_VEHICLE_BY_WIZARD = gql`
+  query FindLaximoVehicleByWizard($catalogCode: String!, $ssd: String!) {
+    laximoFindVehicleByWizard(catalogCode: $catalogCode, ssd: $ssd) {
+      vehicleid
+      brand
+      model
+      modification
+      year
+      bodytype
+      engine
+      notes
+      ssd
+    }
+  }
+`;
+
+export const FIND_LAXIMO_VEHICLE_BY_PLATE = gql`
+  query FindLaximoVehicleByPlate($catalogCode: String!, $plateNumber: String!) {
+    laximoFindVehicleByPlate(catalogCode: $catalogCode, plateNumber: $plateNumber) {
+      vehicleid
+      brand
+      model
+      modification
+      year
+      bodytype
+      engine
+      notes
+      ssd
+    }
+  }
+`;
+
+export const FIND_LAXIMO_PART_REFERENCES = gql`
+  query FindLaximoPartReferences($partNumber: String!) {
+    laximoFindPartReferences(partNumber: $partNumber)
+  }
+`;
+
+export const FIND_LAXIMO_APPLICABLE_VEHICLES = gql`
+  query FindLaximoApplicableVehicles($catalogCode: String!, $partNumber: String!) {
+    laximoFindApplicableVehicles(catalogCode: $catalogCode, partNumber: $partNumber) {
+      vehicleid
+      brand
+      model
+      modification
+      year
+      bodytype
+      engine
+      notes
+      ssd
+    }
+  }
+`;
+
+export const GET_LAXIMO_VEHICLE_INFO = gql`
+  query GetLaximoVehicleInfo($catalogCode: String!, $vehicleId: String!, $ssd: String, $localized: Boolean!) {
+    laximoVehicleInfo(catalogCode: $catalogCode, vehicleId: $vehicleId, ssd: $ssd, localized: $localized) {
+      vehicleid
+      name
+      ssd
+      brand
+      catalog
+      attributes {
+        key
+        name
+        value
+      }
+    }
+  }
+`
+
+export const GET_LAXIMO_QUICK_GROUPS = gql`
+  query GetLaximoQuickGroups($catalogCode: String!, $vehicleId: String!, $ssd: String) {
+    laximoQuickGroups(catalogCode: $catalogCode, vehicleId: $vehicleId, ssd: $ssd) {
+      quickgroupid
+      name
+      link
+      children {
+        quickgroupid
+        name
+        link
+        children {
+          quickgroupid
+          name
+          link
+        }
+      }
+    }
+  }
+`
+
+export const GET_LAXIMO_CATEGORIES = gql`
+  query GetLaximoCategories($catalogCode: String!, $vehicleId: String, $ssd: String) {
+    laximoCategories(catalogCode: $catalogCode, vehicleId: $vehicleId, ssd: $ssd) {
+      quickgroupid
+      name
+      link
+      children {
+        quickgroupid
+        name
+        link
+        children {
+          quickgroupid
+          name
+          link
+        }
+      }
+    }
+  }
+`
+
+export const GET_LAXIMO_UNITS = gql`
+  query GetLaximoUnits($catalogCode: String!, $vehicleId: String, $ssd: String) {
+    laximoUnits(catalogCode: $catalogCode, vehicleId: $vehicleId, ssd: $ssd) {
+      quickgroupid
+      name
+      link
+      children {
+        quickgroupid
+        name
+        link
+        children {
+          quickgroupid
+          name
+          link
+        }
+      }
+    }
+  }
+`
+
+export const GET_LAXIMO_QUICK_DETAIL = gql`
+  query GetLaximoQuickDetail($catalogCode: String!, $vehicleId: String!, $quickGroupId: String!, $ssd: String!) {
+    laximoQuickDetail(catalogCode: $catalogCode, vehicleId: $vehicleId, quickGroupId: $quickGroupId, ssd: $ssd) {
+      quickgroupid
+      name
+      units {
+        unitid
+        name
+        code
+        description
+        details {
+          detailid
+          name
+          oem
+          brand
+          description
+          applicablemodels
+          note
+          attributes {
+            key
+            name
+            value
+          }
+        }
+      }
+    }
+  }
+`
+
+export const SEARCH_LAXIMO_OEM = gql`
+  query SearchLaximoOEM($catalogCode: String!, $vehicleId: String!, $oemNumber: String!, $ssd: String!) {
+    laximoOEMSearch(catalogCode: $catalogCode, vehicleId: $vehicleId, oemNumber: $oemNumber, ssd: $ssd) {
+      oemNumber
+      categories {
+        categoryid
+        name
+        units {
+          unitid
+          name
+          code
+          imageurl
+          details {
+            detailid
+            name
+            oem
+            brand
+            amount
+            range
+            attributes {
+              key
+              name
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const SEARCH_LAXIMO_FULLTEXT = gql`
+  query SearchLaximoFulltext($catalogCode: String!, $vehicleId: String!, $searchQuery: String!, $ssd: String!) {
+    laximoFulltextSearch(catalogCode: $catalogCode, vehicleId: $vehicleId, searchQuery: $searchQuery, ssd: $ssd) {
+      searchQuery
+      details {
+        oem
+        name
+        brand
+        description
+      }
+    }
+  }
+`
+
+export const TEST_LAXIMO_OEM = gql`
+  query TestLaximoOEM($catalogCode: String!, $vehicleId: String!, $oemNumber: String!, $ssd: String!) {
+    laximoOEMSearch(catalogCode: $catalogCode, vehicleId: $vehicleId, oemNumber: $oemNumber, ssd: $ssd) {
+      oemNumber
+    }
+  }
+`

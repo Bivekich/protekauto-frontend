@@ -59,4 +59,7 @@ export const apolloClient = new ApolloClient({
 // Принудительная очистка кэша при создании клиента
 if (typeof window !== 'undefined') {
   apolloClient.clearStore().catch(console.error);
+  // Дополнительная очистка для разработки
+  apolloClient.resetStore().catch(console.error);
+  console.log('Apollo Client: принудительная очистка всех кэшей');
 } 
