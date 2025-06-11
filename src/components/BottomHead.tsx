@@ -1,6 +1,17 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
+function useIsMobile(breakpoint = 767) {
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= breakpoint);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 const tabData = [
   {
     label: "Оригинальные каталоги",
@@ -50,8 +61,59 @@ const tabData = [
 ];
 
 const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => void }) => {
-  const [activeTab, setActiveTab] = useState(0);
+  const isMobile = useIsMobile();
+  const [mobileCategory, setMobileCategory] = useState<null | typeof tabData[0]>(null);
 
+  // Только мобильный UX
+  if (isMobile && menuOpen) {
+    // Экран подкатегорий
+    if (mobileCategory) {
+      return (
+        <div className="mobile-category-overlay">
+          <div className="mobile-header">
+            <button className="mobile-back-btn" onClick={() => setMobileCategory(null)}>
+              ←
+            </button>
+            <span>{mobileCategory.label}</span>
+          </div>
+          <div className="mobile-subcategories">
+            {mobileCategory.links.map(link => (
+              <Link href="/catalog" className="mobile-subcategory" key={link} onClick={onClose}>
+                {link}
+              </Link>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    // Экран выбора категории
+    return (
+      <div className="mobile-category-overlay">
+        <div className="mobile-header">
+          <button className="mobile-back-btn" onClick={onClose} aria-label="Закрыть меню">
+            <svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.11 2.697L2.698 4.11 6.586 8l-3.89 3.89 1.415 1.413L8 9.414l3.89 3.89 1.413-1.415L9.414 8l3.89-3.89-1.415-1.413L8 6.586l-3.89-3.89z" fill="currentColor"></path>
+            </svg>
+          </button>
+          <span>Категории</span>
+        </div>
+        <div className="mobile-subcategories">
+          {tabData.map(cat => (
+            <div
+              className="mobile-subcategory"
+              key={cat.label}
+              onClick={() => setMobileCategory(cat)}
+              style={{ cursor: "pointer" }}
+            >
+              {cat.label}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Десктоп: оставить всё как есть
   return (
     <nav
       role="navigation"
@@ -96,10 +158,10 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
           </div>
           {/* Правая часть меню с подкатегориями и картинками */}
           <div className="w-layout-vflex flex-block-89">
-            <h3 className="heading-16">{tabData[activeTab].heading}</h3>
+            <h3 className="heading-16">{tabData[0].heading}</h3>
             <div className="w-layout-hflex flex-block-92">
               <div className="w-layout-vflex flex-block-91">
-                {tabData[activeTab].links.map((link) => (
+                {tabData[0].links.map((link) => (
                   <Link href="/catalog" className="link-2" key={link} onClick={onClose}>{link}</Link>
                 ))}
               </div>
@@ -117,10 +179,10 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
               <a
                 key={tab.label}
                 data-w-tab={`Tab ${idx + 1}`}
-                className={`tab-link w-inline-block w-tab-link${activeTab === idx ? " w--current" : ""}`}
+                className={`tab-link w-inline-block w-tab-link${0 === idx ? " w--current" : ""}`}
                 onClick={() => {
-                  if (activeTab !== idx) {
-                    setActiveTab(idx);
+                  if (0 !== idx) {
+                    setMobileCategory(tab);
                   }
                 }}
                 style={{ cursor: "pointer" }}
@@ -141,8 +203,8 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
               <div
                 key={tab.label}
                 data-w-tab={`Tab ${idx + 1}`}
-                className={`w-tab-pane${activeTab === idx ? " w--tab-active" : ""}`}
-                style={{ display: activeTab === idx ? "block" : "none" }}
+                className={`w-tab-pane${0 === idx ? " w--tab-active" : ""}`}
+                style={{ display: 0 === idx ? "block" : "none" }}
               >
                 <div className="w-layout-vflex flex-block-89">
                   <h3 className="heading-16">{tab.heading}</h3>

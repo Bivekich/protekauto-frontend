@@ -15,17 +15,35 @@ const NewsAndPromos = () => (
             </Link>
           </div>
         </div>
-        <div className="w-layout-hflex flex-block-6-copy">
-          {[...Array(4)].map((_, i) => (
-                            <NewsCard
-                            key={i}
-                            title="Kia Syros будет выделяться необычным стилем"
-                            description="Компания Kia готова представить новый кроссовер Syros"
-                            category="Новости компании"
-                            date="17.12.2024"
-                            image="/images/news_img.png"
-                          />
-          ))}
+        <div className="w-layout-hflex flex-block-6-copy-copy">
+          <NewsCard
+            title="Kia Syros будет выделяться необычным стилем"
+            description="Компания Kia готова представить новый кроссовер Syros"
+            category="Новости компании"
+            date="17.12.2024"
+            image="/images/news_img.png"
+          />
+          <NewsCard
+            title="Kia Syros будет выделяться необычным стилем"
+            description="Компания Kia готова представить новый кроссовер Syros"
+            category="Новости компании"
+            date="17.12.2024"
+            image="/images/news_img.png"
+          />
+          <NewsCard
+            title="Kia Syros будет выделяться необычным стилем"
+            description="Компания Kia готова представить новый кроссовер Syros"
+            category="Новости компании"
+            date="17.12.2024"
+            image="/images/news_img.png"
+          />
+          <NewsCard
+            title="Kia Syros будет выделяться необычным стилем"
+            description="Компания Kia готова представить новый кроссовер Syros"
+            category="Новости компании"
+            date="17.12.2024"
+            image="/images/news_img.png"
+          />
         </div>
       </div>
     </div>
