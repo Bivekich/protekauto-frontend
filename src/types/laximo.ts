@@ -16,7 +16,7 @@ export interface LaximoBrand {
 
 export interface LaximoFeature {
   name: string
-  example?: string
+  example: string
 }
 
 export interface LaximoExtensions {
@@ -111,14 +111,13 @@ export interface LaximoQuickGroup {
 export interface LaximoQuickDetail {
   quickgroupid: string
   name: string
-  units?: LaximoUnit[]
+  units: LaximoUnit[]
 }
 
 export interface LaximoUnit {
   unitid: string
   name: string
   code?: string
-  description?: string
   details?: LaximoDetail[]
 }
 
@@ -126,17 +125,11 @@ export interface LaximoDetail {
   detailid: string
   name: string
   oem: string
-  brand?: string
-  description?: string
-  applicablemodels?: string
+  formattedoem?: string
+  parttype?: string
+  filter?: string
   note?: string
-  attributes?: LaximoDetailAttribute[]
-}
-
-export interface LaximoDetailAttribute {
-  key: string
-  name?: string
-  value: string
+  attributes?: LaximoVehicleAttribute[]
 }
 
 export interface LaximoOEMResult {
@@ -171,8 +164,7 @@ export interface LaximoOEMDetail {
 
 // Новые интерфейсы для поиска деталей по названию
 export interface LaximoFulltextSearchResult {
-  searchQuery: string
-  details: LaximoFulltextDetail[]
+  details: LaximoDetail[]
 }
 
 export interface LaximoFulltextDetail {

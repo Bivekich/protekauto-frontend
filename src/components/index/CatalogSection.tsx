@@ -106,10 +106,14 @@ const CatalogSection = () => {
                   </div>
                 ))}
               </div>
-              <div className="w-layout-hflex flex-block-29">
+              <button 
+                onClick={() => router.push('/brands')}
+                className="w-layout-hflex flex-block-29 cursor-pointer hover:opacity-80 transition-opacity"
+                style={{ background: 'none', border: 'none', padding: 0 }}
+              >
                 <div className="text-block-18">Все марки</div>
                 <img src="/images/Arrow_right.svg" loading="lazy" alt="" />
-              </div>
+              </button>
             </div>
             <div className="w-layout-vflex flex-block-28">
               <h3 className="heading-5">Подбор по автомобилю</h3>

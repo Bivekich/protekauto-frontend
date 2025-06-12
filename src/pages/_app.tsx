@@ -76,11 +76,11 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ApolloProvider client={apolloClient}>
       <Component {...pageProps} />
+      <Script src="/js/webflow.js" strategy="beforeInteractive" />
       <Script
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
       />
-      <Script src="/js/webflow.js" strategy="afterInteractive" />
     </ApolloProvider>
   );
 }
