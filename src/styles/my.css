@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
 /* my.css — кастомные стили для проекта. Добавьте сюда свои стили. */ 
 .start.end {
   margin-left: 0 !important;
