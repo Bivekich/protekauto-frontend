@@ -10,11 +10,13 @@ import { ApolloProvider } from '@apollo/client';
 import { apolloClient } from '@/lib/apollo';
 import React, { useEffect, useState } from "react";
 import MaintenanceMode from '@/components/MaintenanceMode';
+import { useRouter } from "next/router";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     // Проверяем переменную окружения или localStorage для режима обслуживания
@@ -55,6 +57,31 @@ export default function App({ Component, pageProps }: AppProps) {
       };
     }
   }, []);
+
+  // Подключаем webflow.js только один раз на клиенте
+  useEffect(() => {
+    if (typeof window !== "undefined" && !window.WEBFLOW_INITIALIZED) {
+      const script = document.createElement("script");
+      script.src = "/js/webflow.js";
+      script.async = true;
+      document.body.appendChild(script);
+      window.WEBFLOW_INITIALIZED = true;
+    }
+  }, []);
+
+  // После каждого перехода страницы пробуем реинициализировать Webflow
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.Webflow) {
+      if (typeof window.Webflow.ready === 'function') {
+        window.Webflow.ready();
+      }
+      if (typeof window.Webflow.require === 'function') {
+        try {
+          window.Webflow.require('ix2').init();
+        } catch (e) {}
+      }
+    }
+  }, [router.asPath]);
 
   const handlePasswordCorrect = () => {
     if (typeof window !== 'undefined') {
