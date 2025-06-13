@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 
 const crumbsMap: Record<string, string> = {
   "/profile-orders": "Заказы",
-  "/profile/history": "История поиска",
+  "/profile-history": "История поиска",
   "/profile-notification": "Уведомления",
   "/profile/alerts": "Оповещения",
   "/profile/addresses": "Адреса доставки",
