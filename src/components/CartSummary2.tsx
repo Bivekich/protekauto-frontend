@@ -190,7 +190,7 @@ const CartSummary2: React.FC = () => {
           <div className="text-block-32">Итого</div>
           <h4 className="heading-9-copy-copy">39 389 ₽</h4>
         </div>
-        <a href="#" className="submit-button fill w-button">Оформить заказ</a>
+        <a href="/payments-method" className="submit-button fill w-button">Оформить заказ</a>
         <div className="w-layout-hflex privacy-consent" style={{ cursor: 'pointer' }} onClick={() => setConsent((v) => !v)}>
           <div
             className={"div-block-7" + (consent ? " active" : "")}

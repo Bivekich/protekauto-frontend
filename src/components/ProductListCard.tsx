@@ -1,6 +1,10 @@
 import React, { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
 
 interface ProductListCardProps {
+  id?: string;
+  productId?: string;
+  offerKey?: string;
   image: string;
   title: string;
   brand: string;
@@ -12,9 +16,17 @@ interface ProductListCardProps {
   delivery?: string;
   address?: string;
   recommended?: boolean;
+  isExternal?: boolean;
+  currency?: string;
+  deliveryTime?: string;
+  warehouse?: string;
+  supplier?: string;
 }
 
 const ProductListCard: React.FC<ProductListCardProps> = ({
+  id,
+  productId,
+  offerKey,
   image,
   title,
   brand,
@@ -26,8 +38,46 @@ const ProductListCard: React.FC<ProductListCardProps> = ({
   delivery = "Сегодня с 18:00",
   address = "Москва ЦС (Новая Рига)",
   recommended = false,
+  isExternal = false,
+  currency = "RUB",
+  deliveryTime,
+  warehouse,
+  supplier,
 }) => {
   const [count, setCount] = useState(1);
+  const { addItem } = useCart();
+
+  // Функция для парсинга цены из строки
+  const parsePrice = (priceStr: string): number => {
+    const cleanPrice = priceStr.replace(/[^\d.,]/g, '').replace(',', '.');
+    return parseFloat(cleanPrice) || 0;
+  };
+
+  const handleAddToCart = () => {
+    const numericPrice = parsePrice(price);
+    const numericOldPrice = oldPrice ? parsePrice(oldPrice) : undefined;
+
+    addItem({
+      productId: productId,
+      offerKey: offerKey,
+      name: title,
+      description: `${brand} - ${title}`,
+      brand: brand,
+      price: numericPrice,
+      originalPrice: numericOldPrice,
+      currency: currency,
+      quantity: count,
+      deliveryTime: deliveryTime || delivery,
+      warehouse: warehouse || address,
+      supplier: supplier,
+      isExternal: isExternal,
+      image: image,
+    });
+
+    // Показываем уведомление о добавлении
+    alert(`Товар "${title}" добавлен в корзину (${count} шт.)`);
+  };
+
   return (
     <div className="w-layout-hflex product-item-search">
       <div className="w-layout-hflex flex-block-81">
@@ -64,9 +114,13 @@ const ProductListCard: React.FC<ProductListCardProps> = ({
               <img src="/images/plus_icon.svg" alt="+" />
             </div>
           </div>
-          <a href="#" className="button-icon w-inline-block">
+          <button 
+            onClick={handleAddToCart}
+            className="button-icon w-inline-block"
+            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          >
             <img src="/images/cart_icon.svg" alt="В корзину" className="image-11" />
-          </a>
+          </button>
         </div>
       </div>
     </div>

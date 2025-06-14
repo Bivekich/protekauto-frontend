@@ -152,6 +152,16 @@ const GroupDetailsSection: React.FC<GroupDetailsSectionProps> = ({
   ssd,
   onBack
 }) => {
+  console.log('🔍 GroupDetailsSection получил параметры:', {
+    catalogCode,
+    vehicleId,
+    quickGroupId,
+    quickGroupIdType: typeof quickGroupId,
+    quickGroupIdLength: quickGroupId?.length,
+    groupName,
+    ssd: ssd ? `${ssd.substring(0, 30)}...` : 'отсутствует'
+  });
+
   const { data, loading, error } = useQuery<{ laximoQuickDetail: LaximoQuickDetail }>(
     GET_LAXIMO_QUICK_DETAIL,
     {
@@ -178,6 +188,12 @@ const GroupDetailsSection: React.FC<GroupDetailsSectionProps> = ({
 
   if (error) {
     console.error('Ошибка загрузки деталей группы:', error);
+    
+    // Определяем тип ошибки для показа соответствующего сообщения
+    const isInvalidParameterError = error.message.includes('E_INVALIDPARAMETER') || 
+                                   error.message.includes('INVALIDPARAMETER') ||
+                                   error.message.includes('QuickGroupId');
+    
     return (
       <div className="text-center py-12">
         <div className="text-red-600 mb-4">
@@ -185,8 +201,31 @@ const GroupDetailsSection: React.FC<GroupDetailsSectionProps> = ({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-red-600 mb-2">Ошибка загрузки деталей</h3>
-        <p className="text-gray-600 mb-4">Не удалось загрузить детали для группы "{groupName}"</p>
+        
+        {isInvalidParameterError ? (
+          <>
+            <h3 className="text-lg font-medium text-red-600 mb-2">Неподдерживаемая группа</h3>
+            <p className="text-gray-600 mb-4">
+              Группа "{groupName}" (ID: {quickGroupId}) не поддерживается API Laximo для данного автомобиля.
+            </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-left max-w-md mx-auto">
+              <h4 className="font-medium text-yellow-800 mb-2">💡 Рекомендации:</h4>
+              <ul className="text-sm text-yellow-700 space-y-1">
+                <li>• Попробуйте использовать "Категории каталога"</li>
+                <li>• Воспользуйтесь поиском по артикулу</li>
+                <li>• Попробуйте поиск по названию детали</li>
+                <li>• Используйте "Группы быстрого поиска"</li>
+              </ul>
+            </div>
+          </>
+        ) : (
+          <>
+            <h3 className="text-lg font-medium text-red-600 mb-2">Ошибка загрузки деталей</h3>
+            <p className="text-gray-600 mb-4">Не удалось загрузить детали для группы "{groupName}"</p>
+            <p className="text-sm text-gray-500 mb-4">Ошибка: {error.message}</p>
+          </>
+        )}
+        
         <button
           onClick={onBack}
           className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"

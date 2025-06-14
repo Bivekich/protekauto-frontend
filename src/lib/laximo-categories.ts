@@ -110,14 +110,23 @@ export const CATEGORY_MAPPING: Record<string, string[]> = {
  * Группирует категории Laximo по предопределенным категориям
  */
 export function mapToStandardCategories(laximoCategories: LaximoQuickGroup[]): LaximoQuickGroup[] {
+  console.log('🗂️ Начинаем сопоставление категорий Laximo с предопределенными');
+  console.log('📋 Входные категории Laximo:', laximoCategories.length);
+  console.log('📋 Первые 5 категорий:', laximoCategories.slice(0, 5));
+  
   // Создаем копию предопределенных категорий
   const standardCategories = JSON.parse(JSON.stringify(PREDEFINED_CATEGORIES)) as LaximoQuickGroup[];
+  console.log('📋 Предопределенные категории:', standardCategories.length);
   
   // Проходим по всем категориям Laximo
   laximoCategories.forEach(category => {
+    console.log(`🔍 Обрабатываем категорию: ${category.name} (ID: ${category.quickgroupid})`);
+    
     // Ищем, к какой предопределенной категории относится текущая
     for (const [predefinedId, mappedIds] of Object.entries(CATEGORY_MAPPING)) {
       if (mappedIds.includes(category.quickgroupid)) {
+        console.log(`✅ Найдено соответствие: ${category.quickgroupid} -> ${predefinedId}`);
+        
         // Находим соответствующую предопределенную категорию
         const predefinedCategory = standardCategories.find(c => c.quickgroupid === predefinedId);
         
@@ -128,6 +137,7 @@ export function mapToStandardCategories(laximoCategories: LaximoQuickGroup[]): L
           }
           
           predefinedCategory.children.push(category);
+          console.log(`📂 Добавлена подкатегория "${category.name}" в "${predefinedCategory.name}"`);
           break;
         }
       }
@@ -135,7 +145,13 @@ export function mapToStandardCategories(laximoCategories: LaximoQuickGroup[]): L
   });
   
   // Возвращаем только категории, у которых есть дочерние элементы
-  return standardCategories.filter(category => category.children && category.children.length > 0);
+  const result = standardCategories.filter(category => category.children && category.children.length > 0);
+  console.log('🎯 Результат сопоставления:', result.length, 'категорий с подкатегориями');
+  result.forEach(cat => {
+    console.log(`📂 ${cat.name}: ${cat.children?.length || 0} подкатегорий`);
+  });
+  
+  return result;
 }
 
 /**

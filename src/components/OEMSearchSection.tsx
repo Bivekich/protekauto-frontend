@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLazyQuery } from '@apollo/client';
 import { SEARCH_LAXIMO_OEM } from '@/lib/graphql';
 import { LaximoOEMResult, LaximoOEMCategory, LaximoOEMUnit, LaximoOEMDetail } from '@/types/laximo';
@@ -201,6 +201,16 @@ const OEMSearchSection: React.FC<OEMSearchSectionProps> = ({
     }
   };
 
+  // Автоматически выполняем поиск при наличии initialOEMNumber
+  useEffect(() => {
+    if (initialOEMNumber && initialOEMNumber.trim() && catalogCode && vehicleId && ssd) {
+      const cleanOEM = initialOEMNumber.trim();
+      console.log('🔍 Автоматический поиск OEM при загрузке:', cleanOEM);
+      setOemNumber(cleanOEM);
+      handleSearch();
+    }
+  }, [initialOEMNumber]);
+
   const searchResults: LaximoOEMResult | null = data?.laximoOEMSearch || null;
 
   return (
@@ -210,6 +220,14 @@ const OEMSearchSection: React.FC<OEMSearchSectionProps> = ({
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
           Поиск деталей по артикулу (OEM номеру)
         </h2>
+        
+        {initialOEMNumber && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              🔍 Автоматический поиск по артикулу <span className="font-mono font-semibold">{initialOEMNumber}</span> из результатов поиска автомобилей
+            </p>
+          </div>
+        )}
         
         <div className="flex gap-3">
           <div className="flex-1">

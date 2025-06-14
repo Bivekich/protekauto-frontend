@@ -118,6 +118,7 @@ export interface LaximoUnit {
   unitid: string
   name: string
   code?: string
+  description?: string
   details?: LaximoDetail[]
 }
 
@@ -129,6 +130,9 @@ export interface LaximoDetail {
   parttype?: string
   filter?: string
   note?: string
+  brand?: string
+  description?: string
+  applicablemodels?: string
   attributes?: LaximoVehicleAttribute[]
 }
 
@@ -159,12 +163,12 @@ export interface LaximoOEMDetail {
   description?: string
   amount?: string
   range?: string
-  attributes?: LaximoDetailAttribute[]
+  attributes?: LaximoVehicleAttribute[]
 }
 
 // Новые интерфейсы для поиска деталей по названию
 export interface LaximoFulltextSearchResult {
-  details: LaximoDetail[]
+  details: LaximoFulltextDetail[]
 }
 
 export interface LaximoFulltextDetail {
@@ -172,4 +176,99 @@ export interface LaximoFulltextDetail {
   name: string
   brand?: string
   description?: string
+}
+
+// Интерфейсы для Doc FindOEM
+export interface LaximoDocFindOEMResult {
+  details: LaximoDocDetail[]
+}
+
+export interface LaximoDocDetail {
+  detailid: string
+  formattedoem: string
+  manufacturer: string
+  manufacturerid: string
+  name: string
+  oem: string
+  volume?: string
+  weight?: string
+  replacements: LaximoDocReplacement[]
+}
+
+export interface LaximoDocReplacement {
+  type: string
+  way: string
+  replacementid: string
+  rate?: string
+  detail: LaximoDocReplacementDetail
+}
+
+export interface LaximoDocReplacementDetail {
+  detailid: string
+  formattedoem: string
+  manufacturer: string
+  manufacturerid: string
+  name: string
+  oem: string
+  weight?: string
+  icon?: string
+}
+
+// Интерфейсы для поиска автомобилей по артикулу
+export interface LaximoCatalogVehicleResult {
+  catalogCode: string
+  catalogName: string
+  brand: string
+  vehicles: LaximoVehicleSearchResult[]
+  vehicleCount: number
+}
+
+export interface LaximoVehiclesByPartResult {
+  partNumber: string
+  catalogs: LaximoCatalogVehicleResult[]
+  totalVehicles: number
+}
+
+// Новые интерфейсы для работы с деталями узлов
+export interface LaximoUnitInfo {
+  unitid: string
+  name: string
+  code?: string
+  description?: string
+  imageurl?: string
+  largeimageurl?: string
+  attributes?: LaximoVehicleAttribute[]
+}
+
+export interface LaximoUnitDetail {
+  detailid: string
+  name: string
+  oem?: string
+  brand?: string
+  codeonimage?: string
+  code?: string
+  note?: string
+  filter?: string
+  price?: string
+  availability?: string
+  description?: string
+  applicablemodels?: string
+  attributes?: LaximoVehicleAttribute[]
+}
+
+export interface LaximoUnitImageMap {
+  unitid: string
+  imageurl?: string
+  largeimageurl?: string
+  coordinates?: LaximoImageCoordinate[]
+}
+
+export interface LaximoImageCoordinate {
+  detailid: string
+  codeonimage?: string
+  x: number
+  y: number
+  width: number
+  height: number
+  shape: string
 } 

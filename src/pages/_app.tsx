@@ -11,6 +11,7 @@ import { apolloClient } from '@/lib/apollo';
 import React, { useEffect, useState } from "react";
 import MaintenanceMode from '@/components/MaintenanceMode';
 import { useRouter } from "next/router";
+import { CartProvider } from '@/contexts/CartContext';
 
 export default function App({ Component, pageProps }: AppProps) {
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
@@ -102,7 +103,9 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <ApolloProvider client={apolloClient}>
-      <Component {...pageProps} />
+      <CartProvider>
+        <Component {...pageProps} />
+      </CartProvider>
       <Script src="/js/webflow.js" strategy="beforeInteractive" />
       <Script
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"

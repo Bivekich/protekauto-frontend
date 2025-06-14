@@ -5,9 +5,10 @@ import BottomHead from "@/components/BottomHead";
 import AuthModal from "@/components/auth/AuthModal";
 import type { Client } from "@/types/auth";
 import { useIsClient } from "@/lib/useIsomorphicLayoutEffect";
-import { FIND_LAXIMO_VEHICLE } from '@/lib/graphql';
-import { LaximoVehicleSearchResult } from '@/types/laximo';
+import { FIND_LAXIMO_VEHICLE, DOC_FIND_OEM, FIND_LAXIMO_VEHICLE_BY_PLATE_GLOBAL, FIND_LAXIMO_VEHICLES_BY_PART_NUMBER } from '@/lib/graphql';
+import { LaximoVehicleSearchResult, LaximoDocFindOEMResult, LaximoVehiclesByPartResult } from '@/types/laximo';
 import Link from "next/link";
+import CartButton from './CartButton';
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,6 +18,10 @@ const Header = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<LaximoVehicleSearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [oemSearchResults, setOemSearchResults] = useState<LaximoDocFindOEMResult | null>(null);
+  const [vehiclesByPartResults, setVehiclesByPartResults] = useState<LaximoVehiclesByPartResult | null>(null);
+  const [searchType, setSearchType] = useState<'vin' | 'oem' | 'plate' | 'text'>('text');
+  const [oemSearchMode, setOemSearchMode] = useState<'parts' | 'vehicles'>('parts'); // Режим поиска по OEM
   const router = useRouter();
   const searchFormRef = useRef<HTMLFormElement>(null);
   const searchDropdownRef = useRef<HTMLDivElement>(null);
@@ -28,14 +33,77 @@ const Header = () => {
       const vehicles = data.laximoFindVehicle || [];
       console.log('🔍 Найдено автомобилей по VIN:', vehicles.length);
       setSearchResults(vehicles);
+      setOemSearchResults(null);
       setIsSearching(false);
       setShowResults(true); // Показываем результаты даже если пустые (для отображения "не найдено")
     },
     onError: (error) => {
       console.error('❌ Ошибка поиска по VIN:', error);
       setSearchResults([]);
+      setOemSearchResults(null);
       setIsSearching(false);
       setShowResults(true); // Показываем сообщение об ошибке
+    }
+  });
+
+  // Query для поиска по артикулу через Doc FindOEM
+  const [findOEMParts] = useLazyQuery(DOC_FIND_OEM, {
+    onCompleted: (data) => {
+      const result = data.laximoDocFindOEM;
+      console.log('🔍 Найдено деталей по артикулу:', result?.details?.length || 0);
+      setOemSearchResults(result);
+      setSearchResults([]);
+      setIsSearching(false);
+      setShowResults(true);
+    },
+    onError: (error) => {
+      console.error('❌ Ошибка поиска по артикулу:', error);
+      setOemSearchResults(null);
+      setSearchResults([]);
+      setIsSearching(false);
+      setShowResults(true);
+    }
+  });
+
+  // Query для поиска по госномеру
+  const [findVehicleByPlate] = useLazyQuery(FIND_LAXIMO_VEHICLE_BY_PLATE_GLOBAL, {
+    onCompleted: (data) => {
+      const vehicles = data.laximoFindVehicleByPlateGlobal || [];
+      console.log('🔍 Найдено автомобилей по госномеру:', vehicles.length);
+      setSearchResults(vehicles);
+      setOemSearchResults(null);
+      setVehiclesByPartResults(null);
+      setIsSearching(false);
+      setShowResults(true);
+    },
+    onError: (error) => {
+      console.error('❌ Ошибка поиска по госномеру:', error);
+      setSearchResults([]);
+      setOemSearchResults(null);
+      setVehiclesByPartResults(null);
+      setIsSearching(false);
+      setShowResults(true);
+    }
+  });
+
+  // Query для поиска автомобилей по артикулу
+  const [findVehiclesByPartNumber] = useLazyQuery(FIND_LAXIMO_VEHICLES_BY_PART_NUMBER, {
+    onCompleted: (data) => {
+      const result = data.laximoFindVehiclesByPartNumber;
+      console.log('🔍 Найдено автомобилей по артикулу:', result?.totalVehicles || 0);
+      setVehiclesByPartResults(result);
+      setSearchResults([]);
+      setOemSearchResults(null);
+      setIsSearching(false);
+      setShowResults(true);
+    },
+    onError: (error) => {
+      console.error('❌ Ошибка поиска автомобилей по артикулу:', error);
+      setVehiclesByPartResults(null);
+      setSearchResults([]);
+      setOemSearchResults(null);
+      setIsSearching(false);
+      setShowResults(true);
     }
   });
 
@@ -91,12 +159,44 @@ const Header = () => {
     return /^[A-HJ-NPR-Z0-9]{17}$/.test(cleanQuery);
   };
 
+  // Проверяем, является ли строка артикулом (OEM номером)
+  const isOEMNumber = (query: string): boolean => {
+    const cleanQuery = query.trim().toUpperCase();
+    // Артикул обычно содержит буквы и цифры, может содержать дефисы, точки
+    // Длина от 3 до 20 символов, не должен быть VIN номером или госномером
+    return /^[A-Z0-9\-\.]{3,20}$/.test(cleanQuery) && !isVinNumber(cleanQuery) && !isPlateNumber(cleanQuery);
+  };
+
+  // Проверяем, является ли строка госномером РФ
+  const isPlateNumber = (query: string): boolean => {
+    const cleanQuery = query.trim().toUpperCase().replace(/\s+/g, '');
+    // Российские госномера: А123БВ77, А123БВ777, АА123А77, АА123А777, А123АА77, А123АА777
+    // Убираем пробелы и дефисы для проверки
+    const platePatterns = [
+      /^[АВЕКМНОРСТУХ]\d{3}[АВЕКМНОРСТУХ]{2}\d{2,3}$/, // А123БВ77, А123БВ777
+      /^[АВЕКМНОРСТУХ]{2}\d{3}[АВЕКМНОРСТУХ]\d{2,3}$/, // АА123А77, АА123А777
+      /^[АВЕКМНОРСТУХ]\d{3}[АВЕКМНОРСТУХ]{2}\d{2,3}$/, // А123АА77, А123АА777
+    ];
+    
+    return platePatterns.some(pattern => pattern.test(cleanQuery));
+  };
+
+  // Определяем тип поиска
+  const getSearchType = (query: string): 'vin' | 'oem' | 'plate' | 'text' => {
+    if (isVinNumber(query)) return 'vin';
+    if (isPlateNumber(query)) return 'plate';
+    if (isOEMNumber(query)) return 'oem';
+    return 'text';
+  };
+
   // Список популярных каталогов для поиска по VIN
   const popularCatalogs = ['VW', 'AUDI', 'BMW', 'MERCEDES', 'FORD', 'TOYOTA', 'NISSAN', 'HYUNDAI', 'KIA'];
 
   const handleVinSearch = async (vin: string) => {
     setIsSearching(true);
     setSearchResults([]);
+    setOemSearchResults(null);
+    setVehiclesByPartResults(null);
     
     console.log('🔍 Поиск по VIN глобально:', vin);
     
@@ -113,14 +213,82 @@ const Header = () => {
     }
   };
 
+  const handleOEMSearch = async (oemNumber: string) => {
+    setIsSearching(true);
+    setSearchResults([]);
+    setOemSearchResults(null);
+    setVehiclesByPartResults(null);
+    
+    console.log('🔍 Поиск по артикулу через Doc FindOEM:', oemNumber);
+    
+    try {
+      await findOEMParts({
+        variables: {
+          oemNumber: oemNumber.trim().toUpperCase()
+        }
+      });
+    } catch (error) {
+      console.error('❌ Ошибка поиска по артикулу:', error);
+    }
+  };
+
+  const handlePlateSearch = async (plateNumber: string) => {
+    setIsSearching(true);
+    setSearchResults([]);
+    setOemSearchResults(null);
+    setVehiclesByPartResults(null);
+    
+    // Очищаем госномер от пробелов и приводим к верхнему регистру
+    const cleanPlateNumber = plateNumber.trim().toUpperCase().replace(/\s+/g, '');
+    console.log('🔍 Поиск по госномеру:', cleanPlateNumber);
+    
+    try {
+      await findVehicleByPlate({
+        variables: {
+          plateNumber: cleanPlateNumber
+        }
+      });
+    } catch (error) {
+      console.error('❌ Ошибка поиска по госномеру:', error);
+    }
+  };
+
+  const handlePartVehicleSearch = async (partNumber: string) => {
+    setIsSearching(true);
+    setSearchResults([]);
+    setOemSearchResults(null);
+    setVehiclesByPartResults(null);
+    
+    console.log('🔍 Поиск автомобилей по артикулу:', partNumber);
+    
+    try {
+      await findVehiclesByPartNumber({
+        variables: {
+          partNumber: partNumber.trim().toUpperCase()
+        }
+      });
+    } catch (error) {
+      console.error('❌ Ошибка поиска автомобилей по артикулу:', error);
+    }
+  };
+
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (!searchQuery.trim()) return;
     
-    if (isVinNumber(searchQuery)) {
+    const currentSearchType = getSearchType(searchQuery);
+    setSearchType(currentSearchType);
+    
+    if (currentSearchType === 'vin') {
       // Если это VIN номер, ищем автомобиль
       handleVinSearch(searchQuery.trim().toUpperCase());
+    } else if (currentSearchType === 'plate') {
+      // Если это госномер, ищем автомобиль
+      handlePlateSearch(searchQuery.trim().toUpperCase());
+    } else if (currentSearchType === 'oem') {
+      // Если это артикул, переходим на страницу поиска по артикулу
+      router.push(`/article-search?article=${encodeURIComponent(searchQuery.trim().toUpperCase())}`);
     } else {
       // Если это обычный поиск, переходим на страницу результатов
       router.push(`/search-result?q=${encodeURIComponent(searchQuery.trim())}`);
@@ -129,12 +297,17 @@ const Header = () => {
 
   const handleVehicleSelect = (vehicle: LaximoVehicleSearchResult) => {
     setShowResults(false);
-    setSearchQuery('');
     
     // Переходим на страницу автомобиля - используем catalog вместо brand
     const catalogCode = (vehicle as any).catalog || vehicle.brand.toLowerCase();
     console.log('🚗 Переход на страницу автомобиля:', { catalogCode, vehicleId: vehicle.vehicleid, ssd: vehicle.ssd });
-    router.push(`/vehicle-search/${catalogCode}/${vehicle.vehicleid}?ssd=${vehicle.ssd || ''}`);
+    
+    // Если переход происходит из поиска автомобилей по артикулу, передаем артикул для автоматического поиска
+    const currentOEMNumber = oemSearchMode === 'vehicles' ? searchQuery.trim().toUpperCase() : '';
+    const url = `/vehicle-search/${catalogCode}/${vehicle.vehicleid}?ssd=${vehicle.ssd || ''}${currentOEMNumber ? `&oemNumber=${encodeURIComponent(currentOEMNumber)}` : ''}`;
+    
+    setSearchQuery('');
+    router.push(url);
   };
 
   return (
@@ -210,7 +383,7 @@ const Header = () => {
                     maxLength={256} 
                     name="customSearch" 
                     data-custom-input="true" 
-                    placeholder="Введите код запчасти или VIN номер автомобиля" 
+                    placeholder="Введите код запчасти, VIN номер или госномер автомобиля" 
                     type="text" 
                     id="customSearchInput" 
                     value={searchQuery}
@@ -220,13 +393,15 @@ const Header = () => {
                 </form>
                 
                 {/* Результаты поиска VIN */}
-                {showResults && searchResults.length > 0 && (
+                {showResults && searchResults.length > 0 && (searchType === 'vin' || searchType === 'plate') && (
                   <div 
                     ref={searchDropdownRef}
                     className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-2 z-50 max-h-80 overflow-y-auto"
                   >
                     <div className="p-3 border-b border-gray-100">
-                      <h3 className="text-sm font-medium text-gray-900">Найденные автомобили по VIN</h3>
+                      <h3 className="text-sm font-medium text-gray-900">
+                        {searchType === 'vin' ? 'Найденные автомобили по VIN' : 'Найденные автомобили по госномеру'}
+                      </h3>
                     </div>
                     {searchResults.map((vehicle, index) => (
                       <button
@@ -258,9 +433,234 @@ const Header = () => {
                     ))}
                   </div>
                 )}
-                
-                {/* Сообщение о том, что VIN не найден */}
-                {showResults && searchResults.length === 0 && isVinNumber(searchQuery) && !isSearching && (
+
+                {/* Результаты поиска по артикулу */}
+                {showResults && searchType === 'oem' && (
+                  <div 
+                    ref={searchDropdownRef}
+                    className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-2 z-50 max-h-96 overflow-y-auto"
+                  >
+                    {/* Переключатель режимов поиска */}
+                    <div className="p-3 border-b border-gray-100 bg-gray-50">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-sm font-medium text-gray-900">Поиск по артикулу: {searchQuery}</h3>
+                      </div>
+                      <div className="flex space-x-1 bg-gray-200 rounded-lg p-1">
+                        <button
+                          onClick={() => {
+                            setOemSearchMode('parts');
+                            if (oemSearchMode !== 'parts') {
+                              handleOEMSearch(searchQuery.trim().toUpperCase());
+                            }
+                          }}
+                          className={`flex-1 px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                            oemSearchMode === 'parts'
+                              ? 'bg-white text-blue-600 shadow-sm'
+                              : 'text-gray-600 hover:text-gray-900'
+                          }`}
+                        >
+                          🔧 Найти детали
+                        </button>
+                        <button
+                          onClick={() => {
+                            setOemSearchMode('vehicles');
+                            if (oemSearchMode !== 'vehicles') {
+                              handlePartVehicleSearch(searchQuery.trim().toUpperCase());
+                            }
+                          }}
+                          className={`flex-1 px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                            oemSearchMode === 'vehicles'
+                              ? 'bg-white text-blue-600 shadow-sm'
+                              : 'text-gray-600 hover:text-gray-900'
+                          }`}
+                        >
+                          🚗 Найти автомобили
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Результаты поиска деталей */}
+                    {oemSearchMode === 'parts' && oemSearchResults && oemSearchResults.details.length > 0 && (
+                      <>
+                        <div className="p-3 border-b border-gray-100">
+                          <p className="text-xs text-gray-600">Найдено {oemSearchResults.details.length} деталей</p>
+                        </div>
+                        {oemSearchResults.details.slice(0, 5).map((detail, index) => (
+                          <div
+                            key={`${detail.detailid}-${index}`}
+                            className="p-3 border-b border-gray-100 last:border-b-0"
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-medium text-gray-900 text-sm">
+                                  {detail.name}
+                                </h4>
+                                <p className="text-xs text-gray-600 mt-1">
+                                  <span className="font-medium">OEM:</span> {detail.formattedoem}
+                                </p>
+                                <p className="text-xs text-gray-600">
+                                  <span className="font-medium">Производитель:</span> {detail.manufacturer}
+                                </p>
+                                {detail.replacements.length > 0 && (
+                                  <p className="text-xs text-blue-600 mt-1">
+                                    +{detail.replacements.length} аналогов
+                                  </p>
+                                )}
+                              </div>
+                              <div className="text-right ml-2">
+                                <button 
+                                  onClick={() => {
+                                    // Переходим на страницу поиска по артикулу
+                                    router.push(`/article-search?article=${encodeURIComponent(detail.formattedoem)}`);
+                                    setShowResults(false);
+                                    setSearchQuery('');
+                                  }}
+                                  className="text-xs text-blue-600 hover:text-blue-800"
+                                >
+                                  Подробнее
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        {oemSearchResults.details.length > 5 && (
+                          <div className="p-3 text-center border-t border-gray-100">
+                            <button 
+                              onClick={() => {
+                                router.push(`/article-search?article=${encodeURIComponent(searchQuery)}`);
+                                setShowResults(false);
+                                setSearchQuery('');
+                              }}
+                              className="text-sm text-blue-600 hover:text-blue-800"
+                            >
+                              Показать все {oemSearchResults.details.length} деталей
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* Результаты поиска автомобилей по артикулу */}
+                    {oemSearchMode === 'vehicles' && vehiclesByPartResults && vehiclesByPartResults.totalVehicles > 0 && (
+                      <>
+                        <div className="p-3 border-b border-gray-100">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-gray-600">
+                              Найдено {vehiclesByPartResults.totalVehicles} автомобилей в {vehiclesByPartResults.catalogs.length} каталогах
+                            </p>
+                            <button 
+                              onClick={() => {
+                                // Переходим на страницу со всеми автомобилями по артикулу
+                                const cleanPartNumber = searchQuery.trim();
+                                router.push(`/vehicles-by-part?partNumber=${encodeURIComponent(cleanPartNumber)}`);
+                                setShowResults(false);
+                                setSearchQuery('');
+                              }}
+                              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                            >
+                              Показать все
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {vehiclesByPartResults.catalogs.map((catalog, catalogIndex) => (
+                          <div key={catalog.catalogCode} className="border-b border-gray-100 last:border-b-0">
+                            <div className="p-3 bg-gray-50">
+                              <h4 className="text-sm font-medium text-gray-800">
+                                {catalog.brand} ({catalog.vehicleCount} автомобилей)
+                              </h4>
+                            </div>
+                            
+                            {catalog.vehicles.slice(0, 3).map((vehicle, vehicleIndex) => (
+                              <button
+                                key={`${vehicle.vehicleid}-${catalogIndex}-${vehicleIndex}`}
+                                onClick={() => handleVehicleSelect(vehicle)}
+                                className="w-full p-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <h5 className="font-medium text-gray-900 text-sm">
+                                      {vehicle.name || `${vehicle.brand} ${vehicle.model}`}
+                                    </h5>
+                                    <p className="text-xs text-gray-600 mt-1">
+                                      {vehicle.modification}
+                                    </p>
+                                    {vehicle.year && (
+                                      <p className="text-xs text-gray-500">
+                                        Год: {vehicle.year}
+                                      </p>
+                                    )}
+                                    {vehicle.engine && (
+                                      <p className="text-xs text-gray-500">
+                                        Двигатель: {vehicle.engine}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="text-right">
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                            
+                            {catalog.vehicles.length > 3 && (
+                              <div className="p-2 text-center bg-gray-50">
+                                <button 
+                                  onClick={() => {
+                                    // Переходим на страницу со всеми автомобилями по артикулу
+                                    console.log('Показать все автомобили в каталоге:', catalog.catalogCode);
+                                    // Используем оригинальный артикул без лишних символов
+                                    const cleanPartNumber = searchQuery.trim();
+                                    router.push(`/vehicles-by-part?partNumber=${encodeURIComponent(cleanPartNumber)}&catalogCode=${catalog.catalogCode}`);
+                                    setShowResults(false);
+                                    setSearchQuery('');
+                                  }}
+                                  className="text-xs text-blue-600 hover:text-blue-800"
+                                >
+                                  Показать все {catalog.vehicles.length} автомобилей в {catalog.brand}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </>
+                    )}
+
+                    {/* Сообщения об отсутствии результатов */}
+                    {oemSearchMode === 'parts' && (!oemSearchResults || oemSearchResults.details.length === 0) && !isSearching && (
+                      <div className="p-4 text-center">
+                        <div className="text-yellow-400 mb-2">
+                          <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.728-.833-2.498 0L4.316 14.5c-.77.833.192 2.5 1.732 2.5z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-sm font-medium text-gray-900 mb-1">Детали не найдены</h3>
+                        <p className="text-xs text-gray-600">
+                          Детали с артикулом {searchQuery} не найдены в базе данных
+                        </p>
+                      </div>
+                    )}
+
+                    {oemSearchMode === 'vehicles' && (!vehiclesByPartResults || vehiclesByPartResults.totalVehicles === 0) && !isSearching && (
+                      <div className="p-4 text-center">
+                        <div className="text-yellow-400 mb-2">
+                          <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.728-.833-2.498 0L4.316 14.5c-.77.833.192 2.5 1.732 2.5z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-sm font-medium text-gray-900 mb-1">Автомобили не найдены</h3>
+                        <p className="text-xs text-gray-600">
+                          Автомобили с артикулом {searchQuery} не найдены в каталогах
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Сообщение о том, что VIN/госномер не найден */}
+                {showResults && searchResults.length === 0 && (searchType === 'vin' || searchType === 'plate') && !isSearching && (
                   <div 
                     ref={searchDropdownRef}
                     className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-2 z-50"
@@ -271,13 +671,20 @@ const Header = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.728-.833-2.498 0L4.316 14.5c-.77.833.192 2.5 1.732 2.5z" />
                         </svg>
                       </div>
-                      <h3 className="text-sm font-medium text-gray-900 mb-1">VIN не найден</h3>
+                      <h3 className="text-sm font-medium text-gray-900 mb-1">
+                        {searchType === 'vin' ? 'VIN не найден' : 'Госномер не найден'}
+                      </h3>
                       <p className="text-xs text-gray-600">
-                        Автомобиль с VIN {searchQuery} не найден в доступных каталогах
+                        {searchType === 'vin' 
+                          ? `Автомобиль с VIN ${searchQuery} не найден в доступных каталогах`
+                          : `Автомобиль с госномером ${searchQuery} не найден в базе данных`
+                        }
                       </p>
                     </div>
                   </div>
                 )}
+
+
                 
                 <div className="success-message w-form-done">
                   <div>Thank you! Your submission has been received!</div>
@@ -311,13 +718,7 @@ const Header = () => {
                   <div className="code-embed-8 w-embed"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 3C8.376 3 3 8.376 3 15C3 21.624 8.376 27 15 27C21.624 27 27 21.624 27 15C27 8.376 21.624 3 15 3ZM15 7.8C17.316 7.8 19.2 9.684 19.2 12C19.2 14.316 17.316 16.2 15 16.2C12.684 16.2 10.8 14.316 10.8 12C10.8 9.684 12.684 7.8 15 7.8ZM15 24.6C12.564 24.6 9.684 23.616 7.632 21.144C9.73419 19.4955 12.3285 18.5995 15 18.5995C17.6715 18.5995 20.2658 19.4955 22.368 21.144C20.316 23.616 17.436 24.6 15 24.6Z" fill="currentColor" /></svg></div>
                   <div className="text-block-2">{currentUser ? 'Личный кабинет' : 'Войти'}</div>
                 </button>
-                <Link href="/cart" className="button_h w-inline-block">
-                  <div className="code-embed-7 w-embed"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.1998 22.2C8.8798 22.2 7.81184 23.28 7.81184 24.6C7.81184 25.92 8.8798 27 10.1998 27C11.5197 27 12.5997 25.92 12.5997 24.6C12.5997 23.28 11.5197 22.2 10.1998 22.2ZM3 3V5.4H5.39992L9.71977 14.508L8.09982 17.448C7.90783 17.784 7.79984 18.18 7.79984 18.6C7.79984 19.92 8.8798 21 10.1998 21H24.5993V18.6H10.7037C10.5357 18.6 10.4037 18.468 10.4037 18.3L10.4397 18.156L11.5197 16.2H20.4594C21.3594 16.2 22.1513 15.708 22.5593 14.964L26.8552 7.176C26.9542 6.99286 27.004 6.78718 26.9997 6.57904C26.9955 6.37089 26.9373 6.16741 26.8309 5.98847C26.7245 5.80952 26.5736 5.66124 26.3927 5.55809C26.2119 5.45495 26.0074 5.40048 25.7992 5.4H8.05183L6.92387 3H3ZM22.1993 22.2C20.8794 22.2 19.8114 23.28 19.8114 24.6C19.8114 25.92 20.8794 27 22.1993 27C23.5193 27 24.5993 25.92 24.5993 24.6C24.5993 23.28 23.5193 22.2 22.1993 22.2Z" fill="currentColor" /></svg></div>
-                  <div className="text-block-2">Корзина</div>
-                  <div className="pcs-info">
-                    <div className="text-block-39">12</div>
-                  </div>
-                </Link>
+                <CartButton />
               </div>
             </div>
           </div>

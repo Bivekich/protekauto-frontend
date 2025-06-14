@@ -1,63 +1,44 @@
-import React, { useState } from "react";
+import React from "react";
 import CartItem from "./CartItem";
-
-const initialItems = [
-  {
-    id: 1,
-    name: "Ganz GIE37312",
-    description: "Ролик ремня ГРМ VW AD GANZ GIE37312",
-    delivery: "Послезавтра, курьером",
-    deliveryDate: "пт, 7 февраля",
-    price: "18 763 ₽",
-    pricePerItem: "18 763 ₽/шт",
-    count: 1,
-    comment: "",
-    selected: false,
-    favorite: false,
-  },
-  {
-    id: 2,
-    name: "Ganz GIE37312",
-    description: "Ролик ремня ГРМ VW AD GANZ GIE37312",
-    delivery: "Послезавтра, курьером",
-    deliveryDate: "пт, 7 февраля",
-    price: "18 763 ₽",
-    pricePerItem: "18 763 ₽/шт",
-    count: 1,
-    comment: "",
-    selected: false,
-    favorite: false,
-  },
-  // ...ещё товары
-];
+import { useCart } from "@/contexts/CartContext";
 
 const CartList: React.FC = () => {
-  const [items, setItems] = useState(initialItems);
+  const { state, toggleSelect, toggleFavorite, updateComment, removeItem, selectAll, removeSelected, updateQuantity } = useCart();
+  const { items } = state;
 
   const allSelected = items.length > 0 && items.every((item) => item.selected);
 
   const handleSelectAll = () => {
-    setItems((prev) => prev.map((item) => ({ ...item, selected: !allSelected })));
+    selectAll();
   };
 
-  const handleRemoveAll = () => {
-    setItems((prev) => prev.filter((item) => !item.selected));
+  const handleRemoveSelected = () => {
+    removeSelected();
   };
 
-  const handleSelect = (id: number) => {
-    setItems((prev) => prev.map((item) => item.id === id ? { ...item, selected: !item.selected } : item));
+  const handleSelect = (id: string) => {
+    toggleSelect(id);
   };
 
-  const handleFavorite = (id: number) => {
-    setItems((prev) => prev.map((item) => item.id === id ? { ...item, favorite: !item.favorite } : item));
+  const handleFavorite = (id: string) => {
+    toggleFavorite(id);
   };
 
-  const handleComment = (id: number, comment: string) => {
-    setItems((prev) => prev.map((item) => item.id === id ? { ...item, comment } : item));
+  const handleComment = (id: string, comment: string) => {
+    updateComment(id, comment);
   };
 
-  const handleRemove = (id: number) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  const handleRemove = (id: string) => {
+    removeItem(id);
+  };
+
+  const handleCountChange = (id: string, count: number) => {
+    updateQuantity(id, count);
+  };
+
+  // Функция для форматирования цены
+  const formatPrice = (price: number, currency: string = 'RUB') => {
+    return `${price.toLocaleString('ru-RU')} ${currency === 'RUB' ? '₽' : currency}`;
   };
 
   return (
@@ -77,22 +58,39 @@ const CartList: React.FC = () => {
             </div>
             <div className="text-block-30">Выделить всё</div>
           </div>
-          <div className="w-layout-hflex select-all-block" onClick={handleRemoveAll} style={{ cursor: 'pointer' }}>
-            <div className="text-block-30">Удалить всё</div>
+          <div className="w-layout-hflex select-all-block" onClick={handleRemoveSelected} style={{ cursor: 'pointer' }}>
+            <div className="text-block-30">Удалить выбранные</div>
             <img src="/images/delete.svg" loading="lazy" alt="" className="image-13" />
           </div>
         </div>
-        {items.map((item) => (
-          <div className="div-block-21" key={item.id}>
-            <CartItem
-              {...item}
-              onSelect={() => handleSelect(item.id)}
-              onFavorite={() => handleFavorite(item.id)}
-              onComment={(comment) => handleComment(item.id, comment)}
-              onRemove={() => handleRemove(item.id)}
-            />
+        {items.length === 0 ? (
+          <div className="empty-cart-message" style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+            <p>Ваша корзина пуста</p>
+            <p>Добавьте товары из каталога</p>
           </div>
-        ))}
+        ) : (
+          items.map((item) => (
+            <div className="div-block-21" key={item.id}>
+              <CartItem
+                name={item.name}
+                description={item.description}
+                delivery={item.deliveryTime || 'Уточняется'}
+                deliveryDate={item.deliveryDate || ''}
+                price={formatPrice(item.price, item.currency)}
+                pricePerItem={`${formatPrice(item.price, item.currency)}/шт`}
+                count={item.quantity}
+                comment={item.comment || ''}
+                selected={item.selected}
+                favorite={item.favorite}
+                onSelect={() => handleSelect(item.id)}
+                onFavorite={() => handleFavorite(item.id)}
+                onComment={(comment) => handleComment(item.id, comment)}
+                onCountChange={(count) => handleCountChange(item.id, count)}
+                onRemove={() => handleRemove(item.id)}
+              />
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

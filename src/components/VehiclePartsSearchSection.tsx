@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LaximoCatalogInfo } from '@/types/laximo';
-import CatalogGroupsSection from './CatalogGroupsSection';
+import QuickGroupsSection from './QuickGroupsSection';
+import CategoriesSection from './CategoriesSection';
 import OEMSearchSection from './OEMSearchSection';
 import FulltextSearchSection from './FulltextSearchSection';
 
@@ -22,13 +23,15 @@ interface VehiclePartsSearchSectionProps {
   vehicleInfo: LaximoVehicleInfo;
   searchType: 'quickgroups' | 'categories' | 'oem' | 'fulltext';
   onSearchTypeChange: (type: 'quickgroups' | 'categories' | 'oem' | 'fulltext') => void;
+  initialOEMNumber?: string;
 }
 
 const VehiclePartsSearchSection: React.FC<VehiclePartsSearchSectionProps> = ({
   catalogInfo,
   vehicleInfo,
   searchType,
-  onSearchTypeChange
+  onSearchTypeChange,
+  initialOEMNumber
 }) => {
   const searchOptions = [
     {
@@ -82,49 +85,64 @@ const VehiclePartsSearchSection: React.FC<VehiclePartsSearchSectionProps> = ({
   return (
     <div className="space-y-6">
       {/* Варианты поиска */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {availableOptions.map((option) => (
-          <button
-            key={option.id}
-            onClick={() => onSearchTypeChange(option.id)}
-            className={`
-              relative rounded-lg border-2 p-4 text-left hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors
-              ${searchType === option.id
-                ? 'border-red-500 bg-red-50'
-                : 'border-gray-200 bg-white'
-              }
-            `}
-          >
-            <div className="flex items-start space-x-3">
-              <div className={`flex-shrink-0 ${searchType === option.id ? 'text-red-600' : 'text-gray-400'}`}>
-                {option.icon}
+      <div className="mb-8">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Способы поиска запчастей</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {availableOptions.map((option) => (
+            <button
+              key={option.id}
+              onClick={() => onSearchTypeChange(option.id)}
+              className={`
+                relative rounded-lg border-2 p-6 text-left hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105
+                ${searchType === option.id
+                  ? 'border-red-500 bg-red-50 shadow-lg'
+                  : 'border-gray-200 bg-white hover:shadow-md'
+                }
+              `}
+            >
+              <div className="flex items-start space-x-4">
+                <div className={`flex-shrink-0 p-2 rounded-lg ${searchType === option.id ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'}`}>
+                  {option.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className={`text-base font-semibold mb-2 ${searchType === option.id ? 'text-red-900' : 'text-gray-900'}`}>
+                    {option.name}
+                  </h4>
+                  <p className={`text-sm ${searchType === option.id ? 'text-red-700' : 'text-gray-600'}`}>
+                    {option.description}
+                  </p>
+                  {!option.enabled && (
+                    <span className="inline-block mt-2 px-2 py-1 text-xs bg-gray-200 text-gray-600 rounded">
+                      Недоступно для данного каталога
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className={`text-sm font-medium ${searchType === option.id ? 'text-red-900' : 'text-gray-900'}`}>
-                  {option.name}
-                </h3>
-                <p className={`text-sm mt-1 ${searchType === option.id ? 'text-red-700' : 'text-gray-500'}`}>
-                  {option.description}
-                </p>
-              </div>
-            </div>
-            {searchType === option.id && (
-              <div className="absolute top-2 right-2">
-                <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-            )}
-          </button>
-        ))}
+              {searchType === option.id && (
+                <div className="absolute top-3 right-3">
+                  <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Содержимое поиска */}
       <div className="bg-white rounded-lg shadow-sm border p-6">
         {searchType === 'quickgroups' && (
           <div>
-                          <h3 className="text-lg font-medium text-gray-900 mb-4">Каталог запчастей</h3>
-            <CatalogGroupsSection
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Группы быстрого поиска</h3>
+              <p className="text-sm text-gray-600">
+                Выберите группу запчастей для быстрого поиска нужных деталей
+              </p>
+            </div>
+            <QuickGroupsSection
               catalogCode={vehicleInfo.catalog}
               vehicleId={vehicleInfo.vehicleid}
               ssd={vehicleInfo.ssd}
@@ -134,31 +152,51 @@ const VehiclePartsSearchSection: React.FC<VehiclePartsSearchSectionProps> = ({
 
         {searchType === 'categories' && (
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Категории узлов оригинального каталога</h3>
-            <div className="text-center py-8 text-gray-500">
-              <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              <p>Загружаем категории каталога...</p>
-              <p className="text-sm mt-1">Здесь будет отображена структура оригинального каталога</p>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Категории узлов оригинального каталога</h3>
+              <p className="text-sm text-gray-600">
+                Навигация по структуре оригинального каталога производителя
+              </p>
             </div>
+            <CategoriesSection
+              catalogCode={vehicleInfo.catalog}
+              vehicleId={vehicleInfo.vehicleid}
+              ssd={vehicleInfo.ssd}
+            />
           </div>
         )}
 
         {searchType === 'oem' && (
-          <OEMSearchSection
-            catalogCode={vehicleInfo.catalog}
-            vehicleId={vehicleInfo.vehicleid}
-            ssd={vehicleInfo.ssd}
-          />
+          <div>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Поиск деталей по OEM номеру</h3>
+              <p className="text-sm text-gray-600">
+                Введите артикул (OEM номер) детали для поиска в каталоге
+              </p>
+            </div>
+            <OEMSearchSection
+              catalogCode={vehicleInfo.catalog}
+              vehicleId={vehicleInfo.vehicleid}
+              ssd={vehicleInfo.ssd}
+              initialOEMNumber={initialOEMNumber}
+            />
+          </div>
         )}
 
         {searchType === 'fulltext' && (
-          <FulltextSearchSection
-            catalogCode={vehicleInfo.catalog}
-            vehicleId={vehicleInfo.vehicleid}
-            ssd={vehicleInfo.ssd}
-          />
+          <div>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Поиск деталей по названию</h3>
+              <p className="text-sm text-gray-600">
+                Введите часть названия детали для поиска в каталоге
+              </p>
+            </div>
+            <FulltextSearchSection
+              catalogCode={vehicleInfo.catalog}
+              vehicleId={vehicleInfo.vehicleid}
+              ssd={vehicleInfo.ssd}
+            />
+          </div>
         )}
       </div>
 

@@ -23,8 +23,12 @@ interface LaximoVehicleInfo {
 
 const VehicleDetailsPage = () => {
   const router = useRouter();
-  const { brand, vehicleId } = router.query;
-  const [searchType, setSearchType] = useState<'quickgroups' | 'categories' | 'oem' | 'fulltext'>('quickgroups');
+  const { brand, vehicleId, oemNumber } = router.query;
+  
+  // Если передан oemNumber, автоматически переключаемся на поиск по OEM
+  const [searchType, setSearchType] = useState<'quickgroups' | 'categories' | 'oem' | 'fulltext'>(
+    oemNumber ? 'oem' : 'quickgroups'
+  );
 
   // Получаем информацию о каталоге
   const { data: catalogData } = useQuery<{ laximoCatalogInfo: LaximoCatalogInfo }>(
@@ -282,6 +286,7 @@ const VehicleDetailsPage = () => {
             vehicleInfo={vehicleInfo}
             searchType={searchType}
             onSearchTypeChange={setSearchType}
+            initialOEMNumber={oemNumber as string}
           />
         </div>
       </main>

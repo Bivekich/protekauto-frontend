@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_LAXIMO_QUICK_GROUPS, GET_LAXIMO_CATEGORIES, GET_LAXIMO_UNITS } from '@/lib/graphql';
-import { LaximoQuickGroup } from '@/types/laximo';
+import { GET_LAXIMO_QUICK_GROUPS, GET_LAXIMO_CATEGORIES, GET_LAXIMO_UNITS, GET_LAXIMO_QUICK_DETAIL } from '@/lib/graphql';
+import { LaximoQuickGroup, LaximoQuickDetail } from '@/types/laximo';
 import GroupDetailsSection from './GroupDetailsSection';
-import { mapToStandardCategories, getStaticCategories } from '@/lib/laximo-categories';
+import { mapToStandardCategories, getStaticCategories, CATEGORY_MAPPING } from '@/lib/laximo-categories';
 
 interface CatalogGroupsSectionProps {
   catalogCode: string;
@@ -17,14 +17,138 @@ interface GroupItemProps {
   onGroupClick: (group: LaximoQuickGroup) => void;
 }
 
+interface PredefinedCategoryDetailsSectionProps {
+  catalogCode: string;
+  vehicleId: string;
+  predefinedCategory: LaximoQuickGroup;
+  ssd: string;
+  onBack: () => void;
+}
+
+const PredefinedCategoryDetailsSection: React.FC<PredefinedCategoryDetailsSectionProps> = ({
+  catalogCode,
+  vehicleId,
+  predefinedCategory,
+  ssd,
+  onBack
+}) => {
+  const [selectedChildGroup, setSelectedChildGroup] = useState<LaximoQuickGroup | null>(null);
+
+  const handleChildGroupClick = (child: LaximoQuickGroup) => {
+    // Проверяем, что ID дочерней категории является валидным числовым ID Laximo
+    if (!/^\d+$/.test(child.quickgroupid)) {
+      alert(`Ошибка: ID категории "${child.quickgroupid}" не является валидным ID Laximo.\n\nЭта категория пока не поддерживается для просмотра деталей.\nПопробуйте использовать другие разделы каталога.`);
+      return;
+    }
+    
+    setSelectedChildGroup(child);
+  };
+
+  if (selectedChildGroup) {
+    return (
+      <GroupDetailsSection
+        catalogCode={catalogCode}
+        vehicleId={vehicleId}
+        quickGroupId={selectedChildGroup.quickgroupid}
+        groupName={selectedChildGroup.name}
+        ssd={ssd}
+        onBack={() => setSelectedChildGroup(null)}
+      />
+    );
+  }
+
+  return (
+    <div className="w-full">
+      <div className="mb-4 flex items-center">
+        <button
+          onClick={onBack}
+          className="flex items-center text-blue-600 hover:text-blue-800 mr-4"
+        >
+          ← Назад к группам
+        </button>
+        <h2 className="text-xl font-semibold">{predefinedCategory.name}</h2>
+      </div>
+
+      <div className="border rounded p-4">
+        <h3 className="text-lg font-semibold mb-4">Подкатегории</h3>
+        
+        {predefinedCategory.children && predefinedCategory.children.length > 0 ? (
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {predefinedCategory.children.map((child) => {
+              const isValidId = /^\d+$/.test(child.quickgroupid);
+              
+              return (
+                <div
+                  key={child.quickgroupid}
+                  className={`border border-gray-200 rounded-lg p-4 transition-shadow cursor-pointer ${
+                    isValidId 
+                      ? 'hover:shadow-md hover:border-blue-300' 
+                      : 'opacity-60 cursor-not-allowed bg-gray-50'
+                  }`}
+                  onClick={() => handleChildGroupClick(child)}
+                >
+                  <h4 className="font-medium text-gray-900 mb-2">{child.name}</h4>
+                  <p className="text-sm text-gray-600">ID: {child.quickgroupid}</p>
+                  {isValidId ? (
+                    <div className="mt-3 text-blue-600 text-sm font-medium">
+                      Посмотреть детали →
+                    </div>
+                  ) : (
+                    <div className="mt-3 text-gray-500 text-sm">
+                      Пока недоступно
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <p>В этой категории пока нет доступных подкатегорий</p>
+          </div>
+        )}
+        
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+          <h4 className="font-medium text-blue-900 mb-2">💡 Совет</h4>
+          <p className="text-sm text-blue-800">
+            Для поиска деталей в категории "{predefinedCategory.name}" рекомендуем использовать:
+          </p>
+          <ul className="text-sm text-blue-700 mt-2 ml-4 list-disc">
+            <li>Поиск по артикулу (OEM номеру)</li>
+            <li>Поиск по названию детали</li>
+            <li>Категории оригинального каталога</li>
+            <li>Группы быстрого поиска</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const GroupItem: React.FC<GroupItemProps> = ({ group, level, onGroupClick }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleClick = () => {
+    console.log('🖱️ Клик по элементу группы:', {
+      name: group.name,
+      quickgroupid: group.quickgroupid,
+      link: group.link,
+      hasChildren: group.children && group.children.length > 0
+    });
+    
+    // Если у группы есть дети - разворачиваем/сворачиваем
     if (group.children && group.children.length > 0) {
+      console.log('📂 Разворачиваем группу с детьми');
       setIsExpanded(!isExpanded);
-    } else if (group.link) {
+    } 
+    // Если у группы есть ссылка - передаем клик наверх для загрузки деталей
+    else if (group.link && group.quickgroupid) {
+      console.log('🔗 Переходим к группе с ссылкой');
       onGroupClick(group);
+    }
+    // Иначе - это группа без ссылки и без детей
+    else {
+      console.log('⚠️ Группа без ссылки и без детей:', group.name);
     }
   };
 
@@ -38,6 +162,12 @@ const GroupItem: React.FC<GroupItemProps> = ({ group, level, onGroupClick }) => 
           <span className="mr-2">{isExpanded ? '▼' : '▶'}</span>
         )}
         <span>{group.name}</span>
+        {/* Показываем количество дочерних элементов для предопределенных категорий */}
+        {group.children && group.children.length > 0 && (
+          <span className="ml-auto text-xs text-gray-500">
+            ({group.children.length})
+          </span>
+        )}
       </div>
       {isExpanded && group.children && (
         <div>
@@ -65,7 +195,9 @@ const CatalogGroupsSection: React.FC<CatalogGroupsSectionProps> = ({
   // По умолчанию используем стандартные категории
   const [catalogType, setCatalogType] = useState<CatalogType>('standardCategories');
   const [selectedGroup, setSelectedGroup] = useState<{ group: LaximoQuickGroup; type: CatalogType } | null>(null);
+  const [selectedPredefinedCategory, setSelectedPredefinedCategory] = useState<LaximoQuickGroup | null>(null);
   const [standardCategories, setStandardCategories] = useState<LaximoQuickGroup[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   // Запросы для разных типов каталогов
   const { data: quickGroupsData, loading: quickGroupsLoading, error: quickGroupsError } = useQuery<{ laximoQuickGroups: LaximoQuickGroup[] }>(
@@ -114,7 +246,8 @@ const CatalogGroupsSection: React.FC<CatalogGroupsSectionProps> = ({
       variables: {
         catalogCode,
         ...(vehicleId && { vehicleId }),
-        ...(ssd && ssd.trim() !== '' && { ssd })
+        ...(ssd && ssd.trim() !== '' && { ssd }),
+        ...(selectedCategoryId && { categoryId: selectedCategoryId })
       },
       skip: !catalogCode || catalogType !== 'units',
       errorPolicy: 'all'
@@ -123,24 +256,72 @@ const CatalogGroupsSection: React.FC<CatalogGroupsSectionProps> = ({
 
   // Обработка данных для стандартных категорий
   useEffect(() => {
-    if (standardCategoriesData?.laximoCategories) {
-      const mappedCategories = mapToStandardCategories(standardCategoriesData.laximoCategories);
-      setStandardCategories(mappedCategories.length > 0 ? mappedCategories : getStaticCategories());
+    console.log('🔄 Обработка данных стандартных категорий...');
+    console.log('📊 standardCategoriesData:', standardCategoriesData);
+    console.log('❌ standardCategoriesError:', standardCategoriesError);
+    
+    if (standardCategoriesData?.laximoCategories && standardCategoriesData.laximoCategories.length > 0) {
+      console.log('📋 Получены категории от API:', standardCategoriesData.laximoCategories.length, 'категорий');
+      console.log('📋 Категории:', standardCategoriesData.laximoCategories.map(c => `${c.name} (ID: ${c.quickgroupid})`));
+      
+      // Используем ТОЛЬКО реальные категории от API Laximo
+      console.log('✅ Используем реальные категории от API Laximo');
+      setStandardCategories(standardCategoriesData.laximoCategories);
     } else if (standardCategoriesError) {
-      console.warn('Ошибка загрузки категорий, используем статические данные:', standardCategoriesError.message);
+      console.warn('❌ Ошибка загрузки категорий:', standardCategoriesError.message);
+      console.log('📋 Используем статические категории как fallback');
+      setStandardCategories(getStaticCategories());
+    } else if (!standardCategoriesLoading) {
+      // Только если загрузка завершена и нет данных
+      console.log('📋 Нет данных от API, используем статические категории');
       setStandardCategories(getStaticCategories());
     }
-  }, [standardCategoriesData, standardCategoriesError]);
+    // Если идет загрузка, не устанавливаем никаких данных
+  }, [standardCategoriesData, standardCategoriesError, standardCategoriesLoading]);
 
   const handleGroupClick = (group: LaximoQuickGroup) => {
-    if (!group.link) return;
-    
-    console.log('🔍 Выбрана группа для поиска:', group);
+    console.log('🔍 Клик по группе:', group);
     console.log('📂 Тип каталога:', catalogType);
     
-    // Для групп быстрого поиска переходим к деталям
-    if ((catalogType === 'quickGroups' || catalogType === 'standardCategories') && ssd && ssd.trim() !== '') {
+    // Проверяем что группа имеет ссылку и валидный ID
+    if (!group.link || !group.quickgroupid) {
+      console.warn('⚠️ Группа не имеет ссылки или ID:', group);
+      return;
+    }
+    
+    // Проверяем что ID группы не пустой
+    if (!group.quickgroupid.trim()) {
+      console.error('❌ Пустой ID группы:', group.quickgroupid);
+      alert(`Ошибка: Пустой ID группы для группы "${group.name}"`);
+      return;
+    }
+    
+    // Для стандартных категорий (реальные категории от API Laximo)
+    if (catalogType === 'standardCategories') {
+      console.log('🔍 Клик по категории API Laximo:', group.name, 'ID:', group.quickgroupid);
+      
+      // Для категорий от API нужно получить узлы через ListUnits
+      // Переключаемся на вкладку "Узлы" и передаем categoryId
+      if (ssd && ssd.trim() !== '') {
+        console.log('✅ Переключаемся на узлы категории:', group.quickgroupid);
+        // Переключаемся на тип 'units' и сохраняем ID категории
+        setCatalogType('units');
+        setSelectedCategoryId(group.quickgroupid);
+        return;
+      } else {
+        alert('Ошибка: Для поиска узлов необходимы данные автомобиля (SSD). Пожалуйста, выберите автомобиль заново.');
+        return;
+      }
+    }
+    
+    // Для групп быстрого поиска, реальных категорий и валидных дочерних категорий переходим к деталям
+    if ((catalogType === 'quickGroups' || catalogType === 'categories' || catalogType === 'units' || 
+         (catalogType === 'standardCategories' && (!group.children || group.children.length === 0))) && 
+        ssd && ssd.trim() !== '') {
+      console.log('✅ Переходим к деталям группы:', group.quickgroupid);
       setSelectedGroup({ group, type: catalogType });
+    } else if (!ssd || ssd.trim() === '') {
+      alert('Ошибка: Для поиска деталей необходимы данные автомобиля (SSD). Пожалуйста, выберите автомобиль заново.');
     } else {
       // Для других типов каталогов пока показываем alert
       alert(`Поиск запчастей в группе: ${group.name}\nID группы: ${group.quickgroupid}\nТип каталога: ${catalogType}`);
@@ -149,7 +330,15 @@ const CatalogGroupsSection: React.FC<CatalogGroupsSectionProps> = ({
 
   const handleBackToGroups = () => {
     setSelectedGroup(null);
+    setSelectedPredefinedCategory(null);
   };
+
+  // Сбрасываем selectedCategoryId при переключении типа каталога
+  useEffect(() => {
+    if (catalogType !== 'units') {
+      setSelectedCategoryId(null);
+    }
+  }, [catalogType]);
 
   // Определяем текущие данные на основе выбранного типа
   let currentData: LaximoQuickGroup[] = [];
@@ -186,11 +375,31 @@ const CatalogGroupsSection: React.FC<CatalogGroupsSectionProps> = ({
   } else if (catalogType === 'categories') {
     catalogTypeTitle = 'Категории оригинального каталога';
   } else if (catalogType === 'units') {
-    catalogTypeTitle = 'Узлы каталога';
+    if (selectedCategoryId) {
+      // Находим название категории
+      const selectedCategory = standardCategories.find(cat => cat.quickgroupid === selectedCategoryId);
+      catalogTypeTitle = selectedCategory ? `Узлы категории: ${selectedCategory.name}` : 'Узлы категории';
+    } else {
+      catalogTypeTitle = 'Узлы каталога';
+    }
   } else if (catalogType === 'standardCategories') {
     catalogTypeTitle = 'Группы запчастей';
   }
 
+  // Если выбрана предопределенная категория, показываем её подкатегории
+  if (selectedPredefinedCategory && ssd) {
+    return (
+      <PredefinedCategoryDetailsSection
+        catalogCode={catalogCode}
+        vehicleId={vehicleId}
+        predefinedCategory={selectedPredefinedCategory}
+        ssd={ssd}
+        onBack={handleBackToGroups}
+      />
+    );
+  }
+
+  // Если выбрана группа для просмотра деталей
   if (selectedGroup) {
     return (
       <GroupDetailsSection
@@ -242,7 +451,20 @@ const CatalogGroupsSection: React.FC<CatalogGroupsSectionProps> = ({
       </div>
 
       <div className="border rounded p-4">
-        <h3 className="text-lg font-semibold mb-4">{catalogTypeTitle}</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">{catalogTypeTitle}</h3>
+          {catalogType === 'units' && selectedCategoryId && (
+            <button
+              onClick={() => {
+                setCatalogType('standardCategories');
+                setSelectedCategoryId(null);
+              }}
+              className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded"
+            >
+              ← Назад к категориям
+            </button>
+          )}
+        </div>
         
         {loading && (
           <div className="flex items-center justify-center py-8">
@@ -265,6 +487,9 @@ const CatalogGroupsSection: React.FC<CatalogGroupsSectionProps> = ({
 
         {!loading && !error && currentData.length > 0 && (
           <div className="space-y-2">
+            <div className="mb-4 text-sm text-gray-600">
+              Найдено категорий: {currentData.length}
+            </div>
             {currentData.map((group) => (
               <GroupItem
                 key={group.quickgroupid}

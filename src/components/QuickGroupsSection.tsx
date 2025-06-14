@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_LAXIMO_QUICK_GROUPS } from '@/lib/graphql';
-import { LaximoQuickGroup } from '@/types/laximo';
+import { GET_LAXIMO_QUICK_GROUPS, GET_LAXIMO_QUICK_DETAIL } from '@/lib/graphql';
+import { LaximoQuickGroup, LaximoQuickDetail } from '@/types/laximo';
 
 interface QuickGroupsSectionProps {
   catalogCode: string;
@@ -21,82 +21,63 @@ const QuickGroupItem: React.FC<QuickGroupItemProps> = ({ group, level, onGroupCl
   const canSearch = group.link;
 
   const handleClick = () => {
-    if (hasChildren) {
-      setIsExpanded(!isExpanded);
-    }
     if (canSearch) {
       onGroupClick(group);
-    }
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      handleClick();
+    } else if (hasChildren) {
+      setIsExpanded(!isExpanded);
     }
   };
 
   return (
-    <div className="border-b border-gray-100 last:border-b-0">
-      <div
+    <div className={`${level > 0 ? 'ml-4 border-l border-gray-200 pl-4' : ''}`}>
+      <button
         onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
-        role="button"
-        aria-expanded={hasChildren ? isExpanded : undefined}
-        aria-label={`${group.name}${hasChildren ? (isExpanded ? ' (развернуто)' : ' (свернуто)') : ''}${canSearch ? ' (доступен поиск)' : ''}`}
         className={`
-          flex items-center justify-between py-3 px-4 cursor-pointer transition-colors
-          ${level > 0 ? `ml-${level * 4}` : ''}
+          w-full text-left p-3 rounded-lg border transition-all duration-200
           ${canSearch 
-            ? 'hover:bg-blue-50 focus:bg-blue-50 text-blue-900' 
-            : 'hover:bg-gray-50 focus:bg-gray-50 text-gray-600'
+            ? 'border-gray-200 hover:border-red-300 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500' 
+            : hasChildren 
+              ? 'border-gray-100 hover:bg-gray-50' 
+              : 'border-gray-100 bg-gray-50 cursor-not-allowed'
           }
-          focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-inset
         `}
+        disabled={!canSearch && !hasChildren}
       >
-        <div className="flex items-center space-x-3">
-          {hasChildren && (
-            <div className="flex-shrink-0">
-              <svg 
-                className={`w-4 h-4 transform transition-transform ${isExpanded ? 'rotate-90' : ''}`} 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            {hasChildren && (
+              <div className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            )}
+            <div>
+              <h4 className={`font-medium ${canSearch ? 'text-gray-900' : 'text-gray-500'}`}>
+                {group.name}
+              </h4>
+              <p className="text-sm text-gray-500 mt-1">
+                ID: {group.quickgroupid}
+                {canSearch && ' • Доступен поиск'}
+                {!canSearch && hasChildren && ' • Содержит подгруппы'}
+                {!canSearch && !hasChildren && ' • Недоступен'}
+              </p>
+            </div>
+          </div>
+          
+          {canSearch && (
+            <div className="text-red-600">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
           )}
-          
-          <div className={`flex items-center space-x-2 ${!hasChildren ? 'ml-7' : ''}`}>
-            {canSearch ? (
-              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            ) : (
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-            )}
-            
-            <span className={`text-sm font-medium ${canSearch ? 'text-blue-900' : 'text-gray-700'}`}>
-              {group.name}
-            </span>
-          </div>
         </div>
+      </button>
 
-        {canSearch && (
-          <div className="flex-shrink-0">
-            <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
-              Поиск
-            </span>
-          </div>
-        )}
-      </div>
-
+      {/* Дочерние группы */}
       {hasChildren && isExpanded && (
-        <div className="bg-gray-50 border-l-2 border-gray-200 ml-4">
+        <div className="mt-2 space-y-2">
           {group.children!.map((child) => (
             <QuickGroupItem
               key={child.quickgroupid}
@@ -111,15 +92,18 @@ const QuickGroupItem: React.FC<QuickGroupItemProps> = ({ group, level, onGroupCl
   );
 };
 
-const QuickGroupsSection: React.FC<QuickGroupsSectionProps> = ({ 
-  catalogCode, 
-  vehicleId, 
-  ssd 
+const QuickGroupsSection: React.FC<QuickGroupsSectionProps> = ({
+  catalogCode,
+  vehicleId,
+  ssd
 }) => {
-  const { data, loading, error } = useQuery<{ laximoQuickGroups: LaximoQuickGroup[] }>(
+  const [selectedGroup, setSelectedGroup] = useState<LaximoQuickGroup | null>(null);
+
+  // Получаем список групп быстрого поиска
+  const { data: quickGroupsData, loading: quickGroupsLoading, error: quickGroupsError } = useQuery<{ laximoQuickGroups: LaximoQuickGroup[] }>(
     GET_LAXIMO_QUICK_GROUPS,
     {
-      variables: {
+      variables: { 
         catalogCode,
         vehicleId,
         ...(ssd && ssd.trim() !== '' && { ssd })
@@ -129,87 +113,187 @@ const QuickGroupsSection: React.FC<QuickGroupsSectionProps> = ({
     }
   );
 
+  // Получаем детали выбранной группы
+  const { data: quickDetailData, loading: quickDetailLoading, error: quickDetailError } = useQuery<{ laximoQuickDetail: LaximoQuickDetail }>(
+    GET_LAXIMO_QUICK_DETAIL,
+    {
+      variables: {
+        catalogCode,
+        vehicleId,
+        quickGroupId: selectedGroup?.quickgroupid || '',
+        ssd: ssd || ''
+      },
+      skip: !selectedGroup || !ssd,
+      errorPolicy: 'all'
+    }
+  );
+
   const handleGroupClick = (group: LaximoQuickGroup) => {
-    if (!group.link) return;
-    
-    console.log('🔍 Выбрана группа для поиска:', group);
-    // TODO: Реализовать переход к поиску запчастей в этой группе
-    alert(`Поиск запчастей в группе: ${group.name}\nID группы: ${group.quickgroupid}`);
+    console.log('🔍 Выбрана группа быстрого поиска:', group.name, 'ID:', group.quickgroupid);
+    setSelectedGroup(group);
   };
 
-  if (loading) {
+  const handleBackToGroups = () => {
+    setSelectedGroup(null);
+  };
+
+  // Если выбрана группа, показываем детали
+  if (selectedGroup) {
+    return (
+      <div>
+        <div className="flex items-center mb-6">
+          <button
+            onClick={handleBackToGroups}
+            className="flex items-center text-gray-600 hover:text-gray-900 mr-4 transition-colors"
+          >
+            <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Назад к группам
+          </button>
+          <h3 className="text-lg font-medium text-gray-900">
+            {selectedGroup.name}
+          </h3>
+        </div>
+
+        {quickDetailLoading && (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Загружаем детали группы...</p>
+          </div>
+        )}
+
+        {quickDetailError && (
+          <div className="text-center py-8">
+            <div className="text-red-600 mb-4">
+              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Ошибка загрузки деталей</h3>
+            <p className="text-gray-600 mb-4">Не удалось загрузить детали группы</p>
+            <p className="text-sm text-gray-500">
+              {quickDetailError.message}
+            </p>
+          </div>
+        )}
+
+        {quickDetailData?.laximoQuickDetail && (
+          <div>
+            <p className="text-sm text-gray-600 mb-6">
+              Найдено узлов: {quickDetailData.laximoQuickDetail.units?.length || 0}
+            </p>
+
+            {quickDetailData.laximoQuickDetail.units?.map((unit, unitIndex) => (
+              <div key={`${unit.unitid || 'unit'}-${unitIndex}`} className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                <h4 className="font-medium text-gray-900 mb-2">{unit.name}</h4>
+                {unit.code && (
+                  <p className="text-sm text-gray-500 mb-3">Код: {unit.code}</p>
+                )}
+                
+                {unit.details && unit.details.length > 0 && (
+                  <div className="space-y-2">
+                    <h5 className="text-sm font-medium text-gray-700">Детали:</h5>
+                    {unit.details.map((detail, detailIndex) => (
+                      <div key={`${detail.detailid || 'detail'}-${detailIndex}`} className="bg-gray-50 rounded p-3">
+                        <p className="font-medium text-gray-900">{detail.name}</p>
+                        {detail.oem && (
+                          <p className="text-sm text-gray-600">OEM: {detail.oem}</p>
+                        )}
+                        {detail.brand && (
+                          <p className="text-sm text-gray-600">Бренд: {detail.brand}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (quickGroupsLoading) {
     return (
       <div className="text-center py-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
-        <p className="mt-2 text-sm text-gray-500">Загружаем группы быстрого поиска...</p>
+        <p className="mt-4 text-gray-600">Загружаем группы быстрого поиска...</p>
       </div>
     );
   }
 
-  if (error) {
-    console.error('Ошибка загрузки групп быстрого поиска:', error);
+  if (quickGroupsError) {
+    console.error('Ошибка загрузки групп быстрого поиска:', quickGroupsError);
     return (
       <div className="text-center py-8">
-        <div className="text-red-600 mb-2">
-          <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <div className="text-red-600 mb-4">
+          <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
         </div>
-        <p className="text-red-600 font-medium">Ошибка загрузки групп быстрого поиска</p>
-        <p className="text-gray-500 text-sm mt-1">Попробуйте обновить страницу</p>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Ошибка загрузки групп</h3>
+        <p className="text-gray-600 mb-4">Не удалось загрузить группы быстрого поиска</p>
+        <p className="text-sm text-gray-500">
+          {quickGroupsError.message}
+        </p>
       </div>
     );
   }
 
-  if (!data?.laximoQuickGroups || data.laximoQuickGroups.length === 0) {
+  const quickGroups = quickGroupsData?.laximoQuickGroups || [];
+
+  if (quickGroups.length === 0) {
     return (
       <div className="text-center py-8">
-        <div className="text-gray-400 mb-2">
-          <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-gray-400 mb-4">
+          <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
         </div>
-        <p className="text-gray-500 font-medium">Группы быстрого поиска недоступны</p>
-        <p className="text-gray-400 text-sm mt-1">Для данного автомобиля нет доступных групп</p>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Группы быстрого поиска недоступны</h3>
+        <p className="text-gray-600">
+          Для данного автомобиля группы быстрого поиска не найдены
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-start space-x-3">
+    <div>
+      <p className="text-sm text-gray-600 mb-6">
+        Найдено групп: {quickGroups.length}. Выберите группу для поиска запчастей.
+      </p>
+
+      <div className="space-y-3">
+        {quickGroups.map((group) => (
+          <QuickGroupItem
+            key={group.quickgroupid}
+            group={group}
+            level={0}
+            onGroupClick={handleGroupClick}
+          />
+        ))}
+      </div>
+
+      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex items-start">
           <div className="flex-shrink-0">
-            <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
           </div>
-          <div>
-            <h4 className="text-sm font-medium text-blue-900">Группы быстрого поиска</h4>
+          <div className="ml-3">
+            <h4 className="text-sm font-medium text-blue-900">
+              О группах быстрого поиска
+            </h4>
             <p className="text-sm text-blue-700 mt-1">
-              Выберите группу запчастей для быстрого поиска. Доступны только группы с пометкой "Поиск".
+              Группы быстрого поиска - это иерархическая структура каталога, позволяющая быстро найти нужные запчасти. 
+              Только группы с пометкой "Доступен поиск" содержат детали для просмотра.
             </p>
           </div>
         </div>
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div className="max-h-96 overflow-y-auto">
-          {data.laximoQuickGroups.map((group) => (
-            <QuickGroupItem
-              key={group.quickgroupid}
-              group={group}
-              level={0}
-              onGroupClick={handleGroupClick}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="text-center">
-        <p className="text-xs text-gray-500">
-          Найдено {data.laximoQuickGroups.length} {data.laximoQuickGroups.length === 1 ? 'группа' : 'групп'} быстрого поиска
-        </p>
       </div>
     </div>
   );
