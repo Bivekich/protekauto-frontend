@@ -6,13 +6,13 @@ const crumbsMap: Record<string, string> = {
   "/profile-history": "История поиска",
   "/profile-announcement": "Уведомления",
   "/profile-notification": "Оповещения",
-  "/profile/addresses": "Адреса доставки",
+  "/profile-addresses": "Адреса доставки",
   "/profile-gar": "Гараж",
   "/profile-set": "Настройки аккаунта",
-  "/profile/balance": "Баланс",
+  "/profile-balance": "Баланс",
   "/profile-req": "Реквизиты",
-  "/profile/settlements": "Взаиморасчеты",
-  "/profile/acts": "Акты сверки",
+  "/profile-settlements": "Взаиморасчеты",
+  "/profile-acts": "Акты сверки",
 };
 
 function normalizePath(path: string): string {

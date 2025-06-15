@@ -145,16 +145,16 @@ const NotificationMane = () => {
         </div>
         <div className="mt-8 w-full border border-solid bg-stone-300 border-stone-300 min-h-[1px] max-md:max-w-full" />
         {showAddEmail && (
-          <div className="flex flex-col mt-8 w-full max-md:max-w-full">
-            <div className="text-xl font-bold leading-none text-gray-950">
-              Добавление e-mail для уведомлений
+        <div className="flex flex-col mt-8 w-full max-md:max-w-full">
+          <div className="text-xl font-bold leading-none text-gray-950">
+            Добавление e-mail для уведомлений
+          </div>
+          <div className="flex flex-col mt-5 w-full max-md:max-w-full">
+            <div className="text-sm leading-snug text-gray-950 max-md:max-w-full">
+              Адрес электронной почты
             </div>
-            <div className="flex flex-col mt-5 w-full max-md:max-w-full">
-              <div className="text-sm leading-snug text-gray-950 max-md:max-w-full">
-                Адрес электронной почты
-              </div>
-              <div className="flex flex-wrap gap-5 items-start mt-1.5 w-full text-base font-medium leading-tight whitespace-nowrap max-md:max-w-full">
-                <div className="flex-1 shrink gap-2.5 self-stretch px-6 py-4 text-sm leading-snug bg-white rounded border border-solid basis-0 border-stone-300 min-h-[52px] min-w-[240px] text-neutral-500 max-md:px-5 max-md:max-w-full">
+            <div className="flex flex-wrap gap-5 items-start mt-1.5 w-full text-base font-medium leading-tight whitespace-nowrap max-md:max-w-full">
+              <div className="flex-1 shrink gap-2.5 self-stretch px-6 py-4 text-sm leading-snug bg-white rounded border border-solid basis-0 border-stone-300 min-h-[52px] min-w-[240px] text-neutral-500 max-md:px-5 max-md:max-w-full">
                   <input
                     type="email"
                     value={email}
@@ -163,12 +163,12 @@ const NotificationMane = () => {
                     className="w-full bg-transparent outline-none text-gray-950 placeholder:text-gray-400"
                     style={{ border: 'none', padding: 0, margin: 0 }}
                   />
-                </div>
+              </div>
                 <div className="cursor-pointer gap-2.5 self-stretch px-5 py-4 text-center text-white bg-red-600 rounded-xl min-h-[50px]" onClick={() => setShowAddEmail(false)}>
-                  Готово
-                </div>
+                Готово
+              </div>
                 <div className="cursor-pointer gap-2.5 self-stretch px-5 py-4 text-center rounded-xl border border-red-600 border-solid min-h-[50px] text-gray-950" onClick={() => setShowAddEmail(false)}>
-                  Отменить
+                Отменить
                 </div>
               </div>
             </div>
