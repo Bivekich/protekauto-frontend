@@ -3,24 +3,59 @@ import Head from "next/head";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useRouter } from "next/router";
+import { useMutation, ApolloProvider } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { apolloClient } from "@/lib/apollo";
 
-export default function PaymentSuccess() {
+const CONFIRM_PAYMENT = gql`
+  mutation ConfirmPayment($orderId: ID!) {
+    confirmPayment(orderId: $orderId) {
+      id
+      orderNumber
+      status
+    }
+  }
+`;
+
+function PaymentSuccessContent() {
   const router = useRouter();
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [confirmPayment] = useMutation(CONFIRM_PAYMENT);
 
   useEffect(() => {
-    // Получаем параметры из URL (ЮКасса передает их при возврате)
-    const { payment_id, order_id } = router.query;
+    // Получаем параметры из URL
+    const { payment_id, orderId, orderNumber } = router.query;
     
     if (payment_id) {
       setPaymentId(payment_id as string);
     }
     
-    if (order_id) {
-      setOrderId(order_id as string);
+    if (orderId) {
+      setOrderId(orderId as string);
+      
+      // Проверяем авторизацию перед обновлением статуса
+      const userData = localStorage.getItem('userData');
+      console.log('PaymentSuccess: userData из localStorage:', userData);
+      
+      if (!userData) {
+        console.log('PaymentSuccess: пользователь не авторизован, пропускаем обновление статуса');
+        return;
+      }
+      
+      // Автоматически подтверждаем оплату заказа
+      console.log('PaymentSuccess: подтверждаем оплату заказа', orderId);
+      confirmPayment({
+        variables: {
+          orderId: orderId as string
+        }
+      }).then(() => {
+        console.log('Оплата заказа подтверждена');
+      }).catch((error: any) => {
+        console.error('Ошибка подтверждения оплаты:', error);
+      });
     }
-  }, [router.query]);
+  }, [router.query, confirmPayment]);
 
   const handleContinueShopping = () => {
     router.push('/catalog');
@@ -165,5 +200,13 @@ export default function PaymentSuccess() {
 
       <Footer />
     </>
+  );
+}
+
+export default function PaymentSuccess() {
+  return (
+    <ApolloProvider client={apolloClient}>
+      <PaymentSuccessContent />
+    </ApolloProvider>
   );
 } 

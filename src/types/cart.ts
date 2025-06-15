@@ -43,6 +43,7 @@ export interface CartState {
   items: CartItem[]
   summary: CartSummary
   delivery: DeliveryInfo
+  orderComment: string
   isLoading: boolean
   error?: string
 }
@@ -55,6 +56,7 @@ export interface CartContextType {
   toggleSelect: (id: string) => void
   toggleFavorite: (id: string) => void
   updateComment: (id: string, comment: string) => void
+  updateOrderComment: (comment: string) => void
   selectAll: () => void
   removeAll: () => void
   removeSelected: () => void

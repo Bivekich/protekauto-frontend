@@ -18,6 +18,7 @@ const initialState: CartState = {
     address: 'Калининградская область, Калиниград, улица Понартская, 5, кв./офис 1, Подъезд 1, этаж 1',
     price: 39
   },
+  orderComment: '',
   isLoading: false
 }
 
@@ -29,6 +30,7 @@ type CartAction =
   | { type: 'TOGGLE_SELECT'; payload: string }
   | { type: 'TOGGLE_FAVORITE'; payload: string }
   | { type: 'UPDATE_COMMENT'; payload: { id: string; comment: string } }
+  | { type: 'UPDATE_ORDER_COMMENT'; payload: string }
   | { type: 'SELECT_ALL' }
   | { type: 'REMOVE_ALL' }
   | { type: 'REMOVE_SELECTED' }
@@ -164,6 +166,13 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return {
         ...state,
         items: newItems
+      }
+    }
+
+    case 'UPDATE_ORDER_COMMENT': {
+      return {
+        ...state,
+        orderComment: action.payload
       }
     }
 
@@ -304,6 +313,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'UPDATE_COMMENT', payload: { id, comment } })
   }
 
+  const updateOrderComment = (comment: string) => {
+    dispatch({ type: 'UPDATE_ORDER_COMMENT', payload: comment })
+  }
+
   const selectAll = () => {
     dispatch({ type: 'SELECT_ALL' })
   }
@@ -332,6 +345,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     toggleSelect,
     toggleFavorite,
     updateComment,
+    updateOrderComment,
     selectAll,
     removeAll,
     removeSelected,

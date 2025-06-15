@@ -290,6 +290,65 @@ export const CREATE_PAYMENT = gql`
   }
 `
 
+export const GET_ORDERS = gql`
+  query GetOrders($clientId: String, $status: OrderStatus, $search: String, $limit: Int, $offset: Int) {
+    orders(clientId: $clientId, status: $status, search: $search, limit: $limit, offset: $offset) {
+      orders {
+        id
+        orderNumber
+        clientId
+        client {
+          id
+          name
+          email
+          phone
+        }
+        clientEmail
+        clientPhone
+        clientName
+        status
+        totalAmount
+        discountAmount
+        finalAmount
+        currency
+        items {
+          id
+          productId
+          product {
+            id
+            name
+            article
+          }
+          externalId
+          name
+          article
+          brand
+          price
+          quantity
+          totalPrice
+        }
+        deliveryAddress
+        comment
+        createdAt
+        updatedAt
+        payments {
+          id
+          yookassaPaymentId
+          status
+          amount
+          currency
+          description
+          confirmationUrl
+          createdAt
+          updatedAt
+        }
+      }
+      total
+      hasMore
+    }
+  }
+`
+
 // Laximo интеграция
 export const GET_LAXIMO_BRANDS = gql`
   query GetLaximoBrands {

@@ -5,12 +5,13 @@ import { useMutation } from "@apollo/client";
 import { CREATE_ORDER, CREATE_PAYMENT } from "@/lib/graphql";
 
 const CartSummary: React.FC = () => {
-  const { state, updateDelivery, clearCart } = useCart();
-  const { summary, delivery, items } = state;
+  const { state, updateDelivery, updateOrderComment, clearCart } = useCart();
+  const { summary, delivery, items, orderComment } = state;
   
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showAuthWarning, setShowAuthWarning] = useState(false);
   
   const [createOrder] = useMutation(CREATE_ORDER);
   const [createPayment] = useMutation(CREATE_PAYMENT);
@@ -43,26 +44,31 @@ const CartSummary: React.FC = () => {
     // Проверяем авторизацию
     const userData = typeof window !== 'undefined' ? localStorage.getItem('userData') : null;
     if (!userData) {
-      setError("Необходимо авторизоваться для оформления заказа.");
+      setError("Для оформления заказа необходимо войти в систему.");
+      setShowAuthWarning(true);
       return;
     }
 
     setIsProcessing(true);
     setError("");
+    setShowAuthWarning(false);
 
     try {
       const user = JSON.parse(userData);
       const selectedItems = items.filter(item => item.selected);
 
-      // Создаем заказ
+
+
+      // Создаем заказ с clientId для авторизованных пользователей
       const orderResult = await createOrder({
         variables: {
           input: {
+            clientId: user.id, // Передаем ID клиента
             clientEmail: user.email || '',
             clientPhone: user.phone || '',
             clientName: user.name || '',
             deliveryAddress: delivery.address,
-            comment: `Способ доставки: ${delivery.type}`,
+            comment: orderComment || `Способ доставки: ${delivery.type}`,
             items: selectedItems.map(item => ({
               productId: item.productId,
               externalId: item.offerKey,
@@ -86,7 +92,7 @@ const CartSummary: React.FC = () => {
         variables: {
           input: {
             orderId: order.id,
-            returnUrl: `${window.location.origin}/payment/success`,
+            returnUrl: `${window.location.origin}/payment/success?orderId=${order.id}&orderNumber=${order.orderNumber}`,
             description: `Оплата заказа №${order.orderNumber}`
           }
         }
@@ -132,6 +138,26 @@ const CartSummary: React.FC = () => {
           </div>
           <div className="text-block-32">{delivery.address}</div>
         </div>
+        <div className="w-layout-vflex flex-block-58">
+          <div className="text-block-31">Комментарий к заказу</div>
+          <textarea
+            value={orderComment}
+            onChange={(e) => updateOrderComment(e.target.value)}
+            placeholder="Добавьте комментарий к заказу (необязательно)"
+            className="text-block-32"
+            style={{
+              width: '100%',
+              minHeight: '60px',
+              padding: '8px 12px',
+              border: '1px solid #D0D0D0',
+              borderRadius: '4px',
+              fontSize: '14px',
+              fontFamily: 'inherit',
+              resize: 'vertical',
+              outline: 'none'
+            }}
+          />
+        </div>
         <div className="px-line"></div>
         <div className="w-layout-vflex flex-block-60">
           <div className="w-layout-hflex flex-block-59">
@@ -156,6 +182,44 @@ const CartSummary: React.FC = () => {
           <div className="text-block-32">Итого</div>
           <h4 className="heading-9-copy-copy">{formatPrice(summary.finalPrice)}</h4>
         </div>
+        
+        {showAuthWarning && (
+          <div style={{ 
+            backgroundColor: '#FEF3C7', 
+            border: '1px solid #F59E0B', 
+            borderRadius: '8px', 
+            padding: '12px', 
+            marginBottom: '16px',
+            color: '#92400E'
+          }}>
+            <div style={{ fontWeight: 600, marginBottom: '8px' }}>
+              Требуется авторизация
+            </div>
+            <div style={{ fontSize: '14px', marginBottom: '12px' }}>
+              Для оформления заказа необходимо войти в систему или зарегистрироваться
+            </div>
+            <button 
+              onClick={() => {
+                // Здесь можно открыть модальное окно авторизации
+                // Или перенаправить на страницу входа
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              style={{
+                backgroundColor: '#F59E0B',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '8px 16px',
+                fontSize: '14px',
+                cursor: 'pointer',
+                fontWeight: 500
+              }}
+            >
+              Войти в систему
+            </button>
+          </div>
+        )}
+        
         <button 
           className="submit-button fill w-button" 
           onClick={handleSubmit}

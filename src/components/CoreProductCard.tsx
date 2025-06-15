@@ -52,15 +52,39 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
     return match ? `${match[0]} дней` : daysStr;
   };
 
+  // Функция для парсинга количества в наличии
+  const parseStock = (stockStr: string): number => {
+    const match = stockStr.match(/\d+/);
+    return match ? parseInt(match[0]) : 0;
+  };
+
   const handleQuantityChange = (index: number, delta: number) => {
+    const offer = offers[index];
+    const availableStock = parseStock(offer.pcs);
+    const currentQuantity = quantities[index] || 1;
+    const newQuantity = currentQuantity + delta;
+
+    if (delta > 0 && newQuantity > availableStock) {
+      alert(`Максимальное количество: ${availableStock} шт.`);
+      return;
+    }
+
     setQuantities(prev => ({
       ...prev,
-      [index]: Math.max(1, (prev[index] || 1) + delta)
+      [index]: Math.max(1, newQuantity)
     }));
   };
 
   const handleAddToCart = (offer: CoreProductCardOffer, index: number) => {
     const quantity = quantities[index] || 1;
+    const availableStock = parseStock(offer.pcs);
+    
+    // Проверяем наличие
+    if (quantity > availableStock) {
+      alert(`Недостаточно товара в наличии. Доступно: ${availableStock} шт.`);
+      return;
+    }
+
     const numericPrice = parsePrice(offer.price);
 
     addItem({

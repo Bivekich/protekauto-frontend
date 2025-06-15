@@ -53,7 +53,21 @@ const ProductListCard: React.FC<ProductListCardProps> = ({
     return parseFloat(cleanPrice) || 0;
   };
 
+  // Функция для парсинга количества в наличии
+  const parseStock = (stockStr: string): number => {
+    const match = stockStr.match(/\d+/);
+    return match ? parseInt(match[0]) : 0;
+  };
+
   const handleAddToCart = () => {
+    const availableStock = parseStock(stock);
+    
+    // Проверяем наличие
+    if (count > availableStock) {
+      alert(`Недостаточно товара в наличии. Доступно: ${availableStock} шт.`);
+      return;
+    }
+
     const numericPrice = parsePrice(price);
     const numericOldPrice = oldPrice ? parsePrice(oldPrice) : undefined;
 
@@ -110,7 +124,14 @@ const ProductListCard: React.FC<ProductListCardProps> = ({
             <div className="input-pcs">
               <div className="text-block-26">{count}</div>
             </div>
-            <div className="minus-plus" onClick={() => setCount(count + 1)}>
+            <div className="minus-plus" onClick={() => {
+              const availableStock = parseStock(stock);
+              if (count < availableStock) {
+                setCount(count + 1);
+              } else {
+                alert(`Максимальное количество: ${availableStock} шт.`);
+              }
+            }}>
               <img src="/images/plus_icon.svg" alt="+" />
             </div>
           </div>
