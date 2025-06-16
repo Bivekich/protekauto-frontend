@@ -866,3 +866,70 @@ export const SEARCH_PRODUCT_OFFERS = gql`
     }
   }
 `
+
+// PartsAPI категории
+export const GET_PARTSAPI_CATEGORIES = gql`
+  query GetPartsAPICategories($carId: Int!, $carType: CarType) {
+    partsAPICategories(carId: $carId, carType: $carType) {
+      id
+      name
+      level
+      parentId
+      children {
+        id
+        name
+        level
+        parentId
+        children {
+          id
+          name
+          level
+          parentId
+        }
+      }
+    }
+  }
+`
+
+export const GET_PARTSAPI_TOP_LEVEL_CATEGORIES = gql`
+  query GetPartsAPITopLevelCategories($carId: Int!, $carType: CarType) {
+    partsAPITopLevelCategories(carId: $carId, carType: $carType) {
+      id
+      name
+      level
+      parentId
+    }
+  }
+`
+
+export const GET_PARTSAPI_ARTICLES = gql`
+  query GetPartsAPIArticles($strId: Int!, $carId: Int!, $carType: CarType) {
+    partsAPIArticles(strId: $strId, carId: $carId, carType: $carType) {
+      supBrand
+      supId
+      productGroup
+      ptId
+      artSupBrand
+      artArticleNr
+      artId
+    }
+  }
+`
+
+export const GET_PARTSAPI_MEDIA = gql`
+  query GetPartsAPIMedia($artId: String!, $lang: Int) {
+    partsAPIMedia(artId: $artId, lang: $lang) {
+      artMediaType
+      artMediaSource
+      artMediaSupId
+      artMediaKind
+      imageUrl
+    }
+  }
+`;
+
+export const GET_PARTSAPI_MAIN_IMAGE = gql`
+  query GetPartsAPIMainImage($artId: String!) {
+    partsAPIMainImage(artId: $artId)
+  }
+`;

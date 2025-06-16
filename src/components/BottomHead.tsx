@@ -1,5 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useQuery } from '@apollo/client';
+import { GET_PARTSAPI_CATEGORIES } from '@/lib/graphql';
+import { PartsAPICategoriesData, PartsAPICategoriesVariables, PartsAPICategory } from '@/types/partsapi';
 
 function useIsMobile(breakpoint = 767) {
   const [isMobile, setIsMobile] = React.useState(false);
@@ -12,7 +16,10 @@ function useIsMobile(breakpoint = 767) {
   return isMobile;
 }
 
-const tabData = [
+
+
+// Fallback статичные данные
+const fallbackTabData = [
   {
     label: "Оригинальные каталоги",
     heading: "Оригинальные каталоги",
@@ -60,9 +67,119 @@ const tabData = [
   },
 ];
 
+// Преобразуем данные PartsAPI в формат нашего меню
+const transformPartsAPIToTabData = (categories: PartsAPICategory[]) => {
+  console.log('🔄 Преобразуем категории PartsAPI:', categories.length, 'элементов');
+  
+  // Фильтруем только корневые категории (без parentId - это корневые)
+  const rootCategories = categories.filter(cat => !cat.parentId);
+  console.log('🔍 Найдено корневых категорий:', rootCategories.length);
+  
+  // Если корневых категорий нет, берем все категории (возможно, API возвращает только корневые)
+  const categoriesToUse = rootCategories.length > 0 ? rootCategories : categories;
+  console.log('🎯 Используем категории:', categoriesToUse.length);
+  
+  const transformed = categoriesToUse.slice(0, 12).map(category => {
+    const childrenCount = category.children?.length || 0;
+    console.log(`📝 Категория: "${category.name}" (уровень ${category.level}, ${childrenCount} подкатегорий)`);
+    
+    // Используем реальные подкатегории (уже переведенные на бэкенде) или fallback
+    const links = category.children && category.children.length > 0 
+      ? category.children.slice(0, 9).map(child => child.name)
+      : [
+          "Масла",
+          "Фильтры", 
+          "Свечи зажигания",
+          "Тормозные колодки",
+          "Амортизаторы",
+          "Приводные ремни",
+          "Подшипники",
+          "Уплотнения",
+          "Прокладки",
+        ];
+    
+    console.log(`🔗 Подкатегории для "${category.name}":`, links);
+    
+    return {
+      label: category.name,
+      heading: category.name,
+      links: links
+    };
+  });
+  
+  console.log('✅ Преобразование завершено:', transformed.length, 'табов');
+  return transformed;
+};
+
 const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => void }) => {
   const isMobile = useIsMobile();
-  const [mobileCategory, setMobileCategory] = useState<null | typeof tabData[0]>(null);
+  const router = useRouter();
+  const [mobileCategory, setMobileCategory] = useState<null | any>(null);
+  const [tabData, setTabData] = useState(fallbackTabData);
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
+
+  // Получаем категории PartsAPI для примера автомобиля (carId: 9877 - пример из документации)
+  const { data: categoriesData, loading, error } = useQuery<PartsAPICategoriesData, PartsAPICategoriesVariables>(
+    GET_PARTSAPI_CATEGORIES,
+    {
+      variables: { 
+        carId: 9877, // Пример ID автомобиля из документации PartsAPI
+        carType: 'PC' 
+      },
+      errorPolicy: 'all'
+    }
+  );
+
+  // Обновляем данные табов когда получаем данные от API
+  useEffect(() => {
+    if (categoriesData?.partsAPICategories && categoriesData.partsAPICategories.length > 0) {
+      console.log('✅ Обновляем меню с данными PartsAPI:', categoriesData.partsAPICategories.length, 'категорий');
+      console.log('🔍 Первые 3 категории:', categoriesData.partsAPICategories.slice(0, 3).map(cat => ({
+        name: cat.name,
+        level: cat.level,
+        childrenCount: cat.children?.length || 0,
+        children: cat.children?.slice(0, 3).map(child => child.name)
+      })));
+      
+      const apiTabData = transformPartsAPIToTabData(categoriesData.partsAPICategories);
+      setTabData(apiTabData);
+      // Сбрасываем активный таб на первый при обновлении данных
+      setActiveTabIndex(0);
+    } else if (error) {
+      console.warn('⚠️ Используем fallback данные из-за ошибки PartsAPI:', error);
+      setTabData(fallbackTabData);
+      setActiveTabIndex(0);
+    }
+  }, [categoriesData, error]);
+
+  // Логирование для отладки
+  useEffect(() => {
+    if (loading) {
+      console.log('🔄 Загружаем категории PartsAPI...');
+    }
+    if (error) {
+      console.error('❌ Ошибка загрузки категорий PartsAPI:', error);
+    }
+  }, [loading, error]);
+
+  // Обработка клика по категории для перехода в каталог с артикулами
+  const handleCategoryClick = (categoryId: string, categoryName: string) => {
+    console.log('🔍 Клик по категории:', { categoryId, categoryName });
+    
+    // Закрываем меню
+    onClose();
+    
+    // Переходим на страницу каталога с параметрами категории PartsAPI
+    router.push({
+      pathname: '/catalog',
+      query: {
+        partsApiCategory: categoryId,
+        categoryName: encodeURIComponent(categoryName),
+        carId: 9877, // ID автомобиля из PartsAPI
+        carType: 'PC'
+      }
+    });
+  };
 
   // Только мобильный UX
   if (isMobile && menuOpen) {
@@ -77,10 +194,18 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
             <span>{mobileCategory.label}</span>
           </div>
           <div className="mobile-subcategories">
-            {mobileCategory.links.map(link => (
-              <Link href="/catalog" className="mobile-subcategory" key={link} onClick={onClose}>
+            {mobileCategory.links.map((link: string, index: number) => (
+              <div 
+                className="mobile-subcategory" 
+                key={link} 
+                onClick={() => {
+                  // Если есть подкатегория с ID, используем её, иначе создаем временный ID
+                  const subcategoryId = mobileCategory.children?.[index]?.id || `${mobileCategory.categoryId}_${index}`;
+                  handleCategoryClick(subcategoryId, link);
+                }}
+              >
                 {link}
-              </Link>
+              </div>
             ))}
           </div>
         </div>
@@ -92,22 +217,36 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
         <div className="mobile-header">
           <button className="mobile-back-btn" onClick={onClose} aria-label="Закрыть меню">
             <svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.11 2.697L2.698 4.11 6.586 8l-3.89 3.89 1.415 1.413L8 9.414l3.89 3.89 1.413-1.415L9.414 8l3.89-3.89-1.415-1.413L8 6.586l-3.89-3.89z" fill="currentColor"></path>
+                <path fillRule="evenodd" clipRule="evenodd" d="M4.11 2.697L2.698 4.11 6.586 8l-3.89 3.89 1.415 1.413L8 9.414l3.89 3.89 1.413-1.415L9.414 8l3.89-3.89-1.415-1.413L8 6.586l-3.89-3.89z" fill="currentColor"></path>
             </svg>
           </button>
           <span>Категории</span>
+          {loading && <span className="text-sm text-gray-500 ml-2">(загрузка...)</span>}
         </div>
         <div className="mobile-subcategories">
-          {tabData.map(cat => (
-            <div
-              className="mobile-subcategory"
-              key={cat.label}
-              onClick={() => setMobileCategory(cat)}
-              style={{ cursor: "pointer" }}
-            >
-              {cat.label}
-            </div>
-          ))}
+          {tabData.map((cat, index) => {
+            // Получаем ID категории из данных PartsAPI или создаем fallback ID
+            const categoryId = categoriesData?.partsAPICategories?.[index]?.id || `fallback_${index}`;
+            
+            return (
+              <div
+                className="mobile-subcategory"
+                key={cat.label}
+                onClick={() => {
+                  // Добавляем categoryId и children для правильной обработки
+                  const categoryWithData = {
+                    ...cat,
+                    categoryId,
+                    children: categoriesData?.partsAPICategories?.[index]?.children
+                  };
+                  setMobileCategory(categoryWithData);
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                {cat.label}
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -123,28 +262,19 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
       <div className="div-block-28">
         <div className="w-layout-hflex flex-block-90">
           <div className="w-layout-vflex flex-block-88">
-            {/* Меню с иконками */}
-            {[
-              "Оригинальные каталоги",
-              "Масла и технические жидкости",
-              "Оборудование",
-              "Аккумуляторы и зарядные устройства",
-              "Автопринадлежности",
-              "Шины и диски",
-              "Автохимия и косметика",
-              "Товары для дома",
-              "Расходные материалы",
-              "Зимние аксессуары",
-              "Хиты продаж",
-              "Распродажа",
-            ].map((text, idx) => (
+            {/* Меню с иконками - показываем все категории из API */}
+            {tabData.map((tab, idx) => (
               <a
                 href="#"
-                className={`link-block-7 w-inline-block${text === "Распродажа" ? " special" : ""}`}
-                key={text}
-                onClick={onClose}
+                className={`link-block-7 w-inline-block${activeTabIndex === idx ? " w--current" : ""}`}
+                key={tab.label}
+                onClick={() => {
+                  console.log(`🔄 Переключение на таб ${idx}: "${tab.label}"`);
+                  setActiveTabIndex(idx);
+                }}
+                style={{ cursor: "pointer" }}
               >
-                <div className={`div-block-29${text === "Распродажа" ? " special" : ""}`}>
+                <div className="div-block-29">
                   <div className="code-embed-12 w-embed">
                     {/* SVG-звезда (можно вынести в отдельный компонент) */}
                     <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -152,18 +282,34 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
                     </svg>
                   </div>
                 </div>
-                <div className="text-block-47">{text}</div>
+                <div className="text-block-47">{tab.label}</div>
               </a>
             ))}
           </div>
           {/* Правая часть меню с подкатегориями и картинками */}
           <div className="w-layout-vflex flex-block-89">
-            <h3 className="heading-16">{tabData[0].heading}</h3>
+            <h3 className="heading-16">
+              {tabData[activeTabIndex]?.heading || tabData[0].heading}
+              {loading && <span className="text-sm text-gray-500 ml-2">(обновление...)</span>}
+            </h3>
             <div className="w-layout-hflex flex-block-92">
               <div className="w-layout-vflex flex-block-91">
-                {tabData[0].links.map((link) => (
-                  <Link href="/catalog" className="link-2" key={link} onClick={onClose}>{link}</Link>
-                ))}
+                {(tabData[activeTabIndex]?.links || tabData[0].links).map((link, index) => {
+                  // Получаем данные активной категории
+                  const activeCategory = categoriesData?.partsAPICategories?.[activeTabIndex];
+                  const subcategoryId = activeCategory?.children?.[index]?.id || `${activeCategory?.id}_${index}` || `fallback_${activeTabIndex}_${index}`;
+                  
+                  return (
+                    <div 
+                      className="link-2" 
+                      key={link} 
+                      onClick={() => handleCategoryClick(subcategoryId, link)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {link}
+                    </div>
+                  );
+                })}
               </div>
               <div className="w-layout-vflex flex-block-91-copy">
                 <img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" className="image-17" />
@@ -179,11 +325,10 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
               <a
                 key={tab.label}
                 data-w-tab={`Tab ${idx + 1}`}
-                className={`tab-link w-inline-block w-tab-link${0 === idx ? " w--current" : ""}`}
+                className={`tab-link w-inline-block w-tab-link${activeTabIndex === idx ? " w--current" : ""}`}
                 onClick={() => {
-                  if (0 !== idx) {
-                    setMobileCategory(tab);
-                  }
+                  console.log(`🔄 Переключение на таб ${idx}: "${tab.label}"`);
+                  setActiveTabIndex(idx);
                 }}
                 style={{ cursor: "pointer" }}
               >
@@ -198,26 +343,36 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
               </a>
             ))}
           </div>
+          
+          {/* Контент табов */}
           <div className="tabs-content w-tab-content">
             {tabData.map((tab, idx) => (
               <div
                 key={tab.label}
                 data-w-tab={`Tab ${idx + 1}`}
-                className={`w-tab-pane${0 === idx ? " w--tab-active" : ""}`}
-                style={{ display: 0 === idx ? "block" : "none" }}
+                className={`tab-pane w-tab-pane${activeTabIndex === idx ? " w--tab-active" : ""}`}
               >
-                <div className="w-layout-vflex flex-block-89">
-                  <h3 className="heading-16">{tab.heading}</h3>
-                  <div className="w-layout-hflex flex-block-92">
-                    <div className="w-layout-vflex flex-block-91">
-                      {tab.links.map((link) => (
-                        <Link href="/catalog" className="link-2" key={link} onClick={onClose}>{link}</Link>
-                      ))}
-                    </div>
-                    <div className="w-layout-vflex flex-block-91-copy">
-                      <img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" className="image-17" />
-                      <img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" className="image-17" />
-                    </div>
+                <div className="w-layout-hflex flex-block-92">
+                  <div className="w-layout-vflex flex-block-91">
+                    {tab.links.map((link, linkIndex) => {
+                      const category = categoriesData?.partsAPICategories?.[idx];
+                      const subcategoryId = category?.children?.[linkIndex]?.id || `${category?.id}_${linkIndex}` || `fallback_${idx}_${linkIndex}`;
+                      
+                      return (
+                        <div 
+                          className="link-2" 
+                          key={link} 
+                          onClick={() => handleCategoryClick(subcategoryId, link)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          {link}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="w-layout-vflex flex-block-91-copy">
+                    <img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" className="image-17" />
+                    <img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" className="image-17" />
                   </div>
                 </div>
               </div>

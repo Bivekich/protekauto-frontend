@@ -6,6 +6,8 @@ interface FilterDropdownProps {
   multi?: boolean;
   showAll?: boolean;
   isMobile?: boolean; // Добавляем флаг для мобильной версии
+  selectedValues?: string[]; // Выбранные значения
+  onSelectionChange?: (values: string[]) => void; // Обработчик изменений
 }
 
 const FilterDropdown: React.FC<FilterDropdownProps> = ({ 
@@ -13,15 +15,32 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   options, 
   multi = true, 
   showAll = false,
-  isMobile = false
+  isMobile = false,
+  selectedValues = [],
+  onSelectionChange
 }) => {
   const [open, setOpen] = useState(isMobile); // На мобилке сразу открыт
   const [showAllOptions, setShowAllOptions] = useState(false);
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string[]>(selectedValues);
   const visibleOptions = showAll && !showAllOptions ? options.slice(0, 4) : options;
 
+  // Синхронизируем внутреннее состояние с внешним
+  useEffect(() => {
+    setSelected(selectedValues);
+  }, [selectedValues]);
+
   const handleSelect = (option: string) => {
-    setSelected(sel => sel.includes(option) ? sel.filter(o => o !== option) : [...sel, option]);
+    let newSelected: string[];
+    if (multi) {
+      newSelected = selected.includes(option) 
+        ? selected.filter(o => o !== option) 
+        : [...selected, option];
+    } else {
+      newSelected = selected.includes(option) ? [] : [option];
+    }
+    
+    setSelected(newSelected);
+    onSelectionChange?.(newSelected);
   };
 
   // Мобильная версия - всегда открытый список

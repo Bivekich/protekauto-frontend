@@ -8,9 +8,22 @@ interface FiltersPanelMobileProps {
   open: boolean;
   onClose: () => void;
   onApply?: () => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+  selectedFilters?: Record<string, string[]>;
+  onFilterChange?: (filterTitle: string, values: string[]) => void;
 }
 
-const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ filters, open, onClose, onApply }) => {
+const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ 
+  filters, 
+  open, 
+  onClose, 
+  onApply,
+  searchQuery = '',
+  onSearchChange,
+  selectedFilters = {},
+  onFilterChange
+}) => {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -58,10 +71,11 @@ const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ filters, open, 
                 className="text-field w-input"
                 maxLength={256}
                 name="Search"
-                placeholder="Введите код запчасти или VIN номер автомобиля"
+                placeholder="Поиск по названию, артикулу, бренду..."
                 type="text"
                 id="Search-4"
-                required
+                value={searchQuery}
+                onChange={(e) => onSearchChange?.(e.target.value)}
               />
             </form>
           </div>
@@ -79,6 +93,8 @@ const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ filters, open, 
                   multi={filter.multi}
                   showAll={filter.showAll}
                   isMobile
+                  selectedValues={selectedFilters[filter.title] || []}
+                  onSelectionChange={(values) => onFilterChange?.(filter.title, values)}
                 />
               );
             }
