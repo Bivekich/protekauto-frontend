@@ -4,9 +4,9 @@ import Footer from "@/components/Footer";
 import CatalogSubscribe from "@/components/CatalogSubscribe";
 import Filters, { FilterConfig } from "@/components/Filters";
 import BestPriceCard from "@/components/BestPriceCard";
-import CoreProductCard from "@/components/CoreProductCard";
 import AnalogueBlock from "@/components/AnalogueBlock";
-import CatalogInfoHeader from "@/components/CatalogInfoHeader";
+import InfoSearch from "@/components/InfoSearch";
+import CoreProductCard from "@/components/CoreProductCard";
 import FiltersPanelMobile from "@/components/FiltersPanelMobile";
 import CatalogSortDropdown from "@/components/CatalogSortDropdown";
 import MobileMenuBottomSection from '../components/MobileMenuBottomSection';
@@ -60,24 +60,13 @@ export default function SearchResult() {
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <Header />
-      <CatalogInfoHeader
-        title="Аккумуляторы"
-        count={3587}
-        productName="аккумулятор"
-        breadcrumbs={[
-          { label: "Главная", href: "/" },
-          { label: "Каталог", href: "/catalog" },
-          { label: "Результаты поиска" }
-        ]}
-        showCount={true}
-        showProductHelp={true}
-      />
+      <InfoSearch />
       <div className="w-layout-blockcontainer container w-container">
         <div className="w-layout-hflex flex-block-84">
           <CatalogSortDropdown active={sortActive} onChange={setSortActive} />
           <div className="w-layout-hflex flex-block-85" onClick={() => setShowFiltersMobile((v) => !v)}>
             <span className="code-embed-9 w-embed">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="currentwidth" height="currentheight" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M21 4H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M10 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M21 12H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -139,34 +128,21 @@ export default function SearchResult() {
 
             {/* --- Остальной JSX страницы --- */}
             <div className="w-layout-vflex flex-block-14-copy">
-              
-              <div className="w-layout-hflex core-product-search-s1">
-                <CoreProductCard
-                  brand="STELLOX"
-                  article="1023245SX"
-                  name="Комплект ГРМ"
-                  image="/images/image-10.png"
-                  offers={[
-                    {
-                      rating: "4,8",
-                      pcs: "444 шт",
-                      days: "5 дней",
-                      recommended: true,
-                      price: "от 17 323 ₽",
-                      count: "1"
-                    },
-                    {
-                      rating: "4,8",
-                      pcs: "232 шт",
-                      days: "Сегодня",
-                      recommended: false,
-                      price: "от 18 000 ₽",
-                      count: "1"
-                    }
-                  ]}
-                  showMoreText="Ещё предложения от 4726 руб и 5 дней"
-                />
-              </div>
+              <CoreProductCard
+                brand="STELLOX"
+                article="1023245SX"
+                name="Комплект ГРМ"
+                image="/images/image-10.png"
+                offers={[
+                  { rating: "4,8", pcs: "444 шт", days: "5 дней", recommended: true, price: "от 17 323 ₽", count: "1" },
+                  { rating: "4,7", pcs: "320 шт", days: "3 дня", recommended: false, price: "от 16 500 ₽", count: "1" },
+                  { rating: "4,9", pcs: "210 шт", days: "2 дня", recommended: true, price: "от 18 000 ₽", count: "1" },
+                  { rating: "4,6", pcs: "150 шт", days: "7 дней", recommended: false, price: "от 15 900 ₽", count: "1" },
+                  { rating: "4,8", pcs: "100 шт", days: "1 день", recommended: true, price: "от 17 800 ₽", count: "1" },
+                  { rating: "4,5", pcs: "50 шт", days: "10 дней", recommended: false, price: "от 14 700 ₽", count: "1" },
+                ]}
+                showMoreText="Ещё предложения от 4726 руб и 5 дней"
+              />
               {/* --- Аналоги от других производителей --- */}
               <AnalogueBlock />
             </div>

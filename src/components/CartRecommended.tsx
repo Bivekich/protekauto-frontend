@@ -1,5 +1,5 @@
 import React from "react";
-import CartRecommendedProductCard from "./CartRecommendedProductCard";
+import CatalogProductCard from "./CatalogProductCard";
 
 const recommended = [
   {
@@ -47,9 +47,9 @@ const recommended = [
 const CartRecommended: React.FC = () => (
   <>
     <h2 className="heading-11">Рекомендованные товары</h2>
-    <div className="w-layout-hflex core-product-search-copy">
+    <div className="w-layout-hflex core-product-search">
       {recommended.map((item, idx) => (
-        <CartRecommendedProductCard key={idx} {...item} />
+        <CatalogProductCard key={idx} {...item} />
       ))}
     </div> 
  </>

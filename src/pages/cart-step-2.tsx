@@ -4,9 +4,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CatalogSubscribe from "@/components/CatalogSubscribe";
 import CartRecommended from "../components/CartRecommended";
-import CartInfo from "../components/CartInfo";
+import CartInfo2 from "../components/CartInfo2";
 import CartList2 from "../components/CartList2";
-import CartSummary2 from "../components/CartSummary2";
+import CartSummary from "../components/CartSummary";
 import MobileMenuBottomSection from "../components/MobileMenuBottomSection";
 
 export default function CartStep2() {
@@ -20,13 +20,13 @@ export default function CartStep2() {
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <Header />
-      <CartInfo />
+      <CartInfo2 />
       <section className="main">
         <div className="w-layout-blockcontainer container w-container">
           <div className="w-layout-vflex cart-list">
             <div className="w-layout-hflex core-product-card">
               <CartList2 />
-              <CartSummary2 />
+              <CartSummary />
             </div>
             <CartRecommended />
           </div>

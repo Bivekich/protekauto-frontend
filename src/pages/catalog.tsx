@@ -60,25 +60,15 @@ export default function Catalog() {
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <Header />
-      <CatalogInfoHeader
-        title="Аккумуляторы"
-        count={3587}
-        productName="аккумулятор"
-        breadcrumbs={[
-          { label: "Главная", href: "/" },
-          { label: "Каталог" }
-        ]}
-        showCount={true}
-        showProductHelp={true}
-      />
+      <CatalogInfoHeader />
       <section className="main">
         <div className="w-layout-blockcontainer container w-container">
           <div className="w-layout-hflex flex-block-13">
             <div className="w-layout-hflex flex-block-84">
               <CatalogSortDropdown active={sortActive} onChange={setSortActive} />
               <div className="w-layout-hflex flex-block-85" onClick={() => setShowFiltersMobile((v) => !v)}>
-                <span className="code-embed-9 w-embed">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className="code-embed-9 w-embed">
+                  <svg width="currentwidth" height="currentheight" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M21 4H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M10 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M21 12H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -89,7 +79,7 @@ export default function Catalog() {
                     <path d="M8 10V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M16 18V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                </span>
+                </div>
                 <div>Фильтры</div>
               </div>
             </div>

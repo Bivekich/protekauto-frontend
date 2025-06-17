@@ -2,9 +2,9 @@ import React from "react";
 import ProductInfo from "./ProductInfo";
 import ProductBuyBlock from "./ProductBuyBlock";
 
-const ProductItemCard = () => {
+const ProductItemCard = ({ isLast = false }: { isLast?: boolean }) => {
   return (
-    <div className="w-layout-hflex product-item-card">
+    <div className={`w-layout-hflex product-item-card${isLast ? " last" : ""}`}>
       <ProductInfo />
       <ProductBuyBlock />
     </div>

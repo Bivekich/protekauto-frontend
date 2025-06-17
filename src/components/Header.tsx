@@ -142,7 +142,7 @@ const Header = () => {
       <section className="top_head">
         <div className="w-layout-blockcontainer container nav w-container">
           <div data-animation="default" data-collapse="medium" data-duration="400" data-easing="ease" data-easing2="ease" role="banner" className="navbar w-nav">
-          <Link href="/" className="brand w-nav-brand"><img src="/images/logo.svg" loading="lazy" alt="" /></Link>
+            <Link href="/" className="brand w-nav-brand"><img src="/images/logo.svg" loading="lazy" alt="" className="image-24" /></Link>
             <nav role="navigation" className="nav-menu w-nav-menu">
               <Link href="/about" className="nav-link w-nav-link">О компании</Link>
               <Link href="/payments-method" className="nav-link w-nav-link">Оплата и доставка</Link>
@@ -154,7 +154,7 @@ const Header = () => {
             <div className="w-layout-hflex flex-block-2">
               <div className="w-layout-hflex flex-block-3">
                 <div className="w-layout-hflex flex-block-77-copy">
-                  <div className="code-embed-4 w-embed"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.51667 8.99167C6.71667 11.35 8.65 13.275 11.0083 14.4833L12.8417 12.65C13.0667 12.425 13.4 12.35 13.6917 12.45C14.625 12.7583 15.6333 12.925 16.6667 12.925C17.125 12.925 17.5 13.3 17.5 13.7583V16.6667C17.5 17.125 17.125 17.5 16.6667 17.5C8.84167 17.5 2.5 11.1583 2.5 3.33333C2.5 2.875 2.875 2.5 3.33333 2.5H6.25C6.70833 2.5 7.08333 2.875 7.08333 3.33333C7.08333 4.375 7.25 5.375 7.55833 6.30833C7.65 6.6 7.58333 6.925 7.35 7.15833L5.51667 8.99167Z" fill="currentColor" /></svg></div>
+                  <div className="code-embed-4 w-embed"><svg width="currentwidth" height="currentheight" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.51667 8.99167C6.71667 11.35 8.65 13.275 11.0083 14.4833L12.8417 12.65C13.0667 12.425 13.4 12.35 13.6917 12.45C14.625 12.7583 15.6333 12.925 16.6667 12.925C17.125 12.925 17.5 13.3 17.5 13.7583V16.6667C17.5 17.125 17.125 17.5 16.6667 17.5C8.84167 17.5 2.5 11.1583 2.5 3.33333C2.5 2.875 2.875 2.5 3.33333 2.5H6.25C6.70833 2.5 7.08333 2.875 7.08333 3.33333C7.08333 4.375 7.25 5.375 7.55833 6.30833C7.65 6.6 7.58333 6.925 7.35 7.15833L5.51667 8.99167Z" fill="currentColor"></path></svg></div>
                   <div className="phone-copy">+7 (495) 260-20-60</div>
                 </div>
               </div>
@@ -165,7 +165,6 @@ const Header = () => {
       </section>
       <section className="bottom_head">
         <div className="w-layout-blockcontainer container nav w-container">
-          <div className="w-layout-hflex flex-block-4">
             <div data-animation="default" data-collapse="all" data-duration="400" data-easing="ease-in" data-easing2="ease" role="banner" className="navbar-2 w-nav">
 
               
@@ -320,7 +319,7 @@ const Header = () => {
                 </Link>
               </div>
             </div>
-          </div>
+          
         </div>
       </section>
       <BottomHead menuOpen={menuOpen} onClose={() => setMenuOpen(false)} />

@@ -81,13 +81,21 @@ const CartItem: React.FC<CartItemProps> = ({
       </div>
       <div className="w-layout-hflex pcs-cart-s1">
         <div className="minus-plus" onClick={() => onCountChange && onCountChange(count - 1)} style={{ cursor: 'pointer' }}>
-          <img loading="lazy" src="/images/minus_icon.svg" alt="-" />
+          <div className="pluspcs w-embed">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 10.5V9.5H14V10.5H6Z" fill="currentColor"></path>
+            </svg>
+          </div>
         </div>
         <div className="input-pcs">
           <div className="text-block-26">{count}</div>
         </div>
         <div className="minus-plus" onClick={() => onCountChange && onCountChange(count + 1)} style={{ cursor: 'pointer' }}>
-          <img loading="lazy" src="/images/plus_icon.svg" alt="+" />
+          <div className="pluspcs w-embed">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 10.5V9.5H14V10.5H6ZM9.5 6H10.5V14H9.5V6Z" fill="currentColor"></path>
+            </svg>
+          </div>
         </div>
       </div>
       <div className="w-layout-hflex flex-block-39-copy-copy">
@@ -100,7 +108,11 @@ const CartItem: React.FC<CartItemProps> = ({
             <path d="M9 16.5L7.84 15.4929C3.72 11.93 1 9.57248 1 6.69619C1 4.33869 2.936 2.5 5.4 2.5C6.792 2.5 8.128 3.11798 9 4.08692C9.872 3.11798 11.208 2.5 12.6 2.5C15.064 2.5 17 4.33869 17 6.69619C17 9.57248 14.28 11.93 10.16 15.4929L9 16.5Z" fill={favorite ? "#e53935" : "currentColor"} />
           </svg>
         </div>
-        <img src="/images/delete.svg" loading="lazy" alt="" className="image-13" style={{ cursor: 'pointer' }} onClick={onRemove} />
+        <div className="bdel w-embed" style={{ cursor: 'pointer' }} onClick={onRemove}>
+          <svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.625 17.5C4.14375 17.5 3.73192 17.3261 3.3895 16.9782C3.04708 16.6304 2.87558 16.2117 2.875 15.7222V4.16667H2V2.38889H6.375V1.5H11.625V2.38889H16V4.16667H15.125V15.7222C15.125 16.2111 14.9538 16.6298 14.6114 16.9782C14.269 17.3267 13.8568 17.5006 13.375 17.5H4.625ZM6.375 13.9444H8.125V5.94444H6.375V13.9444ZM9.875 13.9444H11.625V5.94444H9.875V13.9444Z" fill="currentColor"></path>
+          </svg>
+        </div>
       </div>
     </div>
   </div>

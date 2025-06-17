@@ -80,22 +80,10 @@ const CartSummary2: React.FC = () => {
               {groupChecked && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fff' }} />}
             </div>
             <div className="radio-text">Объединить получения</div>
-            <div
-              className="code-embed-2 w-embed"
-              onMouseEnter={() => setShowInfo(true)}
-              onMouseLeave={() => setShowInfo(false)}
-              style={{ position: 'relative' }}
-            >
+            <div className="code-embed-2 w-embed" style={{ position: 'relative' }}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M7.00033 1.16663C3.78033 1.16663 1.16699 3.77996 1.16699 6.99996C1.16699 10.22 3.78033 12.8333 7.00033 12.8333C10.2203 12.8333 12.8337 10.22 12.8337 6.99996C12.8337 3.77996 10.2203 1.16663 7.00033 1.16663ZM7.58366 9.91663H6.41699V8.74996H7.58366V9.91663ZM7.58366 7.58329H6.41699V4.08329H7.58366V7.58329Z" fill="currentColor" />
               </svg>
-              {showInfo && (
-                <div style={{ position: 'absolute', left: '50%', top: '120%', transform: 'translateX(-50%)', zIndex: 100 }}>
-                  <InfoOrder1>
-                    Заказанный товар будет <br />доставлен, как только весь<br />товар поступит на склад
-                  </InfoOrder1>
-                </div>
-              )}
             </div>
           </div>
           <div className="w-layout-hflex flex-block-65">
@@ -124,22 +112,10 @@ const CartSummary2: React.FC = () => {
               {separateChecked && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fff' }} />}
             </div>
             <div className="radio-text">Получать по мере поступления</div>
-            <div
-              className="code-embed-2 w-embed"
-              onMouseEnter={() => setShowInfo2(true)}
-              onMouseLeave={() => setShowInfo2(false)}
-              style={{ position: 'relative' }}
-            >
+            <div className="code-embed-2 w-embed" style={{ position: 'relative' }}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M7.00033 1.16663C3.78033 1.16663 1.16699 3.77996 1.16699 6.99996C1.16699 10.22 3.78033 12.8333 7.00033 12.8333C10.2203 12.8333 12.8337 10.22 12.8337 6.99996C12.8337 3.77996 10.2203 1.16663 7.00033 1.16663ZM7.58366 9.91663H6.41699V8.74996H7.58366V9.91663ZM7.58366 7.58329H6.41699V4.08329H7.58366V7.58329Z" fill="currentColor" />
               </svg>
-              {showInfo2 && (
-                <div style={{ position: 'absolute', left: '50%', top: '120%', transform: 'translateX(-50%)', zIndex: 100 }}>
-                  <InfoOrder1>
-                    Заказанный товар будет <br />доставлен раздельно, по мере поступления на склад
-                  </InfoOrder1>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -147,28 +123,6 @@ const CartSummary2: React.FC = () => {
           <div className="text-block-31">Способ получения</div>
           <h4 className="heading-12">Доставка курьером</h4>
           <div className="text-block-32">Калининградская область, Калиниград, улица Понартская, 5, кв./офис 1, Подъезд 1, этаж 1</div>
-        </div>
-        <div className="px-line"></div>
-        <div className="w-layout-vflex flex-block-63">
-          <h4 className="heading-12">Получатель</h4>
-          <div className="w-layout-hflex flex-block-62">
-            <input
-              className="text-block-31"
-              style={{ border: 'none', outline: 'none', borderRadius: 6, padding: '4px 8px', width: '100%', background: '#f6f8fa' }}
-              placeholder="Имя и фамилия"
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
-          </div>
-          <div className="w-layout-hflex flex-block-62">
-            <input
-              className="text-block-31"
-              style={{ border: 'none', outline: 'none', borderRadius: 6, padding: '4px 8px', width: '100%', background: '#f6f8fa' }}
-              placeholder="Номер телефона"
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-            />
-          </div>
         </div>
         <div className="px-line"></div>
         <div className="w-layout-vflex flex-block-60">

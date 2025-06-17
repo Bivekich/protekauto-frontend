@@ -3,7 +3,7 @@ import Head from "next/head";
 import Footer from "@/components/Footer";
 import CartInfo from "@/components/CartInfo";
 import CartList from "@/components/CartList";
-import CartSummary from "@/components/CartSummary";
+import CartSummary2 from "@/components/CartSummary2";
 import CartRecommended from "../components/CartRecommended";
 import CatalogSubscribe from "@/components/CatalogSubscribe";
 import MobileMenuBottomSection from "@/components/MobileMenuBottomSection";
@@ -26,7 +26,7 @@ export default function CartPage() {
           <div className="w-layout-vflex cart-list">
             <div className="w-layout-hflex core-product-card">
                 <CartList />
-                <CartSummary />
+                <CartSummary2 />
               </div>
             <CartRecommended />
           </div>

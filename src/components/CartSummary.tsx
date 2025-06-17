@@ -6,6 +6,8 @@ const CartSummary: React.FC = () => {
   const [address, setAddress] = useState("Калининградская область, Калиниград, улица Понартская, 5, кв./офис 1, Подъезд 1, этаж 1");
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
 
   const handleEditDelivery = () => {
     const value = prompt("Введите способ доставки", deliveryType);
@@ -30,32 +32,50 @@ const CartSummary: React.FC = () => {
     <div className="w-layout-vflex cart-ditail">
       <div className="cart-detail-info">
         <div className="w-layout-vflex flex-block-58">
-          <div className="text-block-31">Способ доставки</div>
-          <div className="w-layout-hflex flex-block-57">
-            <h4 className="heading-12">{deliveryType}</h4>
-            <div className="link-r" onClick={handleEditDelivery} style={{ cursor: 'pointer' }}>Изменить</div>
-          </div>
+          <div className="text-block-31">Подразделение</div>
+          <h4 className="heading-12">ООО Рога и копыта</h4>
         </div>
         <div className="w-layout-vflex flex-block-58">
-          <div className="text-block-31">Адрес доставки</div>
-          <div className="w-layout-hflex flex-block-57">
-            <h4 className="heading-12">Дом</h4>
-            <div className="link-r" onClick={handleEditAddress} style={{ cursor: 'pointer' }}>Изменить</div>
+          <div className="text-block-31">Способ получения</div>
+          <h4 className="heading-12">Доставка курьером</h4>
+          <div className="text-block-32">Калининградская область, Калиниград, улица Понартская, 5, кв./офис 1, Подъезд 1, этаж 1</div>
+        </div>
+        <div className="px-line"></div>
+        <div className="w-layout-vflex flex-block-63">
+          <h4 className="heading-12">Получатель</h4>
+          <div className="w-layout-hflex flex-block-62">
+            <input
+              className="input-receiver"
+              type="text"
+              placeholder="Имя и фамилия"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              style={{ flex: 1 }}
+            />
           </div>
-          <div className="text-block-32">{address}</div>
+          <div className="w-layout-hflex flex-block-62">
+            <input
+              className="input-receiver"
+              type="tel"
+              placeholder="Номер телефона"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              style={{ flex: 1 }}
+            />
+          </div>
         </div>
         <div className="px-line"></div>
         <div className="w-layout-vflex flex-block-60">
           <div className="w-layout-hflex flex-block-59">
-            <div className="text-block-21-copy-copy">Товары, 3 шт.</div>
+            <div className="text-block-21-copy">Товары, 3 шт.</div>
             <div className="text-block-33">2 538 ₽</div>
           </div>
           <div className="w-layout-hflex flex-block-59">
-            <div className="text-block-21-copy-copy">Моя скидка</div>
+            <div className="text-block-21-copy">Моя скидка</div>
             <div className="text-block-33">-570 ₽</div>
           </div>
           <div className="w-layout-hflex flex-block-59">
-            <div className="text-block-21-copy-copy">Доставка</div>
+            <div className="text-block-21-copy">Доставка</div>
             <div className="text-block-33">39 ₽</div>
           </div>
         </div>
@@ -64,7 +84,7 @@ const CartSummary: React.FC = () => {
           <div className="text-block-32">Итого</div>
           <h4 className="heading-9-copy-copy">39 389 ₽</h4>
         </div>
-        <button className="submit-button fill w-button" onClick={handleSubmit}>Оформить заказ</button>
+        <a href="#" className="submit-button fill w-button">Оплатить</a>
         {error && <div style={{ color: 'red', marginTop: 10 }}>{error}</div>}
         <div className="w-layout-hflex privacy-consent" style={{ cursor: 'pointer' }} onClick={() => setConsent((v) => !v)}>
           <div

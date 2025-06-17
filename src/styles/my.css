@@ -1,4 +1,3 @@
-
 /* my.css — кастомные стили для проекта. Добавьте сюда свои стили. */ 
 .start.end {
   margin-left: 0 !important;
@@ -262,4 +261,18 @@ header.section-4 .bottom_head.scrolled {
   border-left: none;
   background: #fff;
   padding-left: 32px;
+}
+
+.product-item-card.last {
+  border-bottom: none !important;
+}
+
+input.input-receiver {
+  outline: none;
+  box-shadow: none;
+}
+
+input.input-receiver:focus {
+  outline: none;
+  box-shadow: none;
 } 
