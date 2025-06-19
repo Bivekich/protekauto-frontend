@@ -19,7 +19,7 @@ export default function CartStep2() {
         <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
-      <Header />
+
       <CartInfo />
       <section className="main">
         <div className="w-layout-blockcontainer container w-container">

@@ -13,7 +13,6 @@ import NotificationMane from "@/components/profile/NotificationMane";
 const ProfileAnnouncementPage = () => {
   return (
     <div className="page-wrapper">
-      <Header />
       <ProfileInfo />
       <div className="flex flex-col px-32 pt-10 pb-16 max-md:px-5">
         <div className="flex relative gap-8 items-start self-stretch max-md:gap-5 max-sm:flex-col max-sm:gap-4">

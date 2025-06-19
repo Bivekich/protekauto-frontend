@@ -22,6 +22,7 @@ const CatalogInfoHeader: React.FC<CatalogInfoHeaderProps> = ({
   showCount = false,
   showProductHelp = false,
 }) => (
+  <section className="section-info">
   <div className="w-layout-blockcontainer container info w-container">
       <div className="w-layout-vflex flex-block-9">
         {breadcrumbs && breadcrumbs.length > 0 && (
@@ -58,7 +59,7 @@ const CatalogInfoHeader: React.FC<CatalogInfoHeaderProps> = ({
         </div>
       </div>
     </div>
-
+  </section>
 );
 
 export default CatalogInfoHeader; 

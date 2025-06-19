@@ -44,7 +44,6 @@ export default function Favorite() {
         <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
-      <Header />
       <FavoriteInfo />
       <div className="w-layout-blockcontainer container w-container">
         <div className="w-layout-hflex flex-block-84">
