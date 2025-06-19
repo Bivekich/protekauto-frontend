@@ -1,6 +1,7 @@
 import React from "react";
 
 const InfoNewsOpen = () => (
+  <section className="section-info">
   <div className="w-layout-blockcontainer container info w-container">
     <div className="w-layout-vflex flex-block-9">
       <div className="w-layout-hflex flex-block-7">
@@ -38,8 +39,9 @@ const InfoNewsOpen = () => (
           </div>
         </div>
       </div>
+      </div>
     </div>
-  </div>
+  </section>
 );
 
 export default InfoNewsOpen; 

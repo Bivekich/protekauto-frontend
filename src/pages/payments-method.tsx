@@ -16,7 +16,6 @@ export default function PaymentsMethod() {
         <title>Payments Method</title>
         <meta name="description" content="Payments Method" />
       </Head>
-      <Header />
       <InfoPayments />
       
       <section className="main">

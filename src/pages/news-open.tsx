@@ -24,7 +24,6 @@ export default function NewsOpen() {
         <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
-      <Header />
       <InfoNewsOpen />
         <section className="main">
           <div className="w-layout-blockcontainer container w-container">
