@@ -35,6 +35,12 @@ const favoriteFilters: FilterConfig[] = [
 
 export default function Favorite() {
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
+  const [filterValues, setFilterValues] = useState<{ [key: string]: any }>({});
+
+  const handleFilterChange = (filterType: string, value: any) => {
+    setFilterValues(prev => ({ ...prev, [filterType]: value }));
+  };
+
   return (
     <>
       <Head>
@@ -69,6 +75,8 @@ export default function Favorite() {
           filters={favoriteFilters}
           open={showFiltersMobile}
           onClose={() => setShowFiltersMobile(false)}
+          onFilterChange={handleFilterChange}
+          initialValues={filterValues}
         />
       </div>
       <section className="main">
