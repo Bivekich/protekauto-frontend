@@ -5,9 +5,11 @@ interface FilterDropdownProps {
   options: string[];
   multi?: boolean;
   showAll?: boolean;
+  hasMore?: boolean; // Есть ли еще опции для загрузки
+  onShowMore?: () => void; // Обработчик "Показать еще"
   isMobile?: boolean; // Добавляем флаг для мобильной версии
   selectedValues?: string[]; // Выбранные значения
-  onSelectionChange?: (values: string[]) => void; // Обработчик изменений
+  onChange?: (values: string[]) => void; // Обработчик изменений
 }
 
 const FilterDropdown: React.FC<FilterDropdownProps> = ({ 
@@ -15,19 +17,23 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   options, 
   multi = true, 
   showAll = false,
+  hasMore = false,
+  onShowMore,
   isMobile = false,
   selectedValues = [],
-  onSelectionChange
+  onChange
 }) => {
   const [open, setOpen] = useState(isMobile); // На мобилке сразу открыт
   const [showAllOptions, setShowAllOptions] = useState(false);
   const [selected, setSelected] = useState<string[]>(selectedValues);
   const visibleOptions = showAll && !showAllOptions ? options.slice(0, 4) : options;
 
-  // Синхронизируем внутреннее состояние с внешним
   useEffect(() => {
-    setSelected(selectedValues);
-  }, [selectedValues]);
+    // Сравниваем содержимое массивов, а не ссылки
+    if (JSON.stringify(selected) !== JSON.stringify(selectedValues)) {
+      setSelected(selectedValues);
+    }
+  }, [selectedValues, selected]);
 
   const handleSelect = (option: string) => {
     let newSelected: string[];
@@ -40,7 +46,11 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
     }
     
     setSelected(newSelected);
-    onSelectionChange?.(newSelected);
+    
+    // Вызываем колбэк только если значения действительно изменились
+    if (onChange && JSON.stringify(newSelected) !== JSON.stringify(selected)) {
+        onChange(newSelected);
+    }
   };
 
   // Мобильная версия - всегда открытый список
@@ -65,9 +75,15 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
                   <div className="text-block-12">{option}</div>
                 </div>
               ))}
-              {showAll && options.length > 4 && (
-                <div className="show-all-option" onClick={() => setShowAllOptions(!showAllOptions)} style={{ color: '#007bff', cursor: 'pointer', fontSize: 15 }}>
-                  {showAllOptions ? "Скрыть" : "Показать все"}
+              {((showAll && options.length > 4) || hasMore) && (
+                <div className="show-all-option" onClick={() => {
+                  if (hasMore && onShowMore) {
+                    onShowMore();
+                  } else {
+                    setShowAllOptions(!showAllOptions);
+                  }
+                }} style={{ color: '#007bff', cursor: 'pointer', fontSize: 15 }}>
+                  {hasMore ? "Показать еще" : (showAllOptions ? "Скрыть" : "Показать все")}
                 </div>
               )}
             </div>
@@ -100,9 +116,15 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
               </div>
             ))}
           </div>
-          {showAll && options.length > 4 && (
-            <div className="show-all-option" onClick={() => setShowAllOptions(!showAllOptions)}>
-              {showAllOptions ? "Скрыть" : "Показать все"}
+          {((showAll && options.length > 4) || hasMore) && (
+            <div className="show-all-option" onClick={() => {
+              if (hasMore && onShowMore) {
+                onShowMore();
+              } else {
+                setShowAllOptions(!showAllOptions);
+              }
+            }}>
+              {hasMore ? "Показать еще" : (showAllOptions ? "Скрыть" : "Показать все")}
             </div>
           )}
         </nav>

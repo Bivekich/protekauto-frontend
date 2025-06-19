@@ -84,6 +84,36 @@ export interface LaximoVehicleSearchResult {
   engine: string
   notes?: string
   ssd?: string
+  
+  // Дополнительные атрибуты из документации Laximo
+  grade?: string
+  transmission?: string
+  doors?: string
+  creationregion?: string
+  destinationregion?: string
+  date?: string
+  manufactured?: string
+  framecolor?: string
+  trimcolor?: string
+  datefrom?: string
+  dateto?: string
+  frame?: string
+  frames?: string
+  framefrom?: string
+  frameto?: string
+  engine1?: string
+  engine2?: string
+  engine_info?: string
+  engineno?: string
+  options?: string
+  modelyearfrom?: string
+  modelyearto?: string
+  description?: string
+  market?: string
+  prodRange?: string
+  prodPeriod?: string
+  carpet_color?: string
+  seat_combination_code?: string
 }
 
 export interface LaximoVehicleInfo {

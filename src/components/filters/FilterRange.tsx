@@ -1,10 +1,11 @@
-import React, { useRef, useState, useLayoutEffect } from "react";
+import React, { useRef, useState, useLayoutEffect, useEffect } from "react";
 
 interface FilterRangeProps {
   title: string;
   min?: number;
   max?: number;
   isMobile?: boolean; // Добавляем флаг для мобильной версии
+  onChange?: (value: [number, number]) => void;
 }
 
 const DEFAULT_MIN = 1;
@@ -12,7 +13,7 @@ const DEFAULT_MAX = 32000;
 
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(v, max));
 
-const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max = DEFAULT_MAX, isMobile = false }) => {
+const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max = DEFAULT_MAX, isMobile = false, onChange }) => {
   const [from, setFrom] = useState(min);
   const [to, setTo] = useState(max);
   const [dragging, setDragging] = useState<null | "from" | "to">(null);
@@ -38,7 +39,7 @@ const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max
     setDragging(type);
     e.preventDefault();
   };
-  React.useEffect(() => {
+  useEffect(() => {
     if (!dragging) return;
     const onMove = (e: MouseEvent) => {
       if (!trackRef.current) return;
@@ -52,14 +53,19 @@ const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max
         setTo(v => clamp(Math.max(value, from), from, max));
       }
     };
-    const onUp = () => setDragging(null);
+    const onUp = () => {
+      setDragging(null);
+      if (onChange) {
+        onChange([from, to]);
+      }
+    };
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
     return () => {
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
     };
-  }, [dragging, from, to, min, max, trackWidth]);
+  }, [dragging, from, to, min, max, trackWidth, onChange]);
 
   // Input handlers
   const handleFromInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +77,12 @@ const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max
     let v = Number(e.target.value.replace(/\D/g, ""));
     if (isNaN(v)) v = max;
     setTo(clamp(Math.max(v, from), from, max));
+  };
+
+  const handleInputBlur = () => {
+    if (onChange) {
+      onChange([from, to]);
+    }
   };
 
   // px позиции для точек
@@ -99,6 +111,7 @@ const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max
                     id="from"
                     value={from}
                     onChange={handleFromInput}
+                    onBlur={handleInputBlur}
                     style={{ padding: '8px 10px 8px 36px', fontSize: 16, width: '100%' }}
                   />
                 </div>
@@ -113,6 +126,7 @@ const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max
                     id="to"
                     value={to}
                     onChange={handleToInput}
+                    onBlur={handleInputBlur}
                     style={{ padding: '8px 10px 8px 36px', fontSize: 16, width: '100%' }}
                   />
                 </div>
@@ -186,6 +200,7 @@ const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max
                 id="from"
                 value={from}
                 onChange={handleFromInput}
+                onBlur={handleInputBlur}
               />
             </div>
             <div className="div-block-5">
@@ -199,6 +214,7 @@ const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max
                 id="to"
                 value={to}
                 onChange={handleToInput}
+                onBlur={handleInputBlur}
               />
             </div>
           </form>

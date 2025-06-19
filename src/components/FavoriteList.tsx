@@ -11,6 +11,7 @@ const initialItems = Array.from({ length: 10 }, (_, i) => ({
 
 const FavoriteList: React.FC<{ filters: FilterConfig[] }> = ({ filters }) => {
   const [items, setItems] = useState(initialItems);
+  const [filterValues, setFilterValues] = useState<{ [key: string]: any }>({});
 
   const handleRemove = (id: number) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
@@ -20,9 +21,17 @@ const FavoriteList: React.FC<{ filters: FilterConfig[] }> = ({ filters }) => {
     setItems([]);
   };
 
+  const handleFilterChange = (type: string, value: any) => {
+    setFilterValues(prev => ({ ...prev, [type]: value }));
+  };
+
   return (
     <div className="w-layout-hflex core-product-card">
-      <Filters filters={filters} />
+      <Filters 
+        filters={filters} 
+        onFilterChange={handleFilterChange}
+        filterValues={filterValues}
+      />
       <div className="w-layout-vflex flex-block-48">
         <div className="w-layout-vflex product-list-cart">
           <div className="w-layout-hflex heading-list">

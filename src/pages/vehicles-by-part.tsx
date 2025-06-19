@@ -31,12 +31,14 @@ const VehiclesByPartPage = () => {
   );
 
   const handleVehicleSelect = (vehicle: LaximoVehicleSearchResult) => {
-    // Переходим на страницу автомобиля
-    const catalogCode = (vehicle as any).catalog || vehicle.brand.toLowerCase();
-    console.log('🚗 Переход на страницу автомобиля:', { catalogCode, vehicleId: vehicle.vehicleid, ssd: vehicle.ssd });
+    // Переходим сразу на страницу поиска результатов с артикулом
+    console.log('🔍 Переход на поиск результатов с артикулом:', { partNumber: cleanPartNumber, vehicle: vehicle.name });
     
-    // Передаем артикул для автоматического поиска
-    const url = `/vehicle-search/${catalogCode}/${vehicle.vehicleid}?ssd=${vehicle.ssd || ''}${cleanPartNumber ? `&oemNumber=${encodeURIComponent(cleanPartNumber)}` : ''}`;
+    // Определяем бренд для поиска (используем первое слово из названия автомобиля или бренд)
+    const vehicleBrand = vehicle.brand || vehicle.name?.split(' ')[0] || 'UNKNOWN';
+    
+    // Переходим на search-result с артикулом
+    const url = `/search-result?article=${encodeURIComponent(cleanPartNumber)}&brand=${encodeURIComponent(vehicleBrand)}`;
     router.push(url);
   };
 

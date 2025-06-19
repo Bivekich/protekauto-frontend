@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React from "react";
+import React, { useState, useCallback, useEffect } from "react";
 
 interface CatalogProductCardProps {
   image: string;
@@ -8,6 +8,9 @@ interface CatalogProductCardProps {
   oldPrice: string;
   title: string;
   brand: string;
+  articleNumber?: string;
+  brandName?: string;
+  artId?: string;
 }
 
 const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
@@ -17,37 +20,77 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
   oldPrice,
   title,
   brand,
+  articleNumber,
+  brandName,
+  artId,
 }) => {
-  console.log(`🖼️ CatalogProductCard: image URL = "${image}" для товара "${title}"`);
+  const [hasImageError, setHasImageError] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(true);
   
+  // Сброс состояния при изменении изображения
+  useEffect(() => {
+    setHasImageError(false);
+    setIsImageLoading(true);
+  }, [image]);
+  
+  const handleImageError = useCallback(() => {
+    setHasImageError(true);
+    setIsImageLoading(false);
+  }, []);
+
+  const handleImageLoad = useCallback(() => {
+    setIsImageLoading(false);
+    setHasImageError(false);
+  }, []);
+
+  // Определяем финальный URL изображения
+  const finalImageUrl = hasImageError ? '/images/image-10.png' : image;
+  
+  const searchResultUrl = (articleNumber && brandName) 
+    ? `/search-result?article=${encodeURIComponent(articleNumber)}&brand=${encodeURIComponent(brandName)}&artId=${artId || ''}`
+    : '/card'; // Fallback URL
+
   return (
     <div className="w-layout-vflex flex-block-15-copy">
-      <Link href="/card" className="card-link" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+      <Link href={searchResultUrl} className="card-link" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
         <div className="div-block-4">
-          <img src={image} loading="lazy" width={210} height={190} alt="" className="image-5" />
-          <div className="text-block-7">{discount}</div>
+          <div className="relative">
+            {isImageLoading && (
+              <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+              </div>
+            )}
+            <img
+              src={finalImageUrl} 
+              loading="lazy" 
+              width={210} 
+              height={190} 
+              alt={title}
+              className="image-5"
+              onError={handleImageError}
+              onLoad={handleImageLoad}
+              style={{ 
+                opacity: isImageLoading ? 0 : 1,
+                transition: 'opacity 0.3s ease-in-out'
+              }}
+            />
+          </div>
+          {discount && <div className="text-block-7">{discount}</div>}
         </div>
         <div className="div-block-3">
-          {/* Показываем блок цены только если цена не пустая */}
-          {price && (
-            <div className="w-layout-hflex flex-block-16">
-              <div className="text-block-8">{price}</div>
-              <div className="text-block-9">{oldPrice}</div>
-            </div>
-          )}
           <div className="text-block-10">{title}</div>
           <div className="text-block-11">{brand}</div>
         </div>
       </Link>
-      <Link href="/cart" className="link-block-4-copy w-inline-block">
+      <Link href={searchResultUrl} className="link-block-4-copy w-inline-block">
         <div className="div-block-25">
           <div className="icon-setting w-embed">
             <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10.1998 22.2C8.8798 22.2 7.81184 23.28 7.81184 24.6C7.81184 25.92 8.8798 27 10.1998 27C11.5197 27 12.5997 25.92 12.5997 24.6C12.5997 23.28 11.5197 22.2 10.1998 22.2ZM3 3V5.4H5.39992L9.71977 14.508L8.09982 17.448C7.90783 17.784 7.79984 18.18 7.79984 18.6C7.79984 19.92 8.8798 21 10.1998 21H24.5993V18.6H10.7037C10.5357 18.6 10.4037 18.468 10.4037 18.3L10.4397 18.156L11.5197 16.2H20.4594C21.3594 16.2 22.1513 15.708 22.5593 14.964L26.8552 7.176C26.9542 6.99286 27.004 6.78718 26.9997 6.57904C26.9955 6.37089 26.9373 6.16741 26.8309 5.98847C26.7245 5.80952 26.5736 5.66124 26.3927 5.55809C26.2119 5.45495 26.0074 5.40048 25.7992 5.4H8.05183L6.92387 3H3ZM22.1993 22.2C20.8794 22.2 19.8114 23.28 19.8114 24.6C19.8114 25.92 20.8794 27 22.1993 27C23.5193 27 24.5993 25.92 24.5993 24.6C24.5993 23.28 23.5193 22.2 22.1993 22.2Z" fill="currentColor"></path>
+              <path d="M3 8L10.89 13.26C11.2187 13.4793 11.6049 13.5963 12 13.5963C12.3951 13.5963 12.7813 13.4793 13.11 13.26L21 8M5 19H19C19.5304 19 20.0391 18.7893 20.4142 18.4142C20.7893 18.0391 21 17.5304 21 17V7C21 6.46957 20.7893 5.96086 20.4142 5.58579C20.0391 5.21071 19.5304 5 19 5H5C4.46957 5 3.96086 5.21071 3.58579 5.58579C3.21071 5.96086 3 6.46957 3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
         </div>
-        <div className="text-block-6">Купить</div>
+        <div className="text-block-6">Узнать цену</div>
       </Link>
     </div>
   );

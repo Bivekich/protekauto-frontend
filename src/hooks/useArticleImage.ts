@@ -19,7 +19,6 @@ export const useArticleImage = (
   options: UseArticleImageOptions = {}
 ): UseArticleImageReturn => {
   const { enabled = true, fallbackImage = '/images/image-10.png' } = options;
-  const mountedRef = useRef(true);
   const [imageUrl, setImageUrl] = useState<string>(fallbackImage);
 
   // Проверяем что artId валидный
@@ -30,35 +29,25 @@ export const useArticleImage = (
     {
       variables: { artId: artId || '' },
       skip: !shouldFetch,
-      errorPolicy: 'ignore',
       fetchPolicy: 'cache-first',
-      notifyOnNetworkStatusChange: false,
+      errorPolicy: 'all',
+      onCompleted: (data) => {
+        const url = data?.partsAPIMainImage;
+        if (url && url !== null) {
+          setImageUrl(url);
+        } else {
+          setImageUrl(fallbackImage);
+        }
+      },
+      onError: (error) => {
+        setImageUrl(fallbackImage);
+      }
     }
   );
 
-  useEffect(() => {
-    if (!mountedRef.current) return;
-
-    if (data?.partsAPIMainImage && data.partsAPIMainImage.trim() !== '') {
-      const imageUrlFromAPI = data.partsAPIMainImage;
-      console.log(`✅ Устанавливаем изображение для ${artId}:`, imageUrlFromAPI);
-      setImageUrl(imageUrlFromAPI);
-    } else if (!loading && shouldFetch) {
-      console.log(`⚠️ Изображение не найдено для ${artId}, используем fallback`);
-      setImageUrl(fallbackImage);
-    }
-  }, [data, loading, fallbackImage, artId, shouldFetch]);
-
-  // Cleanup при размонтировании
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
   return {
     imageUrl,
-    isLoading: Boolean(loading && shouldFetch),
+    isLoading: loading,
     error: !!error
   };
 }; 

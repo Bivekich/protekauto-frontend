@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductListCard from "@/components/ProductListCard";
 import Filters, { FilterConfig } from "@/components/Filters";
-import FiltersWithSearch from "@/components/FiltersWithoutSearch";
+import FiltersWithSearch from "@/components/FiltersWithSearch";
 import CatalogProductCard from "@/components/CatalogProductCard";
 import CatalogPagination from "@/components/CatalogPagination";
 import CatalogSubscribe from "@/components/CatalogSubscribe";
@@ -15,7 +15,6 @@ import FiltersPanelMobile from '@/components/FiltersPanelMobile';
 import MobileMenuBottomSection from '../components/MobileMenuBottomSection';
 import { GET_PARTSAPI_ARTICLES, GET_PARTSAPI_MAIN_IMAGE, SEARCH_PRODUCT_OFFERS } from '@/lib/graphql';
 import { PartsAPIArticlesData, PartsAPIArticlesVariables, PartsAPIArticle, PartsAPIMainImageData, PartsAPIMainImageVariables } from '@/types/partsapi';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ArticleCard from '@/components/ArticleCard';
 
@@ -50,51 +49,42 @@ const catalogFilters: FilterConfig[] = [
   },
 ];
 
-// Фильтры без поиска для PartsAPI режима (заменены на динамические)
-// const catalogFiltersWithoutSearch: FilterConfig[] = catalogFilters;
-
-// Количество артикулов для загрузки за раз
 const ITEMS_PER_PAGE = 20;
+const MAX_BRANDS_DISPLAY = 10; // Сколько брендов показывать изначально
 
 export default function Catalog() {
   const router = useRouter();
+  const { partsApiCategory: strId, categoryName } = router.query;
+  
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
-  // const [showSortMobile, setShowSortMobile] = useState(false); // Закомментировано
-  const [allArticles, setAllArticles] = useState<PartsAPIArticle[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFilters, setSelectedFilters] = useState<{[key: string]: string[]}>({});
   const [visibleArticles, setVisibleArticles] = useState<PartsAPIArticle[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+  const [showAllBrands, setShowAllBrands] = useState(false);
 
-  // Получаем параметры из URL для PartsAPI категории
-  const { partsApiCategory, categoryName, carId, carType } = router.query;
-  const isPartsAPIMode = !!partsApiCategory;
+  // Определяем режим работы
+  const isPartsAPIMode = Boolean(strId && categoryName);
 
-  // console.log('📋 Параметры каталога:', { partsApiCategory, categoryName, carId, carType, isPartsAPIMode });
-
-  // Запрос артикулов PartsAPI если есть категория
+  // Загружаем артикулы PartsAPI
   const { data: articlesData, loading: articlesLoading, error: articlesError } = useQuery<PartsAPIArticlesData, PartsAPIArticlesVariables>(
     GET_PARTSAPI_ARTICLES,
     {
       variables: {
-        strId: partsApiCategory ? parseInt(partsApiCategory as string) : 0,
-        carId: carId ? parseInt(carId as string) : 9877,
-        carType: (carType as any) || 'PC'
+        strId: parseInt(strId as string),
+        carId: 9877,
+        carType: 'PC'
       },
-      skip: !isPartsAPIMode || !partsApiCategory,
-      errorPolicy: 'ignore', // Игнорируем ошибки чтобы не ломать UI
-      fetchPolicy: 'cache-first', // Используем кеш в первую очередь
-      notifyOnNetworkStatusChange: false // Не уведомляем о статусе сети
+      skip: !isPartsAPIMode,
+      fetchPolicy: 'cache-first'
     }
   );
 
-  // Обновляем все артикулы когда получаем данные
+  const allArticles = articlesData?.partsAPIArticles || [];
+
   useEffect(() => {
-    if (articlesData?.partsAPIArticles && articlesData.partsAPIArticles.length > 0) {
-      // console.log('✅ Получены артикулы PartsAPI:', articlesData.partsAPIArticles.length);
-      setAllArticles(articlesData.partsAPIArticles);
-      // Показываем первую порцию артикулов
+    if (articlesData?.partsAPIArticles) {
       setVisibleArticles(articlesData.partsAPIArticles.slice(0, ITEMS_PER_PAGE));
       setCurrentPage(1);
     }
@@ -104,24 +94,37 @@ export default function Catalog() {
   const generatePartsAPIFilters = useCallback((): FilterConfig[] => {
     if (!allArticles.length) return [];
 
-    const brands = new Set<string>();
+    const brandCounts = new Map<string, number>();
     const productGroups = new Set<string>();
 
+    // Подсчитываем количество товаров для каждого бренда
     allArticles.forEach(article => {
-      if (article.artSupBrand) brands.add(article.artSupBrand);
+      if (article.artSupBrand) {
+        brandCounts.set(article.artSupBrand, (brandCounts.get(article.artSupBrand) || 0) + 1);
+      }
       if (article.productGroup) productGroups.add(article.productGroup);
     });
 
     const filters: FilterConfig[] = [];
 
-    if (brands.size > 1) {
-      filters.push({
-        type: "dropdown",
-        title: "Производитель",
-        options: Array.from(brands).sort(),
-        multi: true,
-        showAll: true,
-      });
+    if (brandCounts.size > 1) {
+      // Сортируем бренды по количеству товаров (по убыванию)
+      const sortedBrands = Array.from(brandCounts.entries())
+        .sort((a, b) => b[1] - a[1]) // Сортируем по количеству товаров
+        .map(([brand]) => brand);
+
+      // Показываем либо первые N брендов, либо все (если нажата кнопка "Показать еще")
+      const brandsToShow = showAllBrands ? sortedBrands : sortedBrands.slice(0, MAX_BRANDS_DISPLAY);
+
+              filters.push({
+          type: "dropdown",
+          title: "Производитель",
+          options: brandsToShow.sort(), // Сортируем по алфавиту для удобства
+          multi: true,
+          showAll: true,
+          hasMore: !showAllBrands && sortedBrands.length > MAX_BRANDS_DISPLAY,
+          onShowMore: () => setShowAllBrands(true)
+        });
     }
 
     if (productGroups.size > 1) {
@@ -135,17 +138,37 @@ export default function Catalog() {
     }
 
     return filters;
-  }, [allArticles]);
+  }, [allArticles, showAllBrands]);
 
   const dynamicFilters = generatePartsAPIFilters();
 
-  // Обработчик изменений фильтров
-  const handleFilterChange = useCallback((filterTitle: string, values: string[]) => {
-    setSelectedFilters(prev => ({
-      ...prev,
-      [filterTitle]: values
-    }));
+  // Обработчик изменения фильтров для десктопа
+  const handleDesktopFilterChange = useCallback((filterTitle: string, newValues: string[]) => {
+    setSelectedFilters(prev => {
+      const currentValues = prev[filterTitle] || [];
+      // Сравниваем содержимое, чтобы избежать ненужных обновлений
+      if (JSON.stringify(currentValues) === JSON.stringify(newValues)) {
+        return prev;
+      }
+      return {
+        ...prev,
+        [filterTitle]: newValues
+      };
+    });
   }, []);
+  
+  // Обработчик для мобильной панели
+  const handleMobileFilterChange = (type: string, value: any) => {
+    if (type === 'search') {
+      setSearchQuery(value);
+    } else {
+      // Для dropdown и range
+      setSelectedFilters(prev => ({
+        ...prev,
+        [type]: value,
+      }));
+    }
+  };
 
   // Фильтрация по поиску и фильтрам
   const filteredArticles = useMemo(() => {
@@ -181,32 +204,28 @@ export default function Catalog() {
 
   // Обновляем видимые артикулы при изменении поиска или фильтров
   useEffect(() => {
-    // Показываем отфильтрованные результаты
     setVisibleArticles(filteredArticles.slice(0, ITEMS_PER_PAGE));
     setCurrentPage(1);
-  }, [searchQuery, selectedFilters, allArticles]);
+    setIsLoadingMore(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, JSON.stringify(selectedFilters)]);
 
-  // Функция для загрузки следующей порции артикулов
-  const loadMoreArticles = useCallback(() => {
+  // Функция для загрузки следующей порции артикулов по кнопке
+  const handleLoadMore = useCallback(() => {
     if (isLoadingMore) return;
-
-    const currentFilteredArticles = filteredArticles;
-    if (!currentFilteredArticles.length) return;
 
     setIsLoadingMore(true);
     
-    // Имитируем небольшую задержку для плавности
     setTimeout(() => {
       const nextPage = currentPage + 1;
       const startIndex = (nextPage - 1) * ITEMS_PER_PAGE;
       const endIndex = nextPage * ITEMS_PER_PAGE;
       
-      const newArticles = currentFilteredArticles.slice(startIndex, endIndex);
+      const newArticles = filteredArticles.slice(startIndex, endIndex);
       
       if (newArticles.length > 0) {
         setVisibleArticles(prev => [...prev, ...newArticles]);
         setCurrentPage(nextPage);
-        // console.log(`✅ Загружена страница ${nextPage}, артикулов: ${newArticles.length}`);
       }
       
       setIsLoadingMore(false);
@@ -215,14 +234,6 @@ export default function Catalog() {
 
   // Определяем есть ли еще артикулы для загрузки
   const hasMoreArticles = visibleArticles.length < filteredArticles.length;
-
-  // Hook для бесконечной прокрутки
-  const { targetRef } = useInfiniteScroll(loadMoreArticles, {
-    hasMore: hasMoreArticles,
-    isLoading: isLoadingMore,
-    threshold: 0.1,
-    rootMargin: '200px'
-  });
 
   return (
     <>
@@ -249,11 +260,8 @@ export default function Catalog() {
       />
       <section className="main">
         <div className="w-layout-blockcontainer container w-container">
-                      <div className="w-layout-hflex flex-block-13">
+          <div className="w-layout-hflex flex-block-13">
             <div className="w-layout-hflex flex-block-84">
-              {/* Закомментированы фильтры сортировки */}
-              {/* <CatalogSortDropdown active={sortActive} onChange={setSortActive} /> */}
-              
               <div className="w-layout-hflex flex-block-85" onClick={() => setShowFiltersMobile((v) => !v)}>
                 <span className="code-embed-9 w-embed">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -271,33 +279,32 @@ export default function Catalog() {
                 <div>Фильтры</div>
               </div>
             </div>
-            {/* Фильтры для десктопа */}
-            <div className="filters-desktop">
-              {isPartsAPIMode ? (
-                <FiltersWithSearch 
-                  filters={dynamicFilters} 
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  selectedFilters={selectedFilters}
-                  onFilterChange={handleFilterChange}
-                />
-              ) : (
-                <Filters filters={catalogFilters} />
-              )}
-            </div>
+            {isPartsAPIMode ? (
+                <div className="filters-desktop">
+                  <Filters
+                    filters={dynamicFilters}
+                    onFilterChange={handleMobileFilterChange}
+                    filterValues={selectedFilters}
+                  />
+                </div>
+            ) : (
+                <div className="filters-desktop">
+                    <Filters
+                        filters={catalogFilters}
+                        onFilterChange={() => {}} // No-op
+                        filterValues={{}}
+                    />
+                </div>
+            )}
             <FiltersPanelMobile
-              filters={isPartsAPIMode ? dynamicFilters : catalogFilters}
               open={showFiltersMobile}
               onClose={() => setShowFiltersMobile(false)}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              selectedFilters={selectedFilters}
-              onFilterChange={handleFilterChange}
+              filters={isPartsAPIMode ? dynamicFilters : catalogFilters}
+              onFilterChange={handleMobileFilterChange}
+              initialValues={selectedFilters}
             />
+            
             <div className="w-layout-vflex flex-block-14-copy-copy">
-              {/* Закомментированы вкладки сортировки */}
-              {/* <CatalogTabs /> */}
-              
               {/* Индикатор загрузки для PartsAPI */}
               {isPartsAPIMode && articlesLoading && (
                 <div className="flex justify-center items-center py-8">
@@ -312,7 +319,7 @@ export default function Catalog() {
                 </div>
               )}
               
-              {/* Отображение артикулов PartsAPI с lazy loading */}
+              {/* Отображение артикулов PartsAPI */}
               {isPartsAPIMode && visibleArticles.length > 0 && (
                 <>
                   {visibleArticles.map((article, idx) => (
@@ -323,80 +330,55 @@ export default function Catalog() {
                     />
                   ))}
                   
-                  {/* Элемент-триггер для бесконечной прокрутки */}
+                  {/* Кнопка "Показать еще" */}
                   {hasMoreArticles && (
-                    <div ref={targetRef} className="w-full flex justify-center items-center py-8">
-                      {isLoadingMore ? (
-                        <LoadingSpinner text="Загружаем еще..." />
-                      ) : (
-                        <div className="text-gray-400">Прокрутите для загрузки еще</div>
-                      )}
-                    </div>
-                  )}
-                  
-                  {/* Информация о загруженных артикулах */}
-                  {!hasMoreArticles && filteredArticles.length > 0 && (
                     <div className="w-full flex justify-center items-center py-8">
-                      <div className="text-gray-600 text-center">
-                        <div>Показано все {filteredArticles.length} артикулов{searchQuery.trim() || Object.keys(selectedFilters).some(key => selectedFilters[key].length > 0) ? ' по фильтрам' : ''}</div>
-                        <div className="text-sm text-gray-400 mt-1">
-                          Загружено по {ITEMS_PER_PAGE} артикулов за раз
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Показываем прогресс загрузки */}
-                  {visibleArticles.length > 0 && hasMoreArticles && (
-                    <div className="w-full flex justify-center items-center py-4">
-                      <div className="text-sm text-gray-500">
-                        Показано {visibleArticles.length} из {filteredArticles.length} артикулов{searchQuery.trim() || Object.keys(selectedFilters).some(key => selectedFilters[key].length > 0) ? ' по фильтрам' : ''}
-                      </div>
+                      <button
+                        onClick={handleLoadMore}
+                        disabled={isLoadingMore}
+                        className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 flex items-center gap-2"
+                      >
+                        {isLoadingMore ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Загружаем...
+                          </>
+                        ) : (
+                          <>
+                            Показать еще
+                            <span className="text-red-200">
+                              ({Math.min(ITEMS_PER_PAGE, filteredArticles.length - visibleArticles.length)})
+                            </span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   )}
                 </>
               )}
               
-              {/* Стандартные товары если не PartsAPI режим */}
-              {!isPartsAPIMode && mockData.map((item, idx) => (
-                <CatalogProductCard
-                  key={idx}
-                  image={item.image}
-                  discount={item.discount}
-                  price={item.price}
-                  oldPrice={item.oldPrice}
-                  title={item.title}
-                  brand={item.brand}
-                />
-              ))}
-              
-              {/* Сообщение если нет артикулов */}
-              {isPartsAPIMode && !articlesLoading && allArticles.length === 0 && (
-                <div className="flex justify-center items-center py-8">
-                  <div className="text-lg text-gray-600">
-                    Артикулы для данной категории не найдены
-                  </div>
+              {/* Пустое состояние для PartsAPI */}
+              {isPartsAPIMode && !articlesLoading && !articlesError && visibleArticles.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="text-gray-500 text-lg mb-4">Товары не найдены</div>
+                  <div className="text-gray-400 text-sm">Попробуйте изменить фильтры или поисковый запрос</div>
                 </div>
               )}
               
-              {/* Сообщение если поиск не дал результатов */}
-              {isPartsAPIMode && !articlesLoading && allArticles.length > 0 && searchQuery.trim() && filteredArticles.length === 0 && (
-                <div className="flex justify-center items-center py-8">
-                  <div className="text-lg text-gray-600">
-                    По запросу "{searchQuery}" ничего не найдено
-                  </div>
+              {/* Обычные товары (не PartsAPI) */}
+              {!isPartsAPIMode && (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="text-gray-500 text-lg mb-4">Раздел в разработке</div>
+                  <div className="text-gray-400 text-sm">Данные для этой категории скоро появятся.</div>
                 </div>
               )}
-              
-              {/* Пагинация только для не-PartsAPI режима */}
-              {!isPartsAPIMode && <CatalogPagination />}
             </div>
           </div>
         </div>
       </section>
-      <section className="section-3">
-        <CatalogSubscribe />
-      </section>
+      
+      {!isPartsAPIMode && <CatalogPagination />}
+      <CatalogSubscribe />
       <Footer />
       <MobileMenuBottomSection />
     </>

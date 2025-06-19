@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { useQuery } from "@apollo/client";
+import { useEffect, useState, useMemo } from "react";
+import { useQuery, useLazyQuery } from "@apollo/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CatalogSubscribe from "@/components/CatalogSubscribe";
@@ -13,7 +13,10 @@ import CatalogInfoHeader from "@/components/CatalogInfoHeader";
 import FiltersPanelMobile from "@/components/FiltersPanelMobile";
 import CatalogSortDropdown from "@/components/CatalogSortDropdown";
 import MobileMenuBottomSection from '../components/MobileMenuBottomSection';
-import { SEARCH_PRODUCT_OFFERS } from "@/lib/graphql";
+import { SEARCH_PRODUCT_OFFERS, GET_ANALOG_OFFERS } from "@/lib/graphql";
+import { useArticleImage } from "@/hooks/useArticleImage";
+
+const ANALOGS_CHUNK_SIZE = 5;
 
 const sortOptions = [
   "По цене",
@@ -22,7 +25,7 @@ const sortOptions = [
 ];
 
 // Функция для создания динамических фильтров
-const createFilters = (result: any): FilterConfig[] => {
+const createFilters = (result: any, loadedAnalogs: any): FilterConfig[] => {
   const filters: FilterConfig[] = [];
 
   if (result) {
@@ -58,7 +61,7 @@ const createFilters = (result: any): FilterConfig[] => {
     });
     
     // Добавляем цены аналогов
-    result.analogs?.forEach((analog: any) => {
+    Object.values(loadedAnalogs).forEach((analog: any) => {
       analog.internalOffers?.forEach((offer: any) => {
         if (offer.price > 0) prices.push(offer.price);
       });
@@ -85,76 +88,73 @@ const createFilters = (result: any): FilterConfig[] => {
   return filters;
 };
 
-// Функция для получения лучших предложений (самые дешевые среди всех)
-const getBestOffers = (result: any) => {
-  const allOffers: any[] = [];
+// Функция для получения лучших предложений по заданным критериям
+const getBestOffers = (offers: any[]) => {
+  const validOffers = offers.filter(offer => offer.price > 0 && typeof offer.deliveryDuration !== 'undefined');
+  if (validOffers.length === 0) return [];
+
+  const result: { offer: any; type: string }[] = [];
+
+  // 1. Самая низкая цена
+  const lowestPriceOffer = [...validOffers].sort((a, b) => a.price - b.price)[0];
+  if (lowestPriceOffer) {
+    result.push({ offer: lowestPriceOffer, type: 'Самая низкая цена' });
+  }
+
+  // 2. Самый дешевый аналог
+  const analogOffers = validOffers.filter(offer => offer.isAnalog);
+  if (analogOffers.length > 0) {
+    const cheapestAnalogOffer = [...analogOffers].sort((a, b) => a.price - b.price)[0];
+    result.push({ offer: cheapestAnalogOffer, type: 'Самый дешевый аналог' });
+  }
   
-  // Добавляем основные предложения
-  result?.internalOffers?.forEach((offer: any) => {
-    allOffers.push({
-      ...offer,
-      type: 'internal',
-      brand: result.brand,
-      articleNumber: result.articleNumber,
-      name: result.name,
-      rating: offer.rating?.toString() || "4.8"
-    });
+  // 3. Лучший срок доставки
+  const fastestDeliveryOffer = [...validOffers].sort((a, b) => a.deliveryDuration - b.deliveryDuration)[0];
+  if (fastestDeliveryOffer) {
+    result.push({ offer: fastestDeliveryOffer, type: 'Лучший срок доставки' });
+  }
+  
+  return result;
+};
+
+const transformOffersForCard = (offers: any[]) => {
+  return offers.map(offer => {
+    const isExternal = offer.type === 'external';
+    return {
+      id: offer.id,
+      productId: offer.productId,
+      offerKey: offer.offerKey,
+      rating: offer.rating?.toString() || (isExternal ? "4.5" : "4.8"),
+      pcs: `${offer.quantity} шт.`,
+      days: `${isExternal ? offer.deliveryTime : offer.deliveryDays} дн.`,
+      recommended: !isExternal && offer.available,
+      price: `${offer.price.toLocaleString('ru-RU')} ₽`,
+      count: "1",
+      isExternal,
+      currency: offer.currency || "RUB",
+      warehouse: offer.warehouse,
+      supplier: offer.supplier,
+      deliveryTime: isExternal ? offer.deliveryTime : offer.deliveryDays,
+    };
   });
-  
-  result?.externalOffers?.forEach((offer: any) => {
-    allOffers.push({
-      ...offer,
-      type: 'external',
-      brand: offer.brand,
-      articleNumber: offer.code,
-      name: offer.name,
-      rating: "4.5"
-    });
-  });
-  
-  // Добавляем предложения аналогов
-  result?.analogs?.forEach((analog: any) => {
-    analog.internalOffers?.forEach((offer: any) => {
-      allOffers.push({
-        ...offer,
-        type: 'internal',
-        brand: analog.brand,
-        articleNumber: analog.articleNumber,
-        name: analog.name,
-        rating: offer.rating?.toString() || "4.8",
-        isAnalog: true
-      });
-    });
-    
-    analog.externalOffers?.forEach((offer: any) => {
-      allOffers.push({
-        ...offer,
-        type: 'external',
-        brand: offer.brand || analog.brand,
-        articleNumber: offer.code || analog.articleNumber,
-        name: offer.name || analog.name,
-        rating: "4.5",
-        isAnalog: true
-      });
-    });
-  });
-  
-  // Сортируем по цене (сначала самые дешевые)
-  return allOffers
-    .filter(offer => offer.price > 0)
-    .sort((a, b) => a.price - b.price)
-    .slice(0, 3);
 };
 
 export default function SearchResult() {
   const router = useRouter();
-  const { article, brand, q } = router.query;
+  const { article, brand, q, artId } = router.query;
   
   const [sortActive, setSortActive] = useState(0);
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
   const [showSortMobile, setShowSortMobile] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [brandQuery, setBrandQuery] = useState<string>("");
+  const [loadedAnalogs, setLoadedAnalogs] = useState<{ [key: string]: any }>({});
+  const [visibleAnalogsCount, setVisibleAnalogsCount] = useState(ANALOGS_CHUNK_SIZE);
+
+  // Состояния для фильтров
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number] | null>(null);
+  const [filterSearchTerm, setFilterSearchTerm] = useState<string>('');
 
   useEffect(() => {
     if (article && typeof article === 'string') {
@@ -163,9 +163,10 @@ export default function SearchResult() {
     if (brand && typeof brand === 'string') {
       setBrandQuery(brand.trim());
     }
+    setLoadedAnalogs({});
+    setVisibleAnalogsCount(ANALOGS_CHUNK_SIZE);
   }, [article, brand]);
 
-  // Запрос поиска предложений только если есть артикул и бренд
   const { data, loading, error } = useQuery(SEARCH_PRODUCT_OFFERS, {
     variables: {
       articleNumber: searchQuery,
@@ -173,6 +174,116 @@ export default function SearchResult() {
     },
     skip: !searchQuery || !brandQuery,
     errorPolicy: 'all'
+  });
+  
+  const { imageUrl: mainImageUrl } = useArticleImage(artId as string, { enabled: !!artId });
+
+  const [
+    getAnalogOffers,
+    { loading: analogsLoading, data: analogsData }
+  ] = useLazyQuery(GET_ANALOG_OFFERS, {
+    onCompleted: (data) => {
+      if (data && data.getAnalogOffers) {
+        const newAnalogs = data.getAnalogOffers.reduce((acc: any, analog: any) => {
+          const key = `${analog.brand}-${analog.articleNumber}`;
+          // Сразу трансформируем, но пока не используем
+          // const offers = transformOffersForCard(analog.internalOffers, analog.externalOffers);
+          acc[key] = { ...analog }; // offers убрали, т.к. allOffers - единый источник
+          return acc;
+        }, {});
+        setLoadedAnalogs(prev => ({ ...prev, ...newAnalogs }));
+      }
+    }
+  });
+
+  // Эффект для автоматической загрузки предложений видимых аналогов
+  useEffect(() => {
+    if (data?.searchProductOffers?.analogs) {
+      const analogsToLoad = data.searchProductOffers.analogs
+        .slice(0, visibleAnalogsCount)
+        .filter((a: any) => !loadedAnalogs[`${a.brand}-${a.articleNumber}`])
+        .map((a: any) => ({ brand: a.brand, articleNumber: a.articleNumber }));
+
+      if (analogsToLoad.length > 0) {
+        getAnalogOffers({ variables: { analogs: analogsToLoad } });
+      }
+    }
+  }, [visibleAnalogsCount, data, getAnalogOffers, loadedAnalogs]);
+
+  const result = data?.searchProductOffers;
+
+  const allOffers = useMemo(() => {
+    if (!result) return [];
+    
+    const offers: any[] = [];
+    
+    // Основной товар
+    result.internalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryDays, rating: o.rating?.toString() || "4.8", type: 'internal', brand: result.brand, articleNumber: result.articleNumber, name: result.name }));
+    result.externalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryTime, rating: "4.5", type: 'external', articleNumber: o.code, name: o.name }));
+
+    // Аналоги
+    Object.values(loadedAnalogs).forEach((analog: any) => {
+      analog.internalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryDays, rating: o.rating?.toString() || "4.8", type: 'internal', brand: analog.brand, articleNumber: analog.articleNumber, name: analog.name, isAnalog: true }));
+      analog.externalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryTime, rating: "4.5", type: 'external', brand: o.brand || analog.brand, articleNumber: o.code || analog.articleNumber, name: o.name, isAnalog: true }));
+    });
+    
+    return offers;
+  }, [result, loadedAnalogs]);
+
+
+  const filteredOffers = useMemo(() => {
+    return allOffers.filter(offer => {
+      // Фильтр по бренду
+      if (selectedBrands.length > 0 && !selectedBrands.includes(offer.brand)) {
+        return false;
+      }
+      // Фильтр по цене
+      if (priceRange && (offer.price < priceRange[0] || offer.price > priceRange[1])) {
+        return false;
+      }
+      // Фильтр по поисковой строке
+      if (filterSearchTerm) {
+        const searchTerm = filterSearchTerm.toLowerCase();
+        const brandMatch = offer.brand.toLowerCase().includes(searchTerm);
+        const articleMatch = offer.articleNumber.toLowerCase().includes(searchTerm);
+        const nameMatch = offer.name.toLowerCase().includes(searchTerm);
+        if (!brandMatch && !articleMatch && !nameMatch) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [allOffers, selectedBrands, priceRange, filterSearchTerm]);
+  
+  const handleFilterChange = (type: string, value: any) => {
+    if (type === 'Производитель') {
+        setSelectedBrands(value);
+    } else if (type === 'Цена (₽)') {
+        setPriceRange(value);
+    } else if (type === 'search') {
+        setFilterSearchTerm(value);
+    }
+  };
+
+  const initialOffersExist = allOffers.length > 0;
+  
+  const filtersAreActive = selectedBrands.length > 0 || priceRange !== null || filterSearchTerm !== '';
+
+  const hasOffers = result && (result.internalOffers.length > 0 || result.externalOffers.length > 0);
+  const hasAnalogs = result && result.analogs.length > 0;
+  const searchResultFilters = createFilters(result, loadedAnalogs);
+  const bestOffersData = getBestOffers(filteredOffers);
+
+  // Отладочная информация
+  console.log('🔍 Search Result Debug:', {
+    result,
+    hasOffers,
+    internalOffers: result?.internalOffers?.length || 0,
+    externalOffers: result?.externalOffers?.length || 0,
+    analogs: result?.analogs?.length || 0,
+    loadedAnalogs: Object.keys(loadedAnalogs).length,
+    allOffersCount: allOffers.length,
+    filteredOffersCount: filteredOffers.length
   });
 
   // Если это обычный поиск (не по артикулу), показываем заглушку
@@ -212,49 +323,11 @@ export default function SearchResult() {
     );
   }
 
-  const result = data?.searchProductOffers;
-  const hasOffers = result && (result.internalOffers.length > 0 || result.externalOffers.length > 0);
-  const hasAnalogs = result && result.analogs.length > 0;
-  const searchResultFilters = createFilters(result);
-
-  // Отладочная информация
-  console.log('🔍 Search Result Debug:', {
-    result,
-    hasOffers,
-    internalOffers: result?.internalOffers?.length || 0,
-    externalOffers: result?.externalOffers?.length || 0,
-    analogs: result?.analogs?.length || 0
-  });
-
-  // Обработка ошибок
-  if (error) {
-    return (
-      <>
-        <Head>
-          <title>Ошибка поиска - Protek</title>
-        </Head>
-        <Header />
-        <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Произошла ошибка при поиске</h2>
-            <p className="text-gray-600 mb-6">Попробуйте повторить поиск позже или обратитесь в службу поддержки</p>
-            <button
-              onClick={() => router.back()}
-              className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
-            >
-              Вернуться назад
-            </button>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
-
   return (
     <>
       <Head>
-        <title>Search result</title>
+        <title>{result ? `${result.brand} ${result.articleNumber} - ${result.name}` : `Результаты поиска`} - Protek</title>
+        <meta name="description" content={`Лучшие предложения и аналоги для ${result?.name}`} />
         <meta content="Search result" property="og:title" />
         <meta content="Search result" property="twitter:title" />
         <meta content="width=device-width, initial-scale=1" name="viewport" />
@@ -272,7 +345,7 @@ export default function SearchResult() {
         productName={result ? result.name : "деталь"}
         breadcrumbs={[
           { label: "Главная", href: "/" },
-          { label: "Поиск деталей по артикулу", href: `/article-search?article=${searchQuery}` },
+          { label: "Поиск деталей по артикулу", href: `/search?q=${searchQuery}&mode=parts` },
           { label: "Предложения" }
         ]}
         showCount={true}
@@ -304,24 +377,26 @@ export default function SearchResult() {
         filters={searchResultFilters}
         open={showFiltersMobile}
         onClose={() => setShowFiltersMobile(false)}
+        onFilterChange={handleFilterChange}
+        initialValues={{
+          'Производитель': selectedBrands,
+          'Цена (₽)': priceRange
+        }}
       />
       {/* Лучшие предложения */}
-      {hasOffers && (
+      {bestOffersData.length > 0 && (
         <section>
           <div className="w-layout-blockcontainer container w-container">
             <div className="w-layout-vflex flex-block-36">
-              {/* Показываем лучшие предложения (самые дешевые среди всех) */}
-              {getBestOffers(result).map((offer: any, index: number) => (
+              {bestOffersData.map(({ offer, type }, index) => (
                 <BestPriceCard
-                  key={`best-${offer.type}-${offer.id || offer.offerKey || index}`}
+                  key={`best-${type}-${index}`}
+                  bestOfferType={type}
                   rating={offer.rating}
                   title={`${offer.brand} ${offer.articleNumber}${offer.isAnalog ? ' (аналог)' : ''}`}
                   description={offer.name}
                   price={`${offer.price.toLocaleString()} ₽`}
-                  delivery={offer.type === 'internal' 
-                    ? `${offer.deliveryDays} ${offer.deliveryDays === 1 ? 'день' : 'дней'}`
-                    : `${offer.deliveryTime} ${offer.deliveryTime === 1 ? 'день' : 'дней'}`
-                  }
+                  delivery={`${offer.deliveryDuration} ${offer.deliveryDuration === 1 ? 'день' : 'дней'}`}
                   stock={`${offer.quantity} шт.`}
                 />
               ))}
@@ -330,8 +405,24 @@ export default function SearchResult() {
         </section>
       )}
 
-      {/* Если нет предложений, показываем сообщение */}
-      {!hasOffers && !loading && (
+      {/* Если нет предложений после фильтрации, но они были изначально */}
+      {initialOffersExist && filteredOffers.length === 0 && !loading && (
+        <section>
+          <div className="w-layout-blockcontainer container w-container">
+            <div className="text-center py-12">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Нет предложений, соответствующих вашим фильтрам
+              </h3>
+              <p className="text-gray-600">
+                Попробуйте изменить или сбросить фильтры.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Если изначально не было предложений */}
+      {!initialOffersExist && !loading && (
         <section>
           <div className="w-layout-blockcontainer container w-container">
             <div className="text-center py-12">
@@ -354,7 +445,14 @@ export default function SearchResult() {
           <div className="w-layout-hflex flex-block-13-copy">
             {/* Фильтры для десктопа */}
             <div className="filters-desktop">
-              <Filters filters={searchResultFilters} />
+              <Filters 
+                filters={searchResultFilters}
+                onFilterChange={handleFilterChange}
+                filterValues={{
+                  'Производитель': selectedBrands,
+                  'Цена (₽)': priceRange
+                }}
+              />
             </div>
 
             {/* Основной товар */}
@@ -377,42 +475,10 @@ export default function SearchResult() {
                     brand={result.brand}
                     article={result.articleNumber}
                     name={result.name}
-                    image="/images/image-10.png"
-                    offers={[
-                      // Внутренние предложения
-                      ...result.internalOffers.map((offer: any) => ({
-                        id: offer.id,
-                        productId: offer.productId,
-                        rating: offer.rating?.toString() || "4.8",
-                        pcs: `${offer.quantity} шт`,
-                        days: `${offer.deliveryDays} ${offer.deliveryDays === 1 ? 'день' : 'дней'}`,
-                        recommended: offer.available,
-                        price: `${offer.price.toLocaleString()} ₽`,
-                        count: "1",
-                        isExternal: false,
-                        currency: "RUB",
-                        warehouse: offer.warehouse,
-                        supplier: offer.supplier,
-                        deliveryTime: offer.deliveryDays
-                      })),
-                      // Внешние предложения
-                      ...result.externalOffers.slice(0, 5).map((offer: any) => ({
-                        offerKey: offer.offerKey,
-                        rating: "4.5",
-                        pcs: `${offer.quantity} шт`,
-                        days: `${offer.deliveryTime} ${offer.deliveryTime === 1 ? 'день' : 'дней'}`,
-                        recommended: false,
-                        price: `${offer.price.toLocaleString()} ₽ ${!result.hasInternalStock ? '(под заказ)' : ''}`,
-                        count: "1",
-                        isExternal: true,
-                        currency: offer.currency,
-                        warehouse: offer.warehouse,
-                        supplier: offer.supplier,
-                        deliveryTime: offer.deliveryTime
-                      }))
-                    ]}
-                    showMoreText={result.externalOffers.length > 5 ? 
-                      `Ещё ${result.externalOffers.length - 5} предложений` : undefined}
+                    image={mainImageUrl}
+                    offers={transformOffersForCard(
+                      filteredOffers.filter(o => !o.isAnalog)
+                    )}
                   />
                 </div>
               )}
@@ -420,52 +486,45 @@ export default function SearchResult() {
               {/* Аналоги */}
               {hasAnalogs && result && (
                 <div className="mt-8">
-                  <h3 className="text-xl font-semibold mb-4">Аналоги от других производителей</h3>
-                  {result.analogs.slice(0, 3).map((analog: any, index: number) => (
-                    <div key={`analog-${index}`} className="mb-6">
-                      <CoreProductCard
-                        brand={analog.brand}
-                        article={analog.articleNumber}
-                        name={analog.name}
-                        image={undefined}
-                        offers={[
-                          // Внутренние предложения аналога
-                          ...analog.internalOffers.map((offer: any) => ({
-                            id: offer.id,
-                            productId: offer.productId,
-                            rating: offer.rating?.toString() || "4.8",
-                            pcs: `${offer.quantity} шт`,
-                            days: `${offer.deliveryDays} ${offer.deliveryDays === 1 ? 'день' : 'дней'}`,
-                            recommended: offer.available,
-                            price: `${offer.price.toLocaleString()} ₽`,
-                            count: "1",
-                            isExternal: false,
-                            currency: "RUB",
-                            warehouse: offer.warehouse,
-                            supplier: offer.supplier,
-                            deliveryTime: offer.deliveryDays
-                          })),
-                          // Внешние предложения аналога
-                          ...analog.externalOffers.slice(0, 3).map((offer: any) => ({
-                            offerKey: offer.offerKey,
-                            rating: "4.5",
-                            pcs: `${offer.quantity} шт`,
-                            days: `${offer.deliveryTime} ${offer.deliveryTime === 1 ? 'день' : 'дней'}`,
-                            recommended: false,
-                            price: `${offer.price.toLocaleString()} ₽`,
-                            count: "1",
-                            isExternal: true,
-                            currency: offer.currency,
-                            warehouse: offer.warehouse,
-                            supplier: offer.supplier,
-                            deliveryTime: offer.deliveryTime
-                          }))
-                        ]}
-                        showMoreText={analog.externalOffers.length > 3 ? 
-                          `Ещё ${analog.externalOffers.length - 3} предложений` : undefined}
-                      />
-                    </div>
-                  ))}
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Аналоги</h2>
+                  {result.analogs.slice(0, visibleAnalogsCount).map((analog: any, index: number) => {
+                    const analogKey = `${analog.brand}-${analog.articleNumber}`;
+                    const loadedAnalogData = loadedAnalogs[analogKey];
+                    
+                    const analogOffers = loadedAnalogData 
+                      ? transformOffersForCard(
+                          filteredOffers.filter(o => o.isAnalog && o.articleNumber === analog.articleNumber)
+                        ) 
+                      : [];
+
+                    // Скрываем аналог, только если фильтры активны и они убрали все его предложения
+                    if (filtersAreActive && loadedAnalogData && analogOffers.length === 0) {
+                      return null;
+                    }
+
+                    return (
+                      <div key={analogKey} className="mb-6">
+                          <CoreProductCard
+                              brand={analog.brand}
+                              article={analog.articleNumber}
+                              name={analog.name}
+                              offers={analogOffers}
+                              isAnalog
+                              isLoadingOffers={!loadedAnalogData}
+                          />
+                      </div>
+                    )
+                  })}
+
+                  {visibleAnalogsCount < result.analogs.length && (
+                     <button
+                      onClick={() => setVisibleAnalogsCount(prev => prev + ANALOGS_CHUNK_SIZE)}
+                      disabled={analogsLoading}
+                      className="w-full bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+                    >
+                      {analogsLoading ? 'Загрузка...' : 'Показать еще аналоги'}
+                    </button>
+                  )}
                 </div>
               )}
             </div>

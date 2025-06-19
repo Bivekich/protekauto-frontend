@@ -27,25 +27,6 @@ const Header = () => {
   const searchDropdownRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
 
-  // Query для поиска по VIN во всех каталогах
-  const [findVehicleInCatalogs] = useLazyQuery(FIND_LAXIMO_VEHICLE, {
-    onCompleted: (data) => {
-      const vehicles = data.laximoFindVehicle || [];
-      console.log('🔍 Найдено автомобилей по VIN:', vehicles.length);
-      setSearchResults(vehicles);
-      setOemSearchResults(null);
-      setIsSearching(false);
-      setShowResults(true); // Показываем результаты даже если пустые (для отображения "не найдено")
-    },
-    onError: (error) => {
-      console.error('❌ Ошибка поиска по VIN:', error);
-      setSearchResults([]);
-      setOemSearchResults(null);
-      setIsSearching(false);
-      setShowResults(true); // Показываем сообщение об ошибке
-    }
-  });
-
   // Query для поиска по артикулу через Doc FindOEM
   const [findOEMParts] = useLazyQuery(DOC_FIND_OEM, {
     onCompleted: (data) => {
@@ -60,27 +41,6 @@ const Header = () => {
       console.error('❌ Ошибка поиска по артикулу:', error);
       setOemSearchResults(null);
       setSearchResults([]);
-      setIsSearching(false);
-      setShowResults(true);
-    }
-  });
-
-  // Query для поиска по госномеру
-  const [findVehicleByPlate] = useLazyQuery(FIND_LAXIMO_VEHICLE_BY_PLATE_GLOBAL, {
-    onCompleted: (data) => {
-      const vehicles = data.laximoFindVehicleByPlateGlobal || [];
-      console.log('🔍 Найдено автомобилей по госномеру:', vehicles.length);
-      setSearchResults(vehicles);
-      setOemSearchResults(null);
-      setVehiclesByPartResults(null);
-      setIsSearching(false);
-      setShowResults(true);
-    },
-    onError: (error) => {
-      console.error('❌ Ошибка поиска по госномеру:', error);
-      setSearchResults([]);
-      setOemSearchResults(null);
-      setVehiclesByPartResults(null);
       setIsSearching(false);
       setShowResults(true);
     }
@@ -192,6 +152,8 @@ const Header = () => {
   // Список популярных каталогов для поиска по VIN
   const popularCatalogs = ['VW', 'AUDI', 'BMW', 'MERCEDES', 'FORD', 'TOYOTA', 'NISSAN', 'HYUNDAI', 'KIA'];
 
+  // Обработчик поиска по VIN больше не используется (переходим на отдельную страницу)
+  /*
   const handleVinSearch = async (vin: string) => {
     setIsSearching(true);
     setSearchResults([]);
@@ -212,6 +174,7 @@ const Header = () => {
       console.error('❌ Ошибка глобального поиска по VIN:', error);
     }
   };
+  */
 
   const handleOEMSearch = async (oemNumber: string) => {
     setIsSearching(true);
@@ -232,6 +195,8 @@ const Header = () => {
     }
   };
 
+  // Обработчик поиска по госномеру больше не используется (переходим на отдельную страницу)
+  /*
   const handlePlateSearch = async (plateNumber: string) => {
     setIsSearching(true);
     setSearchResults([]);
@@ -252,6 +217,7 @@ const Header = () => {
       console.error('❌ Ошибка поиска по госномеру:', error);
     }
   };
+  */
 
   const handlePartVehicleSearch = async (partNumber: string) => {
     setIsSearching(true);
@@ -281,17 +247,17 @@ const Header = () => {
     setSearchType(currentSearchType);
     
     if (currentSearchType === 'vin') {
-      // Если это VIN номер, ищем автомобиль
-      handleVinSearch(searchQuery.trim().toUpperCase());
+      // Переходим на страницу результатов поиска по VIN
+      router.push(`/vehicle-search-results?q=${encodeURIComponent(searchQuery.trim().toUpperCase())}`);
     } else if (currentSearchType === 'plate') {
-      // Если это госномер, ищем автомобиль
-      handlePlateSearch(searchQuery.trim().toUpperCase());
+      // Переходим на страницу результатов поиска по госномеру
+      router.push(`/vehicle-search-results?q=${encodeURIComponent(searchQuery.trim().toUpperCase())}`);
     } else if (currentSearchType === 'oem') {
-      // Если это артикул, переходим на страницу поиска по артикулу
-      router.push(`/article-search?article=${encodeURIComponent(searchQuery.trim().toUpperCase())}`);
+      // Если это артикул, переходим на новую страницу поиска с режимом запчастей
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim().toUpperCase())}&mode=parts`);
     } else {
-      // Если это обычный поиск, переходим на страницу результатов
-      router.push(`/search-result?q=${encodeURIComponent(searchQuery.trim())}`);
+      // Для текстового поиска также перенаправляем на новую страницу поиска
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}&mode=parts`);
     }
   };
 
@@ -511,7 +477,7 @@ const Header = () => {
                                 <button 
                                   onClick={() => {
                                     // Переходим на страницу поиска по артикулу
-                                    router.push(`/article-search?article=${encodeURIComponent(detail.formattedoem)}`);
+                                    router.push(`/search?q=${encodeURIComponent(detail.formattedoem)}&mode=parts`);
                                     setShowResults(false);
                                     setSearchQuery('');
                                   }}
@@ -527,7 +493,7 @@ const Header = () => {
                           <div className="p-3 text-center border-t border-gray-100">
                             <button 
                               onClick={() => {
-                                router.push(`/article-search?article=${encodeURIComponent(searchQuery)}`);
+                                router.push(`/search?q=${encodeURIComponent(searchQuery)}&mode=parts`);
                                 setShowResults(false);
                                 setSearchQuery('');
                               }}

@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import CatalogProductCard from './CatalogProductCard';
 import { useArticleImage } from '@/hooks/useArticleImage';
 import { PartsAPIArticle } from '@/types/partsapi';
@@ -9,27 +9,31 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = memo(({ article, index }) => {
-  console.log(`🎨 ArticleCard render для artId: ${article.artId}`);
-  const { imageUrl, isLoading } = useArticleImage(article.artId);
+  // Используем хук для получения изображения
+  const { imageUrl, isLoading, error } = useArticleImage(article.artId, {
+    fallbackImage: '/images/image-10.png',
+    enabled: !!article.artId
+  });
 
-  // Мемоизируем формирование названия товара
-  const title = useMemo(() => {
-    return [
-      article.artSupBrand || 'N/A',
-      article.artArticleNr || 'N/A',
-      article.productGroup ? `- ${article.productGroup}` : ''
-    ].filter(Boolean).join(' ');
-  }, [article.artSupBrand, article.artArticleNr, article.productGroup]);
+  // Формируем название товара
+  const title = [
+    article.artSupBrand || 'N/A',
+    article.artArticleNr || 'N/A',
+  ].filter(Boolean).join(', ');
+
+  const brand = article.artSupBrand || 'Unknown';
 
   return (
     <CatalogProductCard
-      key={`${article.artId}_${index}`}
       image={imageUrl}
-      discount="" // Пока без скидок
-      price="" // Цена скрыта // price="Уточнить цену" // Цена уточняется через Laximo
+      discount="Новинка"
+      price=""
       oldPrice=""
       title={title}
-      brand={article.artSupBrand || 'N/A'}
+      brand={brand}
+      articleNumber={article.artArticleNr}
+      brandName={article.artSupBrand}
+      artId={article.artId}
     />
   );
 });

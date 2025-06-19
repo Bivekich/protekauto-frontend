@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import FilterDropdown from "./filters/FilterDropdown";
 import FilterRange from "./filters/FilterRange";
 import type { FilterConfig } from "./Filters";
@@ -7,23 +7,24 @@ interface FiltersPanelMobileProps {
   filters: FilterConfig[];
   open: boolean;
   onClose: () => void;
-  onApply?: () => void;
-  searchQuery?: string;
-  onSearchChange?: (query: string) => void;
-  selectedFilters?: Record<string, string[]>;
-  onFilterChange?: (filterTitle: string, values: string[]) => void;
+  onFilterChange: (filterType: string, value: any) => void;
+  initialValues: { [key: string]: any };
 }
 
 const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ 
   filters, 
   open, 
   onClose, 
-  onApply,
-  searchQuery = '',
-  onSearchChange,
-  selectedFilters = {},
-  onFilterChange
+  onFilterChange,
+  initialValues
 }) => {
+  const [currentValues, setCurrentValues] = useState(initialValues);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    setCurrentValues(initialValues);
+  }, [initialValues]);
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -34,6 +35,32 @@ const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  const handleValueChange = (filterTitle: string, value: any) => {
+    setCurrentValues(prev => ({ ...prev, [filterTitle]: value }));
+  };
+  
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+  
+  const handleApply = () => {
+    Object.entries(currentValues).forEach(([key, value]) => {
+      onFilterChange(key, value);
+    });
+    onFilterChange('search', searchTerm);
+    onClose();
+  };
+
+  const handleReset = () => {
+    const resetValues: { [key: string]: any } = {};
+    filters.forEach(f => {
+      if (f.type === 'dropdown') resetValues[f.title] = [];
+      if (f.type === 'range') resetValues[f.title] = [f.min, f.max];
+    });
+    setCurrentValues(resetValues);
+    setSearchTerm('');
+  };
 
   return (
     <>
@@ -52,60 +79,65 @@ const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({
         {/* Header */}
         <div className="filters-panel-mobile-header">
           <span className="filters-panel-mobile-title">Фильтры</span>
+          <button 
+            className="text-sm text-gray-600 hover:text-red-600"
+            onClick={handleReset}
+          >
+            Сбросить
+          </button>
           <button className="filters-panel-mobile-close" onClick={onClose} aria-label="Закрыть фильтры">&times;</button>
         </div>
         {/* Search */}
         <div className="filters-panel-mobile-content-search">
-        <div className="div-block-2">
-          <div className="form-block">
-            <form className="form" onSubmit={e => e.preventDefault()}>
-              <a href="#" className="link-block-3 w-inline-block">
-                <span className="code-embed-6 w-embed">
+          <div className="div-block-2">
+            <div className="form-block">
+              <form className="form" onSubmit={e => { e.preventDefault(); handleApply(); }}>
+                <span className="code-embed-6 w-embed" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 1}}>
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M17.5 17.5L13.8834 13.8833" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     <path d="M9.16667 15.8333C12.8486 15.8333 15.8333 12.8486 15.8333 9.16667C15.8333 5.48477 12.8486 2.5 9.16667 2.5C5.48477 2.5 2.5 5.48477 2.5 9.16667C2.5 12.8486 5.48477 15.8333 9.16667 15.8333Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
-              </a>
-              <input
-                className="text-field w-input"
-                maxLength={256}
-                name="Search"
-                placeholder="Поиск по названию, артикулу, бренду..."
-                type="text"
-                id="Search-4"
-                value={searchQuery}
-                onChange={(e) => onSearchChange?.(e.target.value)}
-              />
-            </form>
+                <input
+                  className="text-field w-input"
+                  style={{paddingLeft: '40px'}}
+                  maxLength={256}
+                  name="Search"
+                  placeholder="Поиск по товарам на странице"
+                  type="text"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+              </form>
+            </div>
           </div>
-        </div>
         </div>
         {/* Filters */}
         <div className="filters-panel-mobile-content">
-          {filters.map((filter, idx) => {
-            if (filter.type === "dropdown") {
+          {filters.map((filter) => {
+            if (filter.type === "dropdown" && filter.options) {
               return (
                 <FilterDropdown
-                  key={filter.title + idx}
+                  key={filter.title}
                   title={filter.title}
                   options={filter.options}
                   multi={filter.multi}
                   showAll={filter.showAll}
                   isMobile
-                  selectedValues={selectedFilters[filter.title] || []}
-                  onSelectionChange={(values) => onFilterChange?.(filter.title, values)}
+                  selectedValues={currentValues[filter.title] || []}
+                  onChange={(values) => handleValueChange(filter.title, values)}
                 />
               );
             }
-            if (filter.type === "range") {
+            if (filter.type === "range" && filter.min !== undefined && filter.max !== undefined) {
               return (
                 <FilterRange
-                  key={filter.title + idx}
+                  key={filter.title}
                   title={filter.title}
                   min={filter.min}
                   max={filter.max}
                   isMobile
+                  onChange={(value) => handleValueChange(filter.title, value)}
                 />
               );
             }
@@ -113,7 +145,7 @@ const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({
           })}
         </div>
         {/* Apply Button */}
-        <button className="filters-panel-mobile-apply" onClick={onApply || onClose}>Показать</button>
+        <button className="filters-panel-mobile-apply" onClick={handleApply}>Показать</button>
       </div>
     </>
   );

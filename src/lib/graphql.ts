@@ -438,6 +438,25 @@ export const FIND_LAXIMO_VEHICLE = gql`
       engine
       notes
       ssd
+      transmission
+      date
+      manufactured
+      framecolor
+      trimcolor
+      engine_info
+      engineno
+      market
+      prodRange
+      prodPeriod
+      destinationregion
+      creationregion
+      datefrom
+      dateto
+      modelyearfrom
+      modelyearto
+      options
+      description
+      grade
     }
   }
 `;
@@ -488,6 +507,25 @@ export const FIND_LAXIMO_VEHICLE_BY_PLATE_GLOBAL = gql`
       engine
       notes
       ssd
+      transmission
+      date
+      manufactured
+      framecolor
+      trimcolor
+      engine_info
+      engineno
+      market
+      prodRange
+      prodPeriod
+      destinationregion
+      creationregion
+      datefrom
+      dateto
+      modelyearfrom
+      modelyearto
+      options
+      description
+      grade
     }
   }
 `;
@@ -837,31 +875,42 @@ export const SEARCH_PRODUCT_OFFERS = gql`
         articleNumber
         name
         type
-        internalOffers {
-          id
-          productId
-          price
-          quantity
-          warehouse
-          deliveryDays
-          available
-          rating
-          supplier
-        }
-        externalOffers {
-          offerKey
-          brand
-          code
-          name
-          price
-          currency
-          deliveryTime
-          deliveryTimeMax
-          quantity
-          warehouse
-          supplier
-          canPurchase
-        }
+      }
+    }
+  }
+`
+
+export const GET_ANALOG_OFFERS = gql`
+  query GetAnalogOffers($analogs: [AnalogOfferInput!]!) {
+    getAnalogOffers(analogs: $analogs) {
+      brand
+      articleNumber
+      name
+      type
+      internalOffers {
+        id
+        productId
+        price
+        quantity
+        warehouse
+        deliveryDays
+        available
+        rating
+        supplier
+      }
+      externalOffers {
+        offerKey
+        brand
+        code
+        name
+        price
+        currency
+        deliveryTime
+        deliveryTimeMax
+        quantity
+        warehouse
+        supplier
+        canPurchase
       }
     }
   }

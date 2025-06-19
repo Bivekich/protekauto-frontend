@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 
+const INITIAL_OFFERS_LIMIT = 5;
+
 interface CoreProductCardOffer {
   id?: string;
   productId?: string;
@@ -25,6 +27,9 @@ interface CoreProductCardProps {
   image?: string;
   offers: CoreProductCardOffer[];
   showMoreText?: string;
+  isAnalog?: boolean;
+  isLoadingOffers?: boolean;
+  onLoadOffers?: () => void;
 }
 
 const CoreProductCard: React.FC<CoreProductCardProps> = ({ 
@@ -33,12 +38,19 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
   name, 
   image, 
   offers, 
-  showMoreText 
+  showMoreText, 
+  isAnalog,
+  isLoadingOffers,
+  onLoadOffers
 }) => {
   const { addItem } = useCart();
+  const [showAllOffers, setShowAllOffers] = useState(false);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>(
     offers.reduce((acc, _, index) => ({ ...acc, [index]: 1 }), {})
   );
+
+  const displayedOffers = showAllOffers ? offers : offers.slice(0, INITIAL_OFFERS_LIMIT);
+  const hasMoreOffers = offers.length > INITIAL_OFFERS_LIMIT;
 
   // Функция для парсинга цены из строки
   const parsePrice = (priceStr: string): number => {
@@ -108,6 +120,69 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
     alert(`Товар "${brand} ${article}" добавлен в корзину (${quantity} шт.)`);
   };
 
+  if (isLoadingOffers) {
+    return (
+      <div className="w-layout-hflex core-product-search-s1">
+        <div className="w-layout-vflex core-product-s1">
+          <div className="w-layout-vflex flex-block-47">
+            <div className="div-block-19">
+              <img src="/images/info.svg" loading="lazy" alt="info" className="image-9" />
+            </div>
+            <div className="w-layout-vflex flex-block-50">
+              <div className="w-layout-hflex flex-block-79">
+                <h3 className="heading-10 name">{brand}</h3>
+                <h3 className="heading-10">{article}</h3>
+              </div>
+              <div className="text-block-21">{name}</div>
+            </div>
+          </div>
+        </div>
+        <div className="w-layout-vflex flex-block-48-copy items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+          <p className="mt-2 text-gray-500">Загрузка предложений...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!offers || offers.length === 0) {
+    return (
+        <div className="w-layout-hflex core-product-search-s1">
+            <div className="w-layout-vflex core-product-s1">
+                <div className="w-layout-vflex flex-block-47">
+                    <div className="div-block-19">
+                        <img src="/images/info.svg" loading="lazy" alt="info" className="image-9" />
+                    </div>
+                    <div className="w-layout-vflex flex-block-50">
+                        <div className="w-layout-hflex flex-block-79">
+                            <h3 className="heading-10 name">{brand}</h3>
+                            <h3 className="heading-10">{article}</h3>
+                        </div>
+                        <div className="text-block-21">{name}</div>
+                    </div>
+                </div>
+                {image && (
+                    <div className="div-block-20">
+                        <img src={image} loading="lazy" alt={name} className="image-10" />
+                    </div>
+                )}
+            </div>
+            <div className="w-layout-vflex flex-block-48-copy items-center justify-center">
+                {onLoadOffers ? (
+                     <button
+                        onClick={onLoadOffers}
+                        className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Загрузить предложения
+                    </button>
+                ) : (
+                    <p className="text-gray-500">Предложений не найдено.</p>
+                )}
+            </div>
+        </div>
+    );
+  }
+
   return (
     <div className="w-layout-hflex core-product-search-s1"> 
       <div className="w-layout-hflex core-product-search-s1">
@@ -140,7 +215,7 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
             <div className="sort-item price">Цена</div>
           </div>
           <div className="w-layout-vflex product-list-search-s1">
-            {offers.map((offer, idx) => (
+            {displayedOffers.map((offer, idx) => (
               <div className="w-layout-hflex product-item-search-s1" key={idx}>
                 <div className="w-layout-hflex flex-block-81">
                   <div className="w-layout-hflex info-block-search-s1">
@@ -200,10 +275,21 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
           </div>
         </div>
       </div>
-      {showMoreText && (
-        <div className="w-layout-hflex show-more-search">
-          <div className="text-block-27">{showMoreText}</div>
-          <img src="/images/arrow_drop_down.svg" loading="lazy" alt="" />
+      {hasMoreOffers && (
+        <div 
+            className="w-layout-hflex show-more-search"
+            onClick={() => setShowAllOffers(!showAllOffers)}
+            style={{ cursor: 'pointer' }}
+        >
+          <div className="text-block-27">
+            {showAllOffers ? 'Скрыть предложения' : `Еще ${offers.length - INITIAL_OFFERS_LIMIT} предложений`}
+          </div>
+          <img 
+            src="/images/arrow_drop_down.svg" 
+            loading="lazy" 
+            alt="" 
+            className={`transition-transform duration-200 ${showAllOffers ? 'rotate-180' : ''}`}
+          />
         </div>
       )}
     </div>
