@@ -152,6 +152,22 @@ const Header = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Скрытие top_head при скролле
+  useEffect(() => {
+    const topHead = document.querySelector('.top_head');
+    if (!topHead) return;
+    const onScroll = () => {
+      if (window.scrollY > 0) {
+        topHead.classList.add('hide-top-head');
+      } else {
+        topHead.classList.remove('hide-top-head');
+      }
+    };
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   // Проверяем, является ли строка VIN номером
   const isVinNumber = (query: string): boolean => {
     const cleanQuery = query.trim().toUpperCase();

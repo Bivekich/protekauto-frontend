@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Header from "@/components/Header";
+
 import Footer from "@/components/Footer";
 import MobileMenuBottomSection from "@/components/MobileMenuBottomSection";
 import CatalogInfoHeader from "@/components/CatalogInfoHeader";
@@ -20,7 +20,6 @@ export default function About() {
         <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
-      <Header />
       <CatalogInfoHeader
         title="О компании"
         breadcrumbs={[

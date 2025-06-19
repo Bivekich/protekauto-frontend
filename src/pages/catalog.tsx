@@ -234,7 +234,6 @@ export default function Catalog() {
         <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
-      <Header />
       <CatalogInfoHeader
         title={isPartsAPIMode ? decodeURIComponent(categoryName as string || 'Запчасти') : "Аккумуляторы"}
         count={isPartsAPIMode ? filteredArticles.length : 3587}

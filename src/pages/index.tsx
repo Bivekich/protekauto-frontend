@@ -33,7 +33,6 @@ export default function Home() {
         <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
-      <Header />
       <HeroSlider />
       <CatalogSection />
       <div className="w-layout-blockcontainer container2 w-container">

@@ -145,7 +145,7 @@ const ProfileGaragePage = () => {
 
   return (
     <div className="page-wrapper">
-      <Header />
+
       
       {/* Хлебные крошки */}
       <section className="breadcrumbs">

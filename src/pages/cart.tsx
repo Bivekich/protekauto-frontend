@@ -18,7 +18,7 @@ export default function CartPage() {
         <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
-      <Header />
+
       <CartInfo />
 
       <section className="main">
