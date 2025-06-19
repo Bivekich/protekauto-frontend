@@ -461,6 +461,43 @@ export const FIND_LAXIMO_VEHICLE = gql`
   }
 `;
 
+export const FIND_LAXIMO_VEHICLE_GLOBAL = gql`
+  query FindLaximoVehicleGlobal($vin: String!) {
+    laximoFindVehicleGlobal(vin: $vin) {
+      vehicleid
+      name
+      brand
+      catalog
+      model
+      modification
+      year
+      bodytype
+      engine
+      notes
+      ssd
+      transmission
+      date
+      manufactured
+      framecolor
+      trimcolor
+      engine_info
+      engineno
+      market
+      prodRange
+      prodPeriod
+      destinationregion
+      creationregion
+      datefrom
+      dateto
+      modelyearfrom
+      modelyearto
+      options
+      description
+      grade
+    }
+  }
+`;
+
 export const FIND_LAXIMO_VEHICLE_BY_WIZARD = gql`
   query FindLaximoVehicleByWizard($catalogCode: String!, $ssd: String!) {
     laximoFindVehicleByWizard(catalogCode: $catalogCode, ssd: $ssd) {
@@ -980,5 +1017,24 @@ export const GET_PARTSAPI_MEDIA = gql`
 export const GET_PARTSAPI_MAIN_IMAGE = gql`
   query GetPartsAPIMainImage($artId: String!) {
     partsAPIMainImage(artId: $artId)
+  }
+`;
+
+// Query для получения истории поиска запчастей
+export const GET_PARTS_SEARCH_HISTORY = gql`
+  query GetPartsSearchHistory {
+    partsSearchHistory {
+      id
+      searchQuery
+      searchType
+      brand
+      articleNumber
+      vehicleInfo {
+        brand
+        model
+        year
+      }
+      createdAt
+    }
   }
 `;

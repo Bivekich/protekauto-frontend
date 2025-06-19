@@ -116,6 +116,23 @@ export const DELETE_SEARCH_HISTORY_ITEM = gql`
   }
 `;
 
+export const CREATE_VEHICLE_FROM_VIN = gql`
+  mutation CreateVehicleFromVin($vin: String!, $comment: String) {
+    createVehicleFromVin(vin: $vin, comment: $comment) {
+      id
+      name
+      vin
+      brand
+      model
+      modification
+      year
+      mileage
+      comment
+      createdAt
+    }
+  }
+`;
+
 // Types
 export interface UserVehicle {
   id: string;
