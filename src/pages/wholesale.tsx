@@ -25,8 +25,8 @@ export default function Wholesale() {
         <link href="/css/protekproject.webflow.css" rel="stylesheet" type="text/css" />
         <link href="https://fonts.googleapis.com" rel="preconnect" />
         <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
-        <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
-        <link href="/images/webclip.png" rel="apple-touch-icon" />
+        <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+        <link href="images/webclip.png" rel="apple-touch-icon" />
       </Head>
       
       <InfoWholesale />

@@ -16,8 +16,8 @@ export default function CartStep2() {
         <title>Cart Step 2</title>
         <meta name="description" content="Cart Step 2" />
         <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
-        <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
-        <link href="/images/webclip.png" rel="apple-touch-icon" />
+        <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+        <link href="images/webclip.png" rel="apple-touch-icon" />
       </Head>
 
       <CartInfo />

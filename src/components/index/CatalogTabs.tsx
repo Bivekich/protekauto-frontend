@@ -2,7 +2,7 @@ import React from "react";
 
 const CatalogTabs = () => (
   <section>
-    <div className="w-layout-blockcontainer container2 w-container">
+    <div className="w-layout-blockcontainer container w-container">
       <div className="w-layout-vflex flex-block-5">
         <h2 className="heading-4">Каталоги автозапчастей</h2>
         <div className="w-layout-hflex flex-block-6">

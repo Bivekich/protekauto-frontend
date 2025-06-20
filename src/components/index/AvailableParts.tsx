@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const AvailableParts = () => (
   <section>
-    <div className="w-layout-blockcontainer container2 w-container">
+    <div className="w-layout-blockcontainer container w-container">
       <div className="w-layout-vflex flex-block-5">
         <div className="w-layout-hflex flex-block-31">
           <h2 className="heading-4">Автозапчасти в наличии</h2>
