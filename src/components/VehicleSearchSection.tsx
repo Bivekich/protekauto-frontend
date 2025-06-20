@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLazyQuery } from '@apollo/client';
-import { FIND_LAXIMO_VEHICLE, FIND_LAXIMO_VEHICLE_BY_PLATE } from '@/lib/graphql';
+import { FIND_LAXIMO_VEHICLE, FIND_LAXIMO_VEHICLE_BY_PLATE_GLOBAL } from '@/lib/graphql';
 import { LaximoCatalogInfo, LaximoWizardStep, LaximoVehicleSearchResult } from '@/types/laximo';
 import VinSearchForm from './VinSearchForm';
 import PlateSearchForm from './PlateSearchForm';
@@ -39,9 +39,9 @@ const VehicleSearchSection: React.FC<VehicleSearchSectionProps> = ({
   });
 
   // Query для поиска по госномеру
-  const [findVehicleByPlate] = useLazyQuery(FIND_LAXIMO_VEHICLE_BY_PLATE, {
+  const [findVehicleByPlate] = useLazyQuery(FIND_LAXIMO_VEHICLE_BY_PLATE_GLOBAL, {
     onCompleted: (data) => {
-      setSearchResults(data.laximoFindVehicleByPlate || []);
+      setSearchResults(data.laximoFindVehicleByPlateGlobal || []);
       setIsSearching(false);
       setHasSearched(true);
     },
@@ -62,7 +62,7 @@ const VehicleSearchSection: React.FC<VehicleSearchSectionProps> = ({
     
     await findVehicle({
       variables: {
-        catalogCode: catalogInfo.code,
+        catalogCode: '', // Пустой для глобального поиска
         vin: vin.trim()
       }
     });
@@ -77,7 +77,6 @@ const VehicleSearchSection: React.FC<VehicleSearchSectionProps> = ({
     
     await findVehicleByPlate({
       variables: {
-        catalogCode: catalogInfo.code,
         plateNumber: plateNumber.trim()
       }
     });
@@ -140,7 +139,7 @@ const VehicleSearchSection: React.FC<VehicleSearchSectionProps> = ({
       id: 'plate' as const,
       name: 'Поиск по государственному номеру',
       description: 'Введите государственный номер автомобиля',
-      enabled: catalogInfo.supportplateidentification,
+      enabled: catalogInfo.supportplateidentification ?? true,
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />

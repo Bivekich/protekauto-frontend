@@ -1,55 +1,120 @@
 import * as React from "react";
+import { useQuery, useMutation } from "@apollo/client";
 import ProfileAddressCard from "./ProfileAddressCard";
-import ProfileAddressWay from "./ProfileAddressWay";
+import ProfileAddressWayWithMap from "./ProfileAddressWayWithMap";
+import { GET_CLIENT_DELIVERY_ADDRESSES, DELETE_CLIENT_DELIVERY_ADDRESS } from "@/lib/graphql";
 
-const addresses = [
-  {
-    type: "Самовывоз",
-    title: "Отделение почты России 238120",
-    address: "Калининградская область, Калиниград, улица Понартская, 5, кв./офис 1, Подъезд 1, этаж 1",
-    recipient: "Воронин Павел",
-    phone: "+7 911 491 15 18",
-    storagePeriod: "15 дней",
-    workTime: "10:00-22:00",
-  },
-  {
-    type: "Доставка курьером",
-    title: "Дом",
-    address: "г. Калиниград, ул. Понартская, 5, кв./офис 1",
-    recipient: "Воронин Павел",
-    phone: "+7 911 491 15 18",
-    comment: "Позвонить, не работает домофон. Или же позвонить, так как не работает домофон",
-  },
-  {
-    type: "Самовывоз",
-    title: "Отделение почты России 238120",
-    address: "Калининградская область, Калиниград, улица Понартская, 5, кв./офис 1, Подъезд 1, этаж 1",
-    recipient: "Воронин Павел",
-    phone: "+7 911 491 15 18",
-    storagePeriod: "15 дней",
-    workTime: "10:00-22:00",
-  },
-];
+interface DeliveryAddress {
+  id: string;
+  name: string;
+  address: string;
+  deliveryType: 'COURIER' | 'PICKUP' | 'POST' | 'TRANSPORT';
+  comment?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const getDeliveryTypeLabel = (type: string) => {
+  const labels = {
+    COURIER: 'Доставка курьером',
+    PICKUP: 'Самовывоз',
+    POST: 'Почта России',
+    TRANSPORT: 'Транспортная компания'
+  };
+  return labels[type as keyof typeof labels] || type;
+};
 
 const ProfileAddressesMain = () => {
   const [mainIndex, setMainIndex] = React.useState(0);
   const [showWay, setShowWay] = React.useState(false);
-  if (showWay) return <ProfileAddressWay onBack={() => setShowWay(false)} />;
+
+  const { data, loading, error, refetch } = useQuery(GET_CLIENT_DELIVERY_ADDRESSES, {
+    errorPolicy: 'all'
+  });
+
+  const [deleteAddress] = useMutation(DELETE_CLIENT_DELIVERY_ADDRESS, {
+    onCompleted: () => {
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Ошибка удаления адреса:', error);
+      alert('Ошибка удаления адреса: ' + error.message);
+    }
+  });
+
+  const handleDeleteAddress = async (addressId: string) => {
+    if (confirm('Вы уверены, что хотите удалить этот адрес?')) {
+      try {
+        await deleteAddress({
+          variables: { id: addressId }
+        });
+      } catch (error) {
+        console.error('Ошибка удаления:', error);
+      }
+    }
+  };
+
+  const handleWayClose = () => {
+    setShowWay(false);
+    refetch(); // Обновляем данные после закрытия формы
+  };
+
+  if (showWay) return <ProfileAddressWayWithMap onBack={handleWayClose} />;
+
+  if (loading) {
+    return (
+      <div className="flex relative flex-col gap-8 items-start p-8 bg-white rounded-2xl flex-[1_0_0] max-md:gap-5">
+        <div className="text-center text-gray-500">Загрузка адресов...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex relative flex-col gap-8 items-start p-8 bg-white rounded-2xl flex-[1_0_0] max-md:gap-5">
+        <div className="text-center text-red-500">
+          <div className="mb-2">Ошибка загрузки адресов</div>
+          <div className="text-sm text-gray-500 mb-4">{error.message}</div>
+          <button
+            onClick={() => refetch()}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Попробовать снова
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const addresses = data?.clientMe?.deliveryAddresses || [];
+
   return (
     <div className="flex relative flex-col gap-8 items-start p-8 bg-white rounded-2xl flex-[1_0_0] max-md:gap-5">
-      <div className="flex flex-wrap gap-5 items-start self-stretch">
-        {addresses.map((addr, idx) => (
-          <ProfileAddressCard
-            key={idx}
-            {...addr}
-            onSelectMain={() => setMainIndex(idx)}
-            isMain={mainIndex === idx}
-          />
-        ))}
-      </div>
+      {addresses.length > 0 ? (
+        <div className="flex flex-wrap gap-5 items-start self-stretch">
+          {addresses.map((addr: DeliveryAddress, idx: number) => (
+            <ProfileAddressCard
+              key={addr.id}
+              type={getDeliveryTypeLabel(addr.deliveryType)}
+              title={addr.name}
+              address={addr.address}
+              comment={addr.comment}
+              onSelectMain={() => setMainIndex(idx)}
+              onDelete={() => handleDeleteAddress(addr.id)}
+              isMain={mainIndex === idx}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center text-gray-500 self-stretch">
+          <div className="mb-4">У вас пока нет сохраненных адресов доставки</div>
+          <div className="text-sm text-gray-400">Добавьте первый адрес, чтобы быстрее оформлять заказы</div>
+        </div>
+      )}
+      
       <div
         layer-name="Button Small"
-        className="flex relative gap-2.5 justify-center items-center px-5 py-3.5 bg-red-600 rounded-xl h-[50px] cursor-pointer"
+        className="flex relative gap-2.5 justify-center items-center px-5 py-3.5 bg-red-600 rounded-xl h-[50px] cursor-pointer hover:bg-red-700 transition-colors"
         onClick={() => setShowWay(true)}
       >
         <div
@@ -57,9 +122,9 @@ const ProfileAddressesMain = () => {
           className="relative text-base font-medium leading-5 text-center text-white"
         >
           Добавить адрес доставки
+        </div>
       </div>
     </div>
-  </div>
   );
 }
 

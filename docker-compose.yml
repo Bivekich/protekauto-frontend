@@ -9,6 +9,7 @@ services:
         NEXT_PUBLIC_CMS_GRAPHQL_URL: ${NEXT_PUBLIC_CMS_GRAPHQL_URL:-http://localhost:4000/graphql}
         NEXT_PUBLIC_UPLOAD_URL: ${NEXT_PUBLIC_UPLOAD_URL:-http://localhost:4000/upload}
         NEXT_PUBLIC_MAINTENANCE_MODE: ${NEXT_PUBLIC_MAINTENANCE_MODE:-false}
+        NEXT_PUBLIC_YANDEX_MAPS_API_KEY: ${NEXT_PUBLIC_YANDEX_MAPS_API_KEY}
     container_name: protekauto-frontend
     ports:
       - "3001:3000"
@@ -17,6 +18,7 @@ services:
       - NEXT_PUBLIC_CMS_GRAPHQL_URL=${NEXT_PUBLIC_CMS_GRAPHQL_URL:-http://localhost:4000/graphql}
       - NEXT_PUBLIC_UPLOAD_URL=${NEXT_PUBLIC_UPLOAD_URL:-http://localhost:4000/upload}
       - NEXT_PUBLIC_MAINTENANCE_MODE=${NEXT_PUBLIC_MAINTENANCE_MODE:-false}
+      - NEXT_PUBLIC_YANDEX_MAPS_API_KEY=${NEXT_PUBLIC_YANDEX_MAPS_API_KEY}
     restart: unless-stopped
     networks:
       - protekauto-network

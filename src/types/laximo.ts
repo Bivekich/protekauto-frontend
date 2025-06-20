@@ -149,7 +149,10 @@ export interface LaximoUnit {
   name: string
   code?: string
   description?: string
+  imageurl?: string
+  largeimageurl?: string
   details?: LaximoDetail[]
+  attributes?: LaximoDetailAttribute[]
 }
 
 export interface LaximoDetail {
@@ -163,7 +166,13 @@ export interface LaximoDetail {
   brand?: string
   description?: string
   applicablemodels?: string
-  attributes?: LaximoVehicleAttribute[]
+  attributes?: LaximoDetailAttribute[]
+}
+
+export interface LaximoDetailAttribute {
+  key: string
+  name?: string
+  value: string
 }
 
 export interface LaximoOEMResult {
@@ -267,7 +276,7 @@ export interface LaximoUnitInfo {
   description?: string
   imageurl?: string
   largeimageurl?: string
-  attributes?: LaximoVehicleAttribute[]
+  attributes?: LaximoDetailAttribute[]
 }
 
 export interface LaximoUnitDetail {
@@ -283,7 +292,7 @@ export interface LaximoUnitDetail {
   availability?: string
   description?: string
   applicablemodels?: string
-  attributes?: LaximoVehicleAttribute[]
+  attributes?: LaximoDetailAttribute[]
 }
 
 export interface LaximoUnitImageMap {

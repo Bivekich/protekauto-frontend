@@ -13,6 +13,7 @@ interface ProfilePersonalDataProps {
   setNotifySwitch: (v: boolean | ((prev: boolean) => boolean)) => void;
   phoneError: string;
   emailError: string;
+  onSave?: () => void;
 }
 
 const ProfilePersonalData: React.FC<ProfilePersonalDataProps> = ({
@@ -28,6 +29,7 @@ const ProfilePersonalData: React.FC<ProfilePersonalDataProps> = ({
   setNotifySwitch,
   phoneError,
   emailError,
+  onSave,
 }) => (
   <div className="flex overflow-hidden flex-col p-8 w-full bg-white rounded-2xl max-md:px-5 max-md:max-w-full">
     <div className="text-3xl font-bold leading-none text-gray-950">
@@ -96,6 +98,16 @@ const ProfilePersonalData: React.FC<ProfilePersonalDataProps> = ({
           Получать уведомления об акциях и новостях компании
         </div>
       </div>
+      {onSave && (
+        <div className="flex justify-end mt-6">
+          <button
+            onClick={onSave}
+            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+          >
+            Сохранить изменения
+          </button>
+        </div>
+      )}
     </div>
   </div>
 );

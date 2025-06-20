@@ -43,7 +43,9 @@
             Личный кабинет
           </div>
           <div className="flex flex-col mt-3 w-full text-base leading-snug text-gray-600">
-            {menuItems.map((item) => {
+            {menuItems
+              .filter(item => !['Уведомления', 'Оповещения'].includes(item.label)) // Временно скрываем эти пункты
+              .map((item) => {
               const isActive = normalizePath(router.asPath) === normalizePath(item.href);
               return (
                 <Link href={item.href} key={item.href}>

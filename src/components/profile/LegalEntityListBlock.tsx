@@ -1,19 +1,78 @@
 import React from "react";
 import Image from "next/image";
+import { useMutation } from '@apollo/client';
+import { DELETE_CLIENT_LEGAL_ENTITY } from '@/lib/graphql';
 
-const legalEntities = [
-  {
-    name: "ООО «Рога и копыта»",
-    inn: "45698765368",
-  },
-  {
-    name: "ООО «Рога и копыта»",
-    inn: "45698765368",
-  },
-];
+interface LegalEntity {
+  id: string;
+  shortName: string;
+  fullName?: string;
+  form?: string;
+  legalAddress?: string;
+  actualAddress?: string;
+  taxSystem?: string;
+  responsiblePhone?: string;
+  responsiblePosition?: string;
+  responsibleName?: string;
+  accountant?: string;
+  signatory?: string;
+  registrationReasonCode?: string;
+  ogrn?: string;
+  inn: string;
+  vatPercent: number;
+  bankDetails: Array<{
+    id: string;
+    name: string;
+    accountNumber: string;
+    bankName: string;
+    bik: string;
+    correspondentAccount: string;
+  }>;
+}
 
-const LegalEntityListBlock = () => {
+interface LegalEntityListBlockProps {
+  legalEntities: LegalEntity[];
+  onRefetch: () => void;
+}
+
+const LegalEntityListBlock: React.FC<LegalEntityListBlockProps> = ({ legalEntities, onRefetch }) => {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
+
+  const [deleteLegalEntity] = useMutation(DELETE_CLIENT_LEGAL_ENTITY, {
+    onCompleted: () => {
+      console.log('Юридическое лицо удалено');
+      onRefetch();
+    },
+    onError: (error) => {
+      console.error('Ошибка удаления юридического лица:', error);
+      alert('Ошибка удаления юридического лица');
+    }
+  });
+
+  const handleDelete = async (id: string, name: string) => {
+    if (window.confirm(`Вы уверены, что хотите удалить юридическое лицо "${name}"?`)) {
+      try {
+        await deleteLegalEntity({
+          variables: { id }
+        });
+      } catch (error) {
+        console.error('Ошибка удаления:', error);
+      }
+    }
+  };
+
+  if (legalEntities.length === 0) {
+    return (
+      <div className="flex relative flex-col mt-5 gap-8 items-start self-stretch p-8 pl-8 bg-white rounded-2xl max-md:gap-5 max-md:p-5 max-sm:gap-4 max-sm:p-4">
+        <div className="text-3xl font-bold leading-8 text-gray-950 max-md:text-2xl max-sm:text-xl">
+          Юридические лица
+        </div>
+        <div className="text-gray-600">
+          У вас пока нет добавленных юридических лиц. Нажмите кнопку "Добавить юридическое лицо" для создания первого.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -29,17 +88,17 @@ const LegalEntityListBlock = () => {
       <div className="flex relative flex-col gap-2.5 items-start self-stretch">
         {legalEntities.map((entity, idx) => (
           <div
-            key={idx}
+            key={entity.id}
             layer-name="legal"
             className="flex relative flex-col gap-8 items-start self-stretch px-5 py-3 rounded-lg bg-slate-50 max-sm:px-4 max-sm:py-2.5"
           >
             <div className="flex relative justify-between items-center self-stretch max-sm:flex-col max-sm:gap-4 max-sm:items-start">
               <div className="flex relative gap-5 items-center max-md:flex-wrap max-md:gap-4 max-sm:flex-col max-sm:gap-2.5 max-sm:items-start">
                 <div
-                  layer-name={entity.name}
+                  layer-name={entity.shortName}
                   className="text-xl font-bold leading-5 text-gray-950 max-md:text-lg max-sm:text-base"
                 >
-                  {entity.name}
+                  {entity.shortName}
                 </div>
                 <div
                   layer-name={`ИНН ${entity.inn}`}
@@ -52,7 +111,7 @@ const LegalEntityListBlock = () => {
                   className="flex relative gap-1.5 items-center cursor-pointer hover:text-red-600"
                   role="button"
                   tabIndex={0}
-                  onClick={() => { /* обработчик открытия реквизитов */ }}
+                  onClick={() => { /* TODO: обработчик открытия реквизитов */ }}
                 >
                   <div
                     layer-name="icon-wallet"
@@ -116,8 +175,8 @@ const LegalEntityListBlock = () => {
                 <div
                   role="button"
                   tabIndex={0}
-                  className="flex relative gap-1.5 items-center cursor-pointer"
-                  onClick={() => {}}
+                  className="flex relative gap-1.5 items-center cursor-pointer hover:text-red-600"
+                  onClick={() => {/* TODO: редактирование */}}
                 >
                   <div className="relative h-4 w-[18px]">
                     <Image
@@ -135,8 +194,8 @@ const LegalEntityListBlock = () => {
                 <div
                   role="button"
                   tabIndex={0}
-                  className="flex relative gap-1.5 items-center cursor-pointer"
-                  onClick={() => {}}
+                  className="flex relative gap-1.5 items-center cursor-pointer hover:text-red-600"
+                  onClick={() => handleDelete(entity.id, entity.shortName)}
                 >
                   <div className="relative h-4 w-[18px]">
                     <Image

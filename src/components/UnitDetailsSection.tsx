@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { GET_LAXIMO_UNIT_INFO, GET_LAXIMO_UNIT_DETAILS, GET_LAXIMO_UNIT_IMAGE_MAP } from '@/lib/graphql';
-import { LaximoUnitInfo, LaximoUnitDetail, LaximoUnitImageMap } from '@/types/laximo';
+import { LaximoUnitInfo, LaximoUnitDetail, LaximoUnitImageMap, LaximoImageCoordinate } from '@/types/laximo';
 
 interface UnitDetailsSectionProps {
   catalogCode: string;
@@ -23,6 +23,8 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
 }) => {
   const router = useRouter();
   const [selectedImageSize, setSelectedImageSize] = useState<string>('250');
+  const [imageScale, setImageScale] = useState<{ x: number; y: number }>({ x: 1, y: 1 });
+  const [imageLoadTimeout, setImageLoadTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Получаем информацию об узле
   const { data: unitInfoData, loading: unitInfoLoading, error: unitInfoError } = useQuery<{ laximoUnitInfo: LaximoUnitInfo }>(
@@ -69,27 +71,83 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
     }
   );
 
-  const unitInfo = unitInfoData?.laximoUnitInfo || {
-    unitid: unitId,
-    name: unitName,
-    code: `UNIT_${unitId}`,
-    description: `Описание узла ${unitName}`,
-    imageurl: `http://img.laximo.net/${catalogCode}/%size%/unit_${unitId}.gif`,
-    largeimageurl: `http://img.laximo.net/${catalogCode}/%size%/unit_${unitId}_large.gif`
-  };
+  // Используем данные из API или показываем сообщение о загрузке
+  const unitInfo = unitInfoData?.laximoUnitInfo;
+  
+  console.log('📊 Данные узла из GraphQL:', { unitInfoData, unitInfo });
+
+  // Эффект для установки таймаута загрузки изображения
+  useEffect(() => {
+    if (unitInfo?.imageurl) {
+      console.log('🔄 Начинаем загрузку изображения:', getImageUrl(unitInfo.imageurl, selectedImageSize));
+      
+      // Устанавливаем таймаут на 10 секунд
+      const timeout = setTimeout(() => {
+        console.warn('⚠️ Таймаут загрузки изображения (10 сек)');
+        const placeholder = document.getElementById('image-placeholder');
+        if (placeholder) {
+          placeholder.style.display = 'block';
+        }
+      }, 10000);
+      
+      setImageLoadTimeout(timeout);
+      
+      return () => {
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+      };
+    }
+  }, [unitInfo?.imageurl, selectedImageSize]);
 
   const unitDetails = unitDetailsData?.laximoUnitDetails || [];
+  const unitImageMap = unitImageMapData?.laximoUnitImageMap;
 
   const handleDetailClick = (detail: LaximoUnitDetail) => {
     console.log('🔍 Выбрана деталь:', detail.name, 'OEM:', detail.oem);
-    // Можно добавить переход к карточке детали
     if (detail.oem) {
-      router.push(`/vehicle-search/${catalogCode}/${vehicleId}/part/${detail.oem}`);
+      // Переходим к поиску товара по OEM номеру
+      router.push(`/search-result?q=${detail.oem}&catalog=${catalogCode}&vehicle=${vehicleId}&name=${encodeURIComponent(detail.name)}`);
+    }
+  };
+
+  const handleCoordinateClick = (coord: LaximoImageCoordinate) => {
+    console.log('🖱️ Клик по интерактивной области:', coord.codeonimage);
+    
+    // Сначала пытаемся найти деталь в списке
+    const detail = unitDetails.find(d => 
+      d.detailid === coord.detailid || 
+      d.codeonimage === coord.codeonimage ||
+      d.detailid === coord.codeonimage
+    );
+    
+    if (detail && detail.oem) {
+      console.log('✅ Найдена деталь:', detail.name, 'OEM:', detail.oem);
+      // Переходим к поиску товара по OEM номеру
+      router.push(`/search-result?q=${detail.oem}&catalog=${catalogCode}&vehicle=${vehicleId}&name=${encodeURIComponent(detail.name)}`);
+    } else {
+      // Если деталь не найдена в списке, переходим к общему поиску по коду на изображении
+      console.log('⚠️ Деталь не найдена в списке, переходим к поиску по коду:', coord.codeonimage);
+      router.push(`/search-result?q=${coord.codeonimage}&catalog=${catalogCode}&vehicle=${vehicleId}`);
     }
   };
 
   const getImageUrl = (baseUrl: string, size: string) => {
-    return baseUrl.replace('%size%', size);
+    // Декодируем HTML-сущности и заменяем размер
+    const decodedUrl = baseUrl
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace('%size%', size);
+    
+    console.log('🔗 Преобразование URL:', {
+      original: baseUrl,
+      decoded: decodedUrl,
+      size: size
+    });
+    
+    return decodedUrl;
   };
 
   const imageSizes = [
@@ -166,6 +224,38 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
     console.log('⚠️ Детали узла не загружены - показываем заглушку')
   }
 
+  // Если данные об узле не загружены, показываем сообщение
+  if (!unitInfo) {
+    return (
+      <div>
+        <div className="flex items-center mb-6">
+          <button
+            onClick={onBack}
+            className="flex items-center text-gray-600 hover:text-gray-900 mr-4 transition-colors"
+          >
+            <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Назад к узлам
+          </button>
+          <h3 className="text-lg font-medium text-gray-900">
+            {unitName}
+          </h3>
+        </div>
+        
+        <div className="text-center py-8">
+          <div className="text-gray-400 mb-2">
+            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-gray-500">Информация об узле не найдена</p>
+          <p className="text-sm text-gray-400 mt-1">Попробуйте обновить страницу</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* Навигация */}
@@ -195,7 +285,11 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
               </label>
               <select
                 value={selectedImageSize}
-                onChange={(e) => setSelectedImageSize(e.target.value)}
+                onChange={(e) => {
+                  setSelectedImageSize(e.target.value);
+                  // Сбрасываем масштаб при изменении размера
+                  setImageScale({ x: 1, y: 1 });
+                }}
                 className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
               >
                 {imageSizes.map((size) => (
@@ -208,28 +302,171 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
             
             {unitInfo.imageurl && (
               <div className="bg-gray-50 rounded-lg p-4 text-center">
-                <img
-                  src={getImageUrl(unitInfo.imageurl, selectedImageSize)}
-                  alt={unitInfo.name}
-                  className="max-w-full h-auto mx-auto rounded"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.style.display = 'none';
-                    const placeholder = target.nextElementSibling as HTMLElement;
-                    if (placeholder) placeholder.style.display = 'block';
-                  }}
-                />
-                <div className="hidden bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8">
+                {/* Отладочная информация для изображения */}
+                {process.env.NODE_ENV === 'development' && (
+                  <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-left">
+                    <p><strong>URL изображения:</strong></p>
+                    <p>Базовый: {unitInfo.imageurl}</p>
+                    <p>Итоговый: {getImageUrl(unitInfo.imageurl, selectedImageSize)}</p>
+                    <div className="mt-2 space-x-2">
+                      <button
+                        onClick={() => {
+                          if (unitInfo.imageurl) {
+                            window.open(getImageUrl(unitInfo.imageurl, selectedImageSize), '_blank');
+                          }
+                        }}
+                        className="px-2 py-1 bg-blue-500 text-white rounded text-xs"
+                      >
+                        Открыть в новой вкладке
+                      </button>
+                      <button
+                        onClick={() => {
+                          const img = document.getElementById('unit-image') as HTMLImageElement;
+                          if (img) {
+                            console.log('🔄 Принудительная перезагрузка изображения');
+                            img.src = img.src + '?t=' + Date.now();
+                          }
+                        }}
+                        className="px-2 py-1 bg-green-500 text-white rounded text-xs"
+                      >
+                        Перезагрузить
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="relative inline-block">
+                  <img
+                    id="unit-image"
+                    src={getImageUrl(unitInfo.imageurl, selectedImageSize)}
+                    alt={unitInfo.name}
+                    className="max-w-full h-auto mx-auto rounded"
+
+                    onLoad={(e) => {
+                      // Очищаем таймаут если изображение загрузилось
+                      if (imageLoadTimeout) {
+                        clearTimeout(imageLoadTimeout);
+                        setImageLoadTimeout(null);
+                      }
+                      
+                      // Обновляем масштаб интерактивных областей при загрузке изображения
+                      const img = e.currentTarget;
+                      const naturalWidth = img.naturalWidth;
+                      const naturalHeight = img.naturalHeight;
+                      const displayWidth = img.offsetWidth;
+                      const displayHeight = img.offsetHeight;
+                      
+                      const scaleX = displayWidth / naturalWidth;
+                      const scaleY = displayHeight / naturalHeight;
+                      
+                      setImageScale({ x: scaleX, y: scaleY });
+                      
+                      console.log('✅ Изображение успешно загружено:', {
+                        src: img.src,
+                        natural: { width: naturalWidth, height: naturalHeight },
+                        display: { width: displayWidth, height: displayHeight },
+                        scale: { x: scaleX, y: scaleY }
+                      });
+                      
+                      // Скрываем placeholder если он был показан
+                      const placeholder = document.getElementById('image-placeholder');
+                      if (placeholder) {
+                        placeholder.style.display = 'none';
+                      }
+                    }}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      console.error('❌ Ошибка загрузки изображения:', {
+                        src: target.src,
+                        error: e,
+                        naturalWidth: target.naturalWidth,
+                        naturalHeight: target.naturalHeight
+                      });
+                      
+                      target.style.display = 'none';
+                      const placeholder = document.getElementById('image-placeholder');
+                      if (placeholder) {
+                        placeholder.style.display = 'block';
+                      }
+                    }}
+                  />
+                  
+                  {/* Интерактивные области изображения */}
+                  {unitImageMap?.coordinates && unitImageMap.coordinates.map((coord, index) => {
+                    const detail = unitDetails.find(d => d.detailid === coord.detailid || d.codeonimage === coord.codeonimage);
+                    
+                    // Применяем масштаб к координатам
+                    const scaledX = coord.x * imageScale.x;
+                    const scaledY = coord.y * imageScale.y;
+                    const scaledWidth = coord.width * imageScale.x;
+                    const scaledHeight = coord.height * imageScale.y;
+                    
+                    // Создаем уникальный ключ для каждой области
+                    const uniqueKey = `coord-${unitId}-${index}-${coord.x}-${coord.y}`;
+                    
+                    return (
+                      <div
+                        key={uniqueKey}
+                        className="absolute border-2 border-red-500 bg-red-500 bg-opacity-20 hover:bg-opacity-40 cursor-pointer transition-all duration-200"
+                        style={{
+                          left: `${scaledX}px`,
+                          top: `${scaledY}px`,
+                          width: `${scaledWidth}px`,
+                          height: `${scaledHeight}px`,
+                          borderRadius: coord.shape === 'circle' ? '50%' : '0'
+                        }}
+                        onClick={() => handleCoordinateClick(coord)}
+                        title={detail ? `${coord.codeonimage}: ${detail.name}` : `Деталь ${coord.codeonimage}`}
+                      >
+                        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs px-2 py-1 rounded font-bold">
+                          {coord.codeonimage}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                <div className="hidden bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8" id="image-placeholder">
                   <div className="text-gray-400 mb-2">
                     <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <p className="text-sm text-gray-500">Изображение недоступно</p>
+                  {process.env.NODE_ENV === 'development' && (
+                    <p className="text-xs text-gray-400 mt-2">
+                      URL: {getImageUrl(unitInfo.imageurl, selectedImageSize)}
+                    </p>
+                  )}
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
                   Схема узла с номерами деталей
+                  {unitImageMap?.coordinates && unitImageMap.coordinates.length > 0 && (
+                    <span className="text-green-600 ml-2">
+                      • {unitImageMap.coordinates.length} интерактивных областей
+                    </span>
+                  )}
+                  {(!unitImageMap?.coordinates || unitImageMap.coordinates.length === 0) && (
+                    <span className="text-yellow-600 ml-2">
+                      • Интерактивные области не найдены
+                    </span>
+                  )}
                 </p>
+                
+                {/* Отладочная информация */}
+                {process.env.NODE_ENV === 'development' && unitImageMap && (
+                  <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
+                    <p><strong>Отладка:</strong></p>
+                    <p>Unit ID: {unitImageMap.unitid}</p>
+                    <p>Координат: {unitImageMap.coordinates?.length || 0}</p>
+                    <p>Масштаб: x={imageScale.x.toFixed(3)}, y={imageScale.y.toFixed(3)}</p>
+                    {unitImageMap.coordinates?.map((coord, i) => (
+                      <p key={`debug-coord-${unitId}-${i}`}>
+                        Область {i+1}: код={coord.codeonimage}, x={coord.x}, y={coord.y}, w={coord.width}, h={coord.height}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -265,6 +502,21 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
                 <dd className="text-sm text-gray-900">ID: {vehicleId}</dd>
               </div>
             </dl>
+            
+            {/* Дополнительные атрибуты узла */}
+            {unitInfo.attributes && unitInfo.attributes.length > 0 && (
+              <div className="mt-6">
+                <h5 className="text-sm font-medium text-gray-900 mb-3">Дополнительная информация</h5>
+                <dl className="space-y-2">
+                  {unitInfo.attributes.map((attr, attrIndex) => (
+                    <div key={`unit-attr-${unitId}-${attrIndex}-${attr.key}`} className="flex">
+                      <dt className="text-sm text-gray-500 w-1/3">{attr.name || attr.key}:</dt>
+                      <dd className="text-sm text-gray-900 w-2/3">{attr.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -299,12 +551,22 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
               </svg>
             </div>
             <p className="text-gray-500">Детали узла не найдены</p>
+            
+            {/* Отладочная информация для деталей */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs text-left">
+                <p><strong>Отладка деталей:</strong></p>
+                <p>Ошибка загрузки: {unitDetailsError?.message || 'нет'}</p>
+                <p>Загружается: {unitDetailsLoading ? 'да' : 'нет'}</p>
+                <p>Количество деталей: {unitDetails.length}</p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
-            {unitDetails.map((detail) => (
+            {unitDetails.map((detail, index) => (
               <div
-                key={detail.detailid}
+                key={`detail-${unitId}-${index}-${detail.detailid}`}
                 className="border border-gray-200 rounded-lg p-4 hover:border-red-300 hover:shadow-md transition-all duration-200 cursor-pointer"
                 onClick={() => handleDetailClick(detail)}
               >
@@ -351,6 +613,21 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
                     {detail.note && (
                       <p className="text-sm text-gray-600 mt-2">{detail.note}</p>
                     )}
+                    
+                    {/* Дополнительные атрибуты детали */}
+                    {detail.attributes && detail.attributes.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <h6 className="text-xs font-medium text-gray-700 mb-2">Дополнительные характеристики:</h6>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                          {detail.attributes.map((attr, attrIndex) => (
+                            <div key={`attr-${unitId}-${index}-${attrIndex}-${attr.key}`} className="flex">
+                              <span className="text-gray-500 w-1/2">{attr.name || attr.key}:</span>
+                              <span className="text-gray-700 w-1/2">{attr.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="ml-4 text-gray-400">
@@ -366,21 +643,21 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
       </div>
 
       {/* Информационное сообщение */}
-      <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
         <div className="flex items-start">
           <div className="flex-shrink-0">
-            <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
           </div>
           <div className="ml-3">
-            <h4 className="text-sm font-medium text-yellow-900">
-              Временные заглушки API
+            <h4 className="text-sm font-medium text-green-900">
+              Полная интеграция с Laximo API
             </h4>
-            <p className="text-sm text-yellow-700 mt-1">
-              Компонент использует GraphQL запросы к API Laximo, но методы getUnitDetails и getUnitImageMap временно заменены заглушками. 
-              Информация об узле загружается из реального API ListUnits. 
-              Для полной функциональности необходимо определить правильные команды Laximo API для получения деталей узлов.
+            <p className="text-sm text-green-700 mt-1">
+              Компонент использует официальные API Laximo: GetUnitInfo для информации об узле, 
+              ListDetailByUnit для получения деталей и ListImageMapByUnit для интерактивной карты изображений. 
+              Нажмите на номера деталей на схеме или в списке для подробной информации.
             </p>
           </div>
         </div>

@@ -286,23 +286,32 @@ export default function SearchResult() {
     filteredOffersCount: filteredOffers.length
   });
 
-  // Если это обычный поиск (не по артикулу), показываем заглушку
-  if (q && !article) {
-    return (
-      <>
-        <Head>
-          <title>Результаты поиска - Protek</title>
-        </Head>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Поиск по запросу "{q}"</h2>
-            <p className="text-gray-600">Функция поиска по тексту находится в разработке</p>
-          </div>
-        </div>
-        <Footer />
-      </>
-    );
-  }
+  // Если это поиск по параметру q (из UnitDetailsSection), используем q как article
+  useEffect(() => {
+    if (q && typeof q === 'string' && !article) {
+      setSearchQuery(q.trim().toUpperCase());
+      // Определяем бренд из каталога или используем дефолтный
+      const catalogFromUrl = router.query.catalog as string;
+      const vehicleFromUrl = router.query.vehicle as string;
+      
+      if (catalogFromUrl) {
+        // Маппинг каталогов к брендам
+        const catalogToBrandMap: { [key: string]: string } = {
+          'AU1587': 'AUDI',
+          'VW1587': 'VOLKSWAGEN',
+          'BMW1587': 'BMW',
+          'MB1587': 'MERCEDES-BENZ',
+          // Добавьте другие маппинги по необходимости
+        };
+        
+        setBrandQuery(catalogToBrandMap[catalogFromUrl] || 'UNIVERSAL');
+      } else {
+        setBrandQuery('UNIVERSAL');
+      }
+    }
+  }, [q, article, router.query]);
+
+  // Удаляем старую заглушку - теперь обрабатываем все типы поиска
 
   if (loading) {
     return (

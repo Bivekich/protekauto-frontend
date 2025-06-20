@@ -38,6 +38,10 @@ const ProfileHistoryItem: React.FC<ProfileHistoryItemProps> = ({
     if (article.includes('TEXT')) return 'Текстовый поиск';
     if (article.includes('ARTICLE')) return 'По артикулу';
     if (article.includes('OEM')) return 'По OEM';
+    if (article.includes('VIN')) return 'Поиск по VIN';
+    if (article.includes('PLATE')) return 'Поиск по госномеру';
+    if (article.includes('WIZARD')) return 'Поиск по параметрам';
+    if (article.includes('PART_VEHICLES')) return 'Поиск авто по детали';
     return article;
   };
 

@@ -4,8 +4,6 @@ type ProfileAddressCardProps = {
   type: string;
   title: string;
   address: string;
-  recipient: string;
-  phone: string;
   storagePeriod?: string;
   workTime?: string;
   comment?: string;
@@ -19,8 +17,6 @@ const ProfileAddressCard: React.FC<ProfileAddressCardProps> = ({
   type,
   title,
   address,
-  recipient,
-  phone,
   storagePeriod,
   workTime,
   comment,
@@ -36,16 +32,6 @@ const ProfileAddressCard: React.FC<ProfileAddressCardProps> = ({
       <div className="relative self-stretch text-base leading-6 text-gray-950">{address}</div>
     </div>
     <div className="flex flex-col gap-5 items-start self-stretch">
-      <div className="flex gap-5 items-start self-stretch max-sm:flex-col max-sm:gap-4">
-        <div className="flex flex-col gap-2 items-start flex-[1_0_0] min-w-[132px] max-sm:min-w-full">
-          <div className="overflow-hidden relative self-stretch text-sm leading-5 text-gray-600 text-ellipsis">Получатель</div>
-          <div className="overflow-hidden relative self-stretch text-lg font-medium leading-5 text-ellipsis text-gray-950">{recipient}</div>
-        </div>
-        <div className="flex flex-col gap-2 items-start flex-[1_0_0] min-w-[132px] max-sm:min-w-full">
-          <div className="overflow-hidden relative self-stretch text-sm leading-5 text-gray-600 text-ellipsis">Номер телефона</div>
-          <div className="overflow-hidden relative text-lg font-medium leading-5 text-ellipsis text-gray-950">{phone}</div>
-        </div>
-      </div>
       {storagePeriod && workTime && (
         <div className="flex gap-5 items-start self-stretch max-sm:flex-col max-sm:gap-4">
           <div className="flex flex-col gap-2 items-start flex-[1_0_0] min-w-[132px] max-sm:min-w-full">

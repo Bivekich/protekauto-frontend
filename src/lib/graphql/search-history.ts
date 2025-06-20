@@ -59,7 +59,7 @@ export const CREATE_SEARCH_HISTORY_ITEM = gql`
 export interface PartsSearchHistoryItem {
   id: string;
   searchQuery: string;
-  searchType: 'TEXT' | 'ARTICLE' | 'OEM';
+  searchType: 'TEXT' | 'ARTICLE' | 'OEM' | 'VIN' | 'PLATE' | 'WIZARD' | 'PART_VEHICLES';
   brand?: string;
   articleNumber?: string;
   vehicleInfo?: {

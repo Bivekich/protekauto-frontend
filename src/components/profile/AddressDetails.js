@@ -1,6 +1,6 @@
 import React from "react";
 
-const AddressDetails = ({ onClose, onBack, fio, setFio, phone, setPhone, address, setAddress }) => (
+const AddressDetails = ({ onClose, onBack, address, setAddress }) => (
   <div className="flex flex-col px-8 pt-8 bg-white rounded-2xl  w-[480px] max-md:w-full max-md:px-5 max-md:pb-8">
     <div className="flex relative flex-col gap-8 items-start h-[730px] w-[420px] max-md:w-full max-md:h-auto max-sm:gap-5">
       <div className="flex relative flex-col gap-5 items-start self-stretch max-sm:gap-4">
@@ -27,24 +27,25 @@ const AddressDetails = ({ onClose, onBack, fio, setFio, phone, setPhone, address
       <div className="relative gap-2 self-stretch text-base font-bold leading-5 text-gray-950">
         Калининград, Улица Космонавта Леонова 12
       </div>
-      <div className="flex relative flex-col gap-2.5 items-start self-stretch">
-        <div className="self-stretch text-lg font-bold leading-5 text-gray-950 max-sm:text-base">
-          Данные получателя
+      <div className="flex relative flex-col gap-2.5 items-start">
+        <div className="flex relative gap-1.5 items-center">
+          <div className="relative aspect-[1/1] h-[18px] w-[18px]" />
+          <div className="text-sm leading-5 text-gray-600 max-sm:text-sm">
+            Доставка для юридических лиц
+          </div>
         </div>
-        <input
-          type="text"
-          value={fio}
-          onChange={e => setFio(e.target.value)}
-          placeholder="ФИО"
-          className="gap-2.5 self-stretch px-6 py-4 mt-3.5 w-full text-lg leading-snug whitespace-nowrap bg-white rounded border border-solid border-stone-300 min-h-[55px] text-neutral-500 max-md:px-5 outline-none"
-        />
-        <input
-          type="text"
-          value={phone}
-          onChange={e => setPhone(e.target.value)}
-          placeholder="Номер телефона"
-          className="gap-2.5 self-stretch px-6 py-4 mt-3.5 w-full text-lg leading-snug whitespace-nowrap bg-white rounded border border-solid border-stone-300 min-h-[55px] text-neutral-500 max-md:px-5 outline-none"
-        />
+        <div className="flex relative gap-1.5 items-center">
+          <div className="relative aspect-[1/1] h-[18px] w-[18px]" />
+          <div className="text-sm leading-5 text-gray-600 max-sm:text-sm">
+            Возврат товаров
+          </div>
+        </div>
+        <div className="flex relative gap-1.5 items-center">
+          <div className="relative aspect-[1/1] h-[18px] w-[18px]" />
+          <div className="text-sm leading-5 text-gray-600 max-sm:text-sm">
+            Срок хранения заказа - 15 дней
+          </div>
+        </div>
       </div>
       <div className="flex relative flex-col gap-2 items-start self-stretch">
         <div className="self-stretch text-lg font-bold leading-5 text-gray-950 max-sm:text-base">
@@ -74,26 +75,6 @@ const AddressDetails = ({ onClose, onBack, fio, setFio, phone, setPhone, address
           </div>
           <div className="text-sm leading-5 text-gray-400 flex-[1_0_0] max-sm:text-sm">
             Выходной
-          </div>
-        </div>
-      </div>
-      <div className="flex relative flex-col gap-2.5 items-start">
-        <div className="flex relative gap-1.5 items-center">
-          <div className="relative aspect-[1/1] h-[18px] w-[18px]" />
-          <div className="text-sm leading-5 text-gray-600 max-sm:text-sm">
-            Доставка для юридических лиц
-          </div>
-        </div>
-        <div className="flex relative gap-1.5 items-center">
-          <div className="relative aspect-[1/1] h-[18px] w-[18px]" />
-          <div className="text-sm leading-5 text-gray-600 max-sm:text-sm">
-            Возврат товаров
-          </div>
-        </div>
-        <div className="flex relative gap-1.5 items-center">
-          <div className="relative aspect-[1/1] h-[18px] w-[18px]" />
-          <div className="text-sm leading-5 text-gray-600 max-sm:text-sm">
-            Срок хранения заказа - 15 дней
           </div>
         </div>
       </div>

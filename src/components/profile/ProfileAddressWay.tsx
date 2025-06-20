@@ -9,8 +9,6 @@ interface ProfileAddressWayProps {
 const ProfileAddressWay = ({ onBack }: ProfileAddressWayProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [address, setAddress] = useState("");
-  const [fio, setFio] = useState("");
-  const [phone, setPhone] = useState("");
 
   return (
     <div className="flex relative gap-8 items-start bg-white rounded-2xl flex-[1_0_0] min-h-[860px]  max-md:flex-col max-md:gap-5  ">
@@ -19,10 +17,6 @@ const ProfileAddressWay = ({ onBack }: ProfileAddressWayProps) => {
         <AddressDetails
           onClose={() => setShowDetails(false)}
           onBack={onBack}
-          fio={fio}
-          setFio={setFio} 
-          phone={phone}
-          setPhone={setPhone}
           address={address}
           setAddress={setAddress}
         />

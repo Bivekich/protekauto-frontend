@@ -514,11 +514,15 @@ export const FIND_LAXIMO_VEHICLE_BY_WIZARD = gql`
   }
 `;
 
+
+
 export const FIND_LAXIMO_VEHICLE_BY_PLATE = gql`
   query FindLaximoVehicleByPlate($catalogCode: String!, $plateNumber: String!) {
     laximoFindVehicleByPlate(catalogCode: $catalogCode, plateNumber: $plateNumber) {
       vehicleid
+      name
       brand
+      catalog
       model
       modification
       year
@@ -526,6 +530,25 @@ export const FIND_LAXIMO_VEHICLE_BY_PLATE = gql`
       engine
       notes
       ssd
+      transmission
+      date
+      manufactured
+      framecolor
+      trimcolor
+      engine_info
+      engineno
+      market
+      prodRange
+      prodPeriod
+      destinationregion
+      creationregion
+      datefrom
+      dateto
+      modelyearfrom
+      modelyearto
+      options
+      description
+      grade
     }
   }
 `;
@@ -567,6 +590,8 @@ export const FIND_LAXIMO_VEHICLE_BY_PLATE_GLOBAL = gql`
   }
 `;
 
+
+
 export const FIND_LAXIMO_PART_REFERENCES = gql`
   query FindLaximoPartReferences($partNumber: String!) {
     laximoFindPartReferences(partNumber: $partNumber)
@@ -577,7 +602,9 @@ export const FIND_LAXIMO_APPLICABLE_VEHICLES = gql`
   query FindLaximoApplicableVehicles($catalogCode: String!, $partNumber: String!) {
     laximoFindApplicableVehicles(catalogCode: $catalogCode, partNumber: $partNumber) {
       vehicleid
+      name
       brand
+      catalog
       model
       modification
       year
@@ -585,6 +612,25 @@ export const FIND_LAXIMO_APPLICABLE_VEHICLES = gql`
       engine
       notes
       ssd
+      transmission
+      date
+      manufactured
+      framecolor
+      trimcolor
+      engine_info
+      engineno
+      market
+      prodRange
+      prodPeriod
+      destinationregion
+      creationregion
+      datefrom
+      dateto
+      modelyearfrom
+      modelyearto
+      options
+      description
+      grade
     }
   }
 `;
@@ -1038,3 +1084,81 @@ export const GET_PARTS_SEARCH_HISTORY = gql`
     }
   }
 `;
+
+// Мутации для адресов доставки
+export const CREATE_CLIENT_DELIVERY_ADDRESS = gql`
+  mutation CreateClientDeliveryAddress($input: ClientDeliveryAddressInput!) {
+    createClientDeliveryAddressMe(input: $input) {
+      id
+      name
+      address
+      deliveryType
+      comment
+      entrance
+      floor
+      apartment
+      intercom
+      deliveryTime
+      contactPhone
+      createdAt
+      updatedAt
+    }
+  }
+`
+
+export const UPDATE_CLIENT_DELIVERY_ADDRESS = gql`
+  mutation UpdateClientDeliveryAddress($id: ID!, $input: ClientDeliveryAddressInput!) {
+    updateClientDeliveryAddressMe(id: $id, input: $input) {
+      id
+      name
+      address
+      deliveryType
+      comment
+      entrance
+      floor
+      apartment
+      intercom
+      deliveryTime
+      contactPhone
+      createdAt
+      updatedAt
+    }
+  }
+`
+
+export const DELETE_CLIENT_DELIVERY_ADDRESS = gql`
+  mutation DeleteClientDeliveryAddress($id: ID!) {
+    deleteClientDeliveryAddressMe(id: $id)
+  }
+`
+
+// Запросы для адресов доставки
+export const GET_CLIENT_DELIVERY_ADDRESSES = gql`
+  query GetClientDeliveryAddresses {
+    clientMe {
+      id
+      deliveryAddresses {
+        id
+        name
+        address
+        deliveryType
+        comment
+        entrance
+        floor
+        apartment
+        intercom
+        deliveryTime
+        contactPhone
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`
+
+// Автокомплит адресов
+export const GET_ADDRESS_SUGGESTIONS = gql`
+  query GetAddressSuggestions($query: String!) {
+    addressSuggestions(query: $query)
+  }
+`

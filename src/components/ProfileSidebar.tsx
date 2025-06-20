@@ -116,7 +116,9 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ activeItem }) => {
           <h3 className="sidebar-title">Личный кабинет</h3>
         </div>
         <div className="sidebar-menu">
-          {menuItems.map((item) => (
+          {menuItems
+            .filter(item => !['notifications', 'messages'].includes(item.id)) // Временно скрываем уведомления и оповещения
+            .map((item) => (
             <a
               key={item.id}
               href={item.href}
