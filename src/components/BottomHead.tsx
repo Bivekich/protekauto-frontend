@@ -269,14 +269,13 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
                 className={`link-block-7 w-inline-block${activeTabIndex === idx ? " w--current" : ""}`}
                 key={tab.label}
                 onClick={() => {
-                  console.log(`🔄 Переключение на таб ${idx}: "${tab.label}"`);
                   setActiveTabIndex(idx);
                 }}
                 style={{ cursor: "pointer" }}
               >
                 <div className="div-block-29">
                   <div className="code-embed-12 w-embed">
-                    {/* SVG-звезда (можно вынести в отдельный компонент) */}
+                    {/* SVG-звезда */}
                     <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M10.3158 0.643914C10.4674 0.365938 10.8666 0.365938 11.0182 0.643914L14.0029 6.11673C14.0604 6.22222 14.1623 6.29626 14.2804 6.31838L20.4077 7.46581C20.7189 7.52409 20.8423 7.9037 20.6247 8.13378L16.3421 12.6636C16.2595 12.7509 16.2206 12.8707 16.2361 12.9899L17.0382 19.1718C17.079 19.4858 16.7561 19.7204 16.47 19.5847L10.8385 16.9114C10.73 16.8599 10.604 16.8599 10.4955 16.9114L4.86394 19.5847C4.5779 19.7204 4.25499 19.4858 4.29573 19.1718L5.0979 12.9899C5.11336 12.8707 5.07444 12.7509 4.99189 12.6636L0.709252 8.13378C0.491728 7.9037 0.615069 7.52409 0.926288 7.46581L7.05357 6.31838C7.17168 6.29626 7.27358 6.22222 7.33112 6.11673L10.3158 0.643914Z" fill="CurrentColor"></path>
                     </svg>
@@ -288,21 +287,16 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
           </div>
           {/* Правая часть меню с подкатегориями и картинками */}
           <div className="w-layout-vflex flex-block-89">
-            <h3 className="heading-16">
-              {tabData[activeTabIndex]?.heading || tabData[0].heading}
-              {loading && <span className="text-sm text-gray-500 ml-2">(обновление...)</span>}
-            </h3>
+            <h3 className="heading-16">{tabData[activeTabIndex]?.heading || tabData[0].heading}{loading && <span className="text-sm text-gray-500 ml-2">(обновление...)</span>}</h3>
             <div className="w-layout-hflex flex-block-92">
               <div className="w-layout-vflex flex-block-91">
                 {(tabData[activeTabIndex]?.links || tabData[0].links).map((link, index) => {
-                  // Получаем данные активной категории
                   const activeCategory = categoriesData?.partsAPICategories?.[activeTabIndex];
                   const subcategoryId = activeCategory?.children?.[index]?.id || `${activeCategory?.id}_${index}` || `fallback_${activeTabIndex}_${index}`;
-                  
                   return (
-                    <div 
-                      className="link-2" 
-                      key={link} 
+                    <div
+                      className="link-2"
+                      key={link}
                       onClick={() => handleCategoryClick(subcategoryId, link)}
                       style={{ cursor: "pointer" }}
                     >
@@ -327,7 +321,6 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
                 data-w-tab={`Tab ${idx + 1}`}
                 className={`tab-link w-inline-block w-tab-link${activeTabIndex === idx ? " w--current" : ""}`}
                 onClick={() => {
-                  console.log(`🔄 Переключение на таб ${idx}: "${tab.label}"`);
                   setActiveTabIndex(idx);
                 }}
                 style={{ cursor: "pointer" }}
@@ -343,36 +336,37 @@ const BottomHead = ({ menuOpen, onClose }: { menuOpen: boolean; onClose: () => v
               </a>
             ))}
           </div>
-          
-          {/* Контент табов */}
           <div className="tabs-content w-tab-content">
             {tabData.map((tab, idx) => (
               <div
                 key={tab.label}
                 data-w-tab={`Tab ${idx + 1}`}
                 className={`tab-pane w-tab-pane${activeTabIndex === idx ? " w--tab-active" : ""}`}
+                style={{ display: activeTabIndex === idx ? "block" : "none" }}
               >
-                <div className="w-layout-hflex flex-block-92">
-                  <div className="w-layout-vflex flex-block-91">
-                    {tab.links.map((link, linkIndex) => {
-                      const category = categoriesData?.partsAPICategories?.[idx];
-                      const subcategoryId = category?.children?.[linkIndex]?.id || `${category?.id}_${linkIndex}` || `fallback_${idx}_${linkIndex}`;
-                      
-                      return (
-                        <div 
-                          className="link-2" 
-                          key={link} 
-                          onClick={() => handleCategoryClick(subcategoryId, link)}
-                          style={{ cursor: "pointer" }}
-                        >
-                          {link}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="w-layout-vflex flex-block-91-copy">
-                    <img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" className="image-17" />
-                    <img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" className="image-17" />
+                <div className="w-layout-vflex flex-block-89">
+                  <h3 className="heading-16">{tab.heading}</h3>
+                  <div className="w-layout-hflex flex-block-92">
+                    <div className="w-layout-vflex flex-block-91">
+                      {tab.links.map((link, linkIndex) => {
+                        const category = categoriesData?.partsAPICategories?.[idx];
+                        const subcategoryId = category?.children?.[linkIndex]?.id || `${category?.id}_${linkIndex}` || `fallback_${idx}_${linkIndex}`;
+                        return (
+                          <div
+                            className="link-2"
+                            key={link}
+                            onClick={() => handleCategoryClick(subcategoryId, link)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            {link}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="w-layout-vflex flex-block-91-copy">
+                      <img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" className="image-17" />
+                      <img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" className="image-17" />
+                    </div>
                   </div>
                 </div>
               </div>

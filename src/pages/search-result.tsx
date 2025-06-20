@@ -9,7 +9,7 @@ import Filters, { FilterConfig } from "@/components/Filters";
 import BestPriceCard from "@/components/BestPriceCard";
 import CoreProductCard from "@/components/CoreProductCard";
 import AnalogueBlock from "@/components/AnalogueBlock";
-import CatalogInfoHeader from "@/components/CatalogInfoHeader";
+import InfoSearch from "@/components/InfoSearch";
 import FiltersPanelMobile from "@/components/FiltersPanelMobile";
 import CatalogSortDropdown from "@/components/CatalogSortDropdown";
 import MobileMenuBottomSection from '../components/MobileMenuBottomSection';
@@ -313,6 +313,17 @@ export default function SearchResult() {
 
   // Удаляем старую заглушку - теперь обрабатываем все типы поиска
 
+  const minPrice = useMemo(() => {
+    if (result && result.minPrice) return result.minPrice;
+    if (allOffers.length > 0) {
+      const prices = allOffers.filter(o => o.price > 0).map(o => o.price);
+      if (prices.length > 0) {
+        return `${Math.min(...prices).toLocaleString('ru-RU')} ₽`;
+      }
+    }
+    return "-";
+  }, [result, allOffers]);
+
   if (loading) {
     return (
       <>
@@ -343,28 +354,23 @@ export default function SearchResult() {
 
         <link href="https://fonts.googleapis.com" rel="preconnect" />
         <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
-        <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
-        <link href="/images/webclip.png" rel="apple-touch-icon" />
+        <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+        <link href="images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <Header />
-      <CatalogInfoHeader
-        title={result ? `${result.brand} ${result.articleNumber}` : `${brandQuery} ${searchQuery}`}
-        count={result ? result.totalOffers : 0}
-        productName={result ? result.name : "деталь"}
-        breadcrumbs={[
-          { label: "Главная", href: "/" },
-          { label: "Поиск деталей по артикулу", href: `/search?q=${searchQuery}&mode=parts` },
-          { label: "Предложения" }
-        ]}
-        showCount={true}
-        showProductHelp={false}
+      <InfoSearch
+        brand={result ? result.brand : brandQuery}
+        articleNumber={result ? result.articleNumber : searchQuery}
+        name={result ? result.name : "деталь"}
+        offersCount={result ? result.totalOffers : 0}
+        minPrice={minPrice}
       />
       <div className="w-layout-blockcontainer container w-container">
         <div className="w-layout-hflex flex-block-84">
           <CatalogSortDropdown active={sortActive} onChange={setSortActive} />
           <div className="w-layout-hflex flex-block-85" onClick={() => setShowFiltersMobile((v) => !v)}>
-            <span className="code-embed-9 w-embed">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <span className="code-embed-9 w-embed">
+              <svg width="currentwidth" height="currentheight" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M21 4H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M10 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M21 12H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

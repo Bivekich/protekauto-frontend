@@ -1,5 +1,7 @@
-export default function FavoriteInfo() {
-  return (
+import React from "react";
+
+const FavoriteInfo = () => (
+  <section className="section-info">
     <div className="w-layout-blockcontainer container info w-container">
       <div className="w-layout-vflex flex-block-9">
         <div className="w-layout-hflex flex-block-7">
@@ -11,7 +13,7 @@ export default function FavoriteInfo() {
             <div>Каталог</div>
           </a>
           <div className="text-block-3">→</div>
-          <a href="/favorite" className="link-block-2 w-inline-block">
+          <a href="#" className="link-block-2 w-inline-block">
             <div>Избранное</div>
           </a>
         </div>
@@ -21,11 +23,13 @@ export default function FavoriteInfo() {
             <div className="text-block-4">Вы добавили 34 товара в избранное</div>
           </div>
           <div className="w-layout-hflex flex-block-11">
-            <img src="/images/qwestions.svg" alt="" className="image-4" />
+            <img src="/images/qwestions.svg" loading="lazy" alt="" className="image-4" />
             <div className="text-block-5">Как пользоваться избранным?</div>
           </div>
         </div>
       </div>
     </div>
-  );
-} 
+  </section>
+);
+
+export default FavoriteInfo; 

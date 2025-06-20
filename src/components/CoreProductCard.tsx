@@ -184,7 +184,7 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
   }
 
   return (
-    <div className="w-layout-hflex core-product-search-s1"> 
+    <>
       <div className="w-layout-hflex core-product-search-s1">
         <div className="w-layout-vflex core-product-s1">
           <div className="w-layout-vflex flex-block-47">
@@ -240,29 +240,43 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
                 </div>
                 <div className="w-layout-hflex add-to-cart-block-s1">
                   <div className="w-layout-hflex flex-block-82">
-                    <div className="w-layout-hflex pcs-re-s1">
-                      <div 
-                        className="minus-plus" 
+                    <div className="w-layout-hflex pcs-cart-s1">
+                      <button
+                        type="button"
+                        className="minus-plus"
                         onClick={() => handleQuantityChange(idx, -1)}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                        aria-label="Уменьшить количество"
                       >
-                        <img src="/images/minus_icon.svg" loading="lazy" alt="-" />
-                      </div>
+                        <div className="pluspcs w-embed">
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 10.5V9.5H14V10.5H6Z" fill="currentColor" />
+                          </svg>
+                        </div>
+                      </button>
                       <div className="input-pcs">
                         <div className="text-block-26">{quantities[idx] || 1}</div>
                       </div>
-                      <div 
+                      <button
+                        type="button"
                         className="minus-plus"
                         onClick={() => handleQuantityChange(idx, 1)}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                        aria-label="Увеличить количество"
                       >
-                        <img src="/images/plus_icon.svg" loading="lazy" alt="+" />
-                      </div>
+                        <div className="pluspcs w-embed">
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 10.5V9.5H14V10.5H6ZM9.5 6H10.5V14H9.5V6Z" fill="currentColor" />
+                          </svg>
+                        </div>
+                      </button>
                     </div>
-                    <button 
+                    <button
+                      type="button"
                       onClick={() => handleAddToCart(offer, idx)}
                       className="button-icon w-inline-block"
                       style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                      aria-label="Добавить в корзину"
                     >
                       <div className="div-block-26">
                         <img loading="lazy" src="/images/cart_icon.svg" alt="В корзину" className="image-11" />
@@ -275,24 +289,13 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
           </div>
         </div>
       </div>
-      {hasMoreOffers && (
-        <div 
-            className="w-layout-hflex show-more-search"
-            onClick={() => setShowAllOffers(!showAllOffers)}
-            style={{ cursor: 'pointer' }}
-        >
-          <div className="text-block-27">
-            {showAllOffers ? 'Скрыть предложения' : `Еще ${offers.length - INITIAL_OFFERS_LIMIT} предложений`}
-          </div>
-          <img 
-            src="/images/arrow_drop_down.svg" 
-            loading="lazy" 
-            alt="" 
-            className={`transition-transform duration-200 ${showAllOffers ? 'rotate-180' : ''}`}
-          />
+      {showMoreText && (
+        <div className="w-layout-hflex show-more-search">
+          <div className="text-block-27">{showMoreText}</div>
+          <img src="/images/arrow_drop_down.svg" loading="lazy" alt="" />
         </div>
       )}
-    </div>
+    </>
   );
 };
 

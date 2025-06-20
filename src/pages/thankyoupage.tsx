@@ -15,17 +15,13 @@ export default function ThankYouPage() {
         <meta content="thankyoupage" property="og:title" />
         <meta content="thankyoupage" property="twitter:title" />
         <meta content="width=device-width, initial-scale=1" name="viewport" />
-        <meta content="Webflow" name="generator" />
-        <link href="/css/normalize.css" rel="stylesheet" type="text/css" />
-        <link href="/css/webflow.css" rel="stylesheet" type="text/css" />
-        <link href="/css/protekproject.webflow.css" rel="stylesheet" type="text/css" />
         <link href="https://fonts.googleapis.com" rel="preconnect" />
         <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
         <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" type="text/javascript"></script>
         <script type="text/javascript" dangerouslySetInnerHTML={{__html: `WebFont.load({  google: {    families: [\"Onest:regular,600,700,800,900:cyrillic-ext,latin\"]  }});`}} />
         <script type="text/javascript" dangerouslySetInnerHTML={{__html: `!function(o,c){var n=c.documentElement,t=\" w-mod-\";n.className+=t+\"js\",(\"ontouchstart\"in o||o.DocumentTouch&&c instanceof DocumentTouch)&&(n.className+=t+\"touch\")}(window,document);`}} />
-        <link href="/images/favicon.png" rel="shortcut icon" type="image/x-icon" />
-        <link href="/images/webclip.png" rel="apple-touch-icon" />
+        <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+        <link href="images/webclip.png" rel="apple-touch-icon" />
       </Head>
       
       <ThankInfo />

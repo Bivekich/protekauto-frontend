@@ -27,28 +27,6 @@ const mockData = Array(12).fill({
   brand: "Borsehung",
 });
 
-const catalogFilters: FilterConfig[] = [
-  {
-    type: "dropdown",
-    title: "Производитель",
-    options: ["Bosch", "Varta", "Mutlu", "Exide", "Topla", "TAB", "Rocket", "Akom", "Medalist", "Tyumen", "FB", "Delkor"],
-    multi: true,
-    showAll: true,
-  },
-  {
-    type: "dropdown",
-    title: "Полярность",
-    options: ["Обратная", "Прямая", "Универсальная"],
-    multi: false,
-  },
-  {
-    type: "range",
-    title: "Емкость (А/ч)",
-    min: 1,
-    max: 20000,
-  },
-];
-
 const ITEMS_PER_PAGE = 20;
 const MAX_BRANDS_DISPLAY = 10; // Сколько брендов показывать изначально
 
@@ -57,12 +35,16 @@ export default function Catalog() {
   const { partsApiCategory: strId, categoryName } = router.query;
   
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
+  const [showSortMobile, setShowSortMobile] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<{[key: string]: string[]}>({});
   const [visibleArticles, setVisibleArticles] = useState<PartsAPIArticle[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showAllBrands, setShowAllBrands] = useState(false);
+  const [catalogFilters, setCatalogFilters] = useState<FilterConfig[]>([]);
+  const [filtersLoading, setFiltersLoading] = useState(true);
+  const [sortActive, setSortActive] = useState(0);
 
   // Определяем режим работы
   const isPartsAPIMode = Boolean(strId && categoryName);
@@ -89,6 +71,16 @@ export default function Catalog() {
       setCurrentPage(1);
     }
   }, [articlesData]);
+
+  useEffect(() => {
+    fetch("/api/catalog-filters")
+      .then((res) => res.json())
+      .then((data) => {
+        setCatalogFilters(data.filters);
+        setFiltersLoading(false);
+      })
+      .catch(() => setFiltersLoading(false));
+  }, []);
 
   // Генерируем динамические фильтры для PartsAPI
   const generatePartsAPIFilters = useCallback((): FilterConfig[] => {
@@ -235,6 +227,10 @@ export default function Catalog() {
   // Определяем есть ли еще артикулы для загрузки
   const hasMoreArticles = visibleArticles.length < filteredArticles.length;
 
+  if (filtersLoading) {
+    return <div className="py-8 text-center">Загрузка фильтров...</div>;
+  }
+
   return (
     <>
       <Head>
@@ -242,8 +238,8 @@ export default function Catalog() {
         <meta name="description" content="Catalog" />
         <link href="https://fonts.googleapis.com" rel="preconnect" />
         <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
-        <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
-        <link href="/images/webclip.png" rel="apple-touch-icon" />
+        <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+        <link href="images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <CatalogInfoHeader
         title={isPartsAPIMode ? decodeURIComponent(categoryName as string || 'Запчасти') : "Аккумуляторы"}
@@ -262,8 +258,8 @@ export default function Catalog() {
           <div className="w-layout-hflex flex-block-13">
             <div className="w-layout-hflex flex-block-84">
               <div className="w-layout-hflex flex-block-85" onClick={() => setShowFiltersMobile((v) => !v)}>
-                <span className="code-embed-9 w-embed">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="code-embed-9 w-embed">
+                  <svg width="currentwidth" height="currentheight" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M21 4H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M10 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M21 12H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -274,7 +270,7 @@ export default function Catalog() {
                     <path d="M8 10V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M16 18V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                </span>
+                </div>
                 <div>Фильтры</div>
               </div>
             </div>
@@ -282,16 +278,16 @@ export default function Catalog() {
                 <div className="filters-desktop">
                   <Filters
                     filters={dynamicFilters}
-                    onFilterChange={handleMobileFilterChange}
-                    filterValues={selectedFilters}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
                   />
                 </div>
             ) : (
                 <div className="filters-desktop">
                     <Filters
                         filters={catalogFilters}
-                        onFilterChange={() => {}} // No-op
-                        filterValues={{}}
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
                     />
                 </div>
             )}
@@ -299,8 +295,8 @@ export default function Catalog() {
               open={showFiltersMobile}
               onClose={() => setShowFiltersMobile(false)}
               filters={isPartsAPIMode ? dynamicFilters : catalogFilters}
-              onFilterChange={handleMobileFilterChange}
-              initialValues={selectedFilters}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
             />
             
             <div className="w-layout-vflex flex-block-14-copy-copy">
@@ -331,21 +327,21 @@ export default function Catalog() {
                   
                   {/* Кнопка "Показать еще" */}
                   {hasMoreArticles && (
-                    <div className="w-full flex justify-center items-center py-8">
+                    <div className="w-layout-hflex pagination">
                       <button
                         onClick={handleLoadMore}
                         disabled={isLoadingMore}
-                        className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 flex items-center gap-2"
+                        className="button_strock w-button"
                       >
                         {isLoadingMore ? (
                           <>
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            
                             Загружаем...
                           </>
                         ) : (
                           <>
                             Показать еще
-                            <span className="text-red-200">
+                            <span className="">
                               ({Math.min(ITEMS_PER_PAGE, filteredArticles.length - visibleArticles.length)})
                             </span>
                           </>
@@ -377,7 +373,9 @@ export default function Catalog() {
       </section>
       
       {!isPartsAPIMode && <CatalogPagination />}
-      <CatalogSubscribe />
+      <section className="section-3">
+        <CatalogSubscribe />
+      </section>
       <Footer />
       <MobileMenuBottomSection />
     </>

@@ -8,13 +8,12 @@ const Footer = () => (
             <div className="text-block-15">Пн-Пт 9:00 – 18:00, <br />Сб 10:00 – 16:00, Вс – выходной</div>
             <a href="#" className="link-block-5 w-inline-block">
               <div className="w-layout-hflex flex-block-3">
-                <img src="/images/phone_icon.svg" loading="lazy" alt="" />
+                <img src="/images/phone_icon.svg" loading="lazy" alt="" className="image-23" />
                 <div className="phone">+7 (495) 260-20-60</div>
               </div>
             </a>
           </div>
           <div className="w-layout-hflex flex-block-22">
-            {/* Блоки меню и dropdown повторяются, можно вынести в отдельный компонент позже */}
             <div className="w-layout-vflex flex-block-23">
               <div className="w-layout-hflex flex-block-86">
                 <div className="text-block-17">Покупателям</div>
@@ -25,7 +24,7 @@ const Footer = () => (
               <div data-hover="false" data-delay="0" className="dropdown-3 w-dropdown">
                 <div className="dropdown-toggle-2 w-dropdown-toggle">
                   <div className="text-block-17">Покупателям</div>
-                  <div className="code-embed-10 w-embed"><svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M2 6.74036L3.28446 5.5L9 11.0193L14.7155 5.5L16 6.74036L9 13.5L2 6.74036Z" fill="currentcolor" /></svg></div>
+                  <div className="code-embed-10 w-embed"><svg width="currentwight" height="currentheight" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M2 6.74036L3.28446 5.5L9 11.0193L14.7155 5.5L16 6.74036L9 13.5L2 6.74036Z" fill="currentcolor"></path></svg></div>
                 </div>
                 <nav className="dropdown-list-3 w-dropdown-list">
                   <a href="#" className="dropdown-link-2 w-dropdown-link">Оплата</a>
@@ -38,16 +37,16 @@ const Footer = () => (
               <div className="w-layout-hflex flex-block-86">
                 <div className="text-block-17">Сотрудничество</div>
               </div>
-              <a href="#" className="link">Поставщика</a>
+              <a href="#" className="link">Поставщикам</a>
               <a href="#" className="link">Дилерская сеть</a>
               <a href="#" className="link">Оптовым покупателям</a>
               <div data-hover="false" data-delay="0" className="dropdown-3 w-dropdown">
                 <div className="dropdown-toggle-2 w-dropdown-toggle">
                   <div className="text-block-17">Сотрудничество</div>
-                  <div className="code-embed-10 w-embed"><svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M2 6.74036L3.28446 5.5L9 11.0193L14.7155 5.5L16 6.74036L9 13.5L2 6.74036Z" fill="currentcolor" /></svg></div>
+                  <div className="code-embed-10 w-embed"><svg width="currentwight" height="currentheight" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M2 6.74036L3.28446 5.5L9 11.0193L14.7155 5.5L16 6.74036L9 13.5L2 6.74036Z" fill="currentcolor"></path></svg></div>
                 </div>
                 <nav className="dropdown-list-3 w-dropdown-list">
-                  <a href="#" className="dropdown-link-2 w-dropdown-link">Поставщика</a>
+                  <a href="#" className="dropdown-link-2 w-dropdown-link">Поставщикам</a>
                   <a href="#" className="dropdown-link-2 w-dropdown-link">Дилерская сеть</a>
                   <a href="#" className="dropdown-link-2 w-dropdown-link">Оптовым покупателям</a>
                 </nav>
@@ -63,7 +62,7 @@ const Footer = () => (
               <div data-hover="false" data-delay="0" className="dropdown-3 w-dropdown">
                 <div className="dropdown-toggle-2 w-dropdown-toggle">
                   <div className="text-block-17">PROTEK</div>
-                  <div className="code-embed-10 w-embed"><svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M2 6.74036L3.28446 5.5L9 11.0193L14.7155 5.5L16 6.74036L9 13.5L2 6.74036Z" fill="currentcolor" /></svg></div>
+                  <div className="code-embed-10 w-embed"><svg width="currentwight" height="currentheight" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M2 6.74036L3.28446 5.5L9 11.0193L14.7155 5.5L16 6.74036L9 13.5L2 6.74036Z" fill="currentcolor"></path></svg></div>
                 </div>
                 <nav className="dropdown-list-3 w-dropdown-list">
                   <a href="#" className="dropdown-link-2 w-dropdown-link">Вакансии</a>
@@ -76,18 +75,18 @@ const Footer = () => (
               <div className="w-layout-hflex flex-block-86">
                 <div className="text-block-17">Оферта</div>
               </div>
-              <a href="#" className="link">Поставщика</a>
-              <a href="#" className="link">Поставщика</a>
-              <a href="#" className="link">Поставщика</a>
+              <a href="#" className="link">Поставщикам</a>
+              <a href="#" className="link">Поставщикам</a>
+              <a href="#" className="link">Поставщикам</a>
               <div data-hover="false" data-delay="0" className="dropdown-3 w-dropdown">
                 <div className="dropdown-toggle-2 w-dropdown-toggle">
                   <div className="text-block-17">Оферта</div>
-                  <div className="code-embed-10 w-embed"><svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M2 6.74036L3.28446 5.5L9 11.0193L14.7155 5.5L16 6.74036L9 13.5L2 6.74036Z" fill="currentcolor" /></svg></div>
+                  <div className="code-embed-10 w-embed"><svg width="currentwight" height="currentheight" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M2 6.74036L3.28446 5.5L9 11.0193L14.7155 5.5L16 6.74036L9 13.5L2 6.74036Z" fill="currentcolor"></path></svg></div>
                 </div>
                 <nav className="dropdown-list-3 w-dropdown-list">
-                  <a href="#" className="dropdown-link-2 w-dropdown-link">Поставщика</a>
-                  <a href="#" className="dropdown-link-2 w-dropdown-link">Поставщика</a>
-                  <a href="#" className="dropdown-link-2 w-dropdown-link">Поставщика</a>
+                  <a href="#" className="dropdown-link-2 w-dropdown-link">Поставщикам</a>
+                  <a href="#" className="dropdown-link-2 w-dropdown-link">Поставщикам</a>
+                  <a href="#" className="dropdown-link-2 w-dropdown-link">Поставщикам</a>
                 </nav>
               </div>
             </div>

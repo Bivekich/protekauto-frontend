@@ -16,12 +16,16 @@ export default function CardPage() {
   return (
     <>
       <Head>
-        <title>Card</title>
+
+        <title>Search result</title>
+        <meta content="Search result" property="og:title" />
+        <meta content="Search result" property="twitter:title" />
         <link href="https://fonts.googleapis.com" rel="preconnect" />
         <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
-        <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <link href="/images/favicon.png" rel="shortcut icon" type="image/x-icon" />
         <link href="/images/webclip.png" rel="apple-touch-icon" />
   </Head>
+  <Header />
   <InfoCard />
   <section className="main">
     <div className="w-layout-blockcontainer container w-container">

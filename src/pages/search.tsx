@@ -103,6 +103,8 @@ const SearchPage = () => {
       <Head>
         <title>Поиск по артикулу {searchQuery} - Protek</title>
         <meta name="description" content={`Результаты поиска по артикулу ${searchQuery}`} />
+        <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+        <link href="images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <Header />
       <InfoSearch />
