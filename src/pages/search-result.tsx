@@ -83,6 +83,72 @@ const createFilters = (result: any, loadedAnalogs: any): FilterConfig[] => {
         });
       }
     }
+
+    // Фильтр по сроку доставки
+    const deliveryDays: number[] = [];
+    result.internalOffers?.forEach((offer: any) => {
+      if (offer.deliveryDays && offer.deliveryDays > 0) deliveryDays.push(offer.deliveryDays);
+    });
+    result.externalOffers?.forEach((offer: any) => {
+      if (offer.deliveryTime && offer.deliveryTime > 0) deliveryDays.push(offer.deliveryTime);
+    });
+    
+    // Добавляем сроки доставки аналогов
+    Object.values(loadedAnalogs).forEach((analog: any) => {
+      analog.internalOffers?.forEach((offer: any) => {
+        if (offer.deliveryDays && offer.deliveryDays > 0) deliveryDays.push(offer.deliveryDays);
+      });
+      analog.externalOffers?.forEach((offer: any) => {
+        if (offer.deliveryTime && offer.deliveryTime > 0) deliveryDays.push(offer.deliveryTime);
+      });
+    });
+
+    if (deliveryDays.length > 0) {
+      const minDays = Math.min(...deliveryDays);
+      const maxDays = Math.max(...deliveryDays);
+      
+      if (maxDays > minDays) {
+        filters.push({
+          type: "range",
+          title: "Срок доставки (дни)",
+          min: minDays,
+          max: maxDays,
+        });
+      }
+    }
+
+    // Фильтр по количеству наличия
+    const quantities: number[] = [];
+    result.internalOffers?.forEach((offer: any) => {
+      if (offer.quantity && offer.quantity > 0) quantities.push(offer.quantity);
+    });
+    result.externalOffers?.forEach((offer: any) => {
+      if (offer.quantity && offer.quantity > 0) quantities.push(offer.quantity);
+    });
+    
+    // Добавляем количества аналогов
+    Object.values(loadedAnalogs).forEach((analog: any) => {
+      analog.internalOffers?.forEach((offer: any) => {
+        if (offer.quantity && offer.quantity > 0) quantities.push(offer.quantity);
+      });
+      analog.externalOffers?.forEach((offer: any) => {
+        if (offer.quantity && offer.quantity > 0) quantities.push(offer.quantity);
+      });
+    });
+
+    if (quantities.length > 0) {
+      const minQuantity = Math.min(...quantities);
+      const maxQuantity = Math.max(...quantities);
+      
+      if (maxQuantity > minQuantity) {
+        filters.push({
+          type: "range",
+          title: "Количество (шт.)",
+          min: minQuantity,
+          max: maxQuantity,
+        });
+      }
+    }
   }
 
   return filters;
@@ -154,6 +220,8 @@ export default function SearchResult() {
   // Состояния для фильтров
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number] | null>(null);
+  const [deliveryRange, setDeliveryRange] = useState<[number, number] | null>(null);
+  const [quantityRange, setQuantityRange] = useState<[number, number] | null>(null);
   const [filterSearchTerm, setFilterSearchTerm] = useState<string>('');
 
   useEffect(() => {
@@ -241,6 +309,20 @@ export default function SearchResult() {
       if (priceRange && (offer.price < priceRange[0] || offer.price > priceRange[1])) {
         return false;
       }
+      // Фильтр по сроку доставки
+      if (deliveryRange) {
+        const deliveryDays = offer.deliveryDuration;
+        if (deliveryDays < deliveryRange[0] || deliveryDays > deliveryRange[1]) {
+          return false;
+        }
+      }
+      // Фильтр по количеству наличия
+      if (quantityRange) {
+        const quantity = offer.quantity;
+        if (quantity < quantityRange[0] || quantity > quantityRange[1]) {
+          return false;
+        }
+      }
       // Фильтр по поисковой строке
       if (filterSearchTerm) {
         const searchTerm = filterSearchTerm.toLowerCase();
@@ -253,13 +335,17 @@ export default function SearchResult() {
       }
       return true;
     });
-  }, [allOffers, selectedBrands, priceRange, filterSearchTerm]);
+  }, [allOffers, selectedBrands, priceRange, deliveryRange, quantityRange, filterSearchTerm]);
   
   const handleFilterChange = (type: string, value: any) => {
     if (type === 'Производитель') {
         setSelectedBrands(value);
     } else if (type === 'Цена (₽)') {
         setPriceRange(value);
+    } else if (type === 'Срок доставки (дни)') {
+        setDeliveryRange(value);
+    } else if (type === 'Количество (шт.)') {
+        setQuantityRange(value);
     } else if (type === 'search') {
         setFilterSearchTerm(value);
     }
@@ -267,7 +353,7 @@ export default function SearchResult() {
 
   const initialOffersExist = allOffers.length > 0;
   
-  const filtersAreActive = selectedBrands.length > 0 || priceRange !== null || filterSearchTerm !== '';
+  const filtersAreActive = selectedBrands.length > 0 || priceRange !== null || deliveryRange !== null || quantityRange !== null || filterSearchTerm !== '';
 
   const hasOffers = result && (result.internalOffers.length > 0 || result.externalOffers.length > 0);
   const hasAnalogs = result && result.analogs.length > 0;
@@ -394,7 +480,9 @@ export default function SearchResult() {
         onFilterChange={handleFilterChange}
         initialValues={{
           'Производитель': selectedBrands,
-          'Цена (₽)': priceRange
+          'Цена (₽)': priceRange,
+          'Срок доставки (дни)': deliveryRange,
+          'Количество (шт.)': quantityRange
         }}
       />
       {/* Лучшие предложения */}
@@ -464,7 +552,9 @@ export default function SearchResult() {
                 onFilterChange={handleFilterChange}
                 filterValues={{
                   'Производитель': selectedBrands,
-                  'Цена (₽)': priceRange
+                  'Цена (₽)': priceRange,
+                  'Срок доставки (дни)': deliveryRange,
+                  'Количество (шт.)': quantityRange
                 }}
               />
             </div>
