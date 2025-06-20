@@ -97,7 +97,9 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   return (
     <div className={`dropdown w-dropdown${open ? " w--open" : ""}`}>
       <div className="dropdown-toggle w-dropdown-toggle" onClick={() => setOpen(!open)}>
-        <h4 className="heading-2">{title}</h4>
+        <h4 className="heading-2">
+          {title} {selectedValues.length > 0 && `(${selectedValues.length})`}
+        </h4>
         <div className="icon-3 w-icon-dropdown-toggle"></div>
       </div>
       {open && (

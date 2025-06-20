@@ -278,6 +278,8 @@ export default function Catalog() {
                 <div className="filters-desktop">
                   <Filters
                     filters={dynamicFilters}
+                    onFilterChange={handleDesktopFilterChange}
+                    filterValues={selectedFilters}
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
                   />
@@ -286,6 +288,8 @@ export default function Catalog() {
                 <div className="filters-desktop">
                     <Filters
                         filters={catalogFilters}
+                        onFilterChange={handleDesktopFilterChange}
+                        filterValues={selectedFilters}
                         searchQuery={searchQuery}
                         onSearchChange={setSearchQuery}
                     />

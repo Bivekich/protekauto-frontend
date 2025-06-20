@@ -1,7 +1,7 @@
 import React from "react";
 
 interface BestPriceCardProps {
-  rating: string;
+  bestOfferType: string;
   title: string;
   description: string;
   price: string;
@@ -9,15 +9,11 @@ interface BestPriceCardProps {
   stock: string;
 }
 
-const BestPriceCard: React.FC<BestPriceCardProps> = ({ rating, title, description, price, delivery, stock }) => (
+const BestPriceCard: React.FC<BestPriceCardProps> = ({ bestOfferType, title, description, price, delivery, stock }) => (
   <div className="w-layout-vflex flex-block-44">
-    <h3 className="heading-8-copy">Самая низкая цена</h3>
+    <h3 className="heading-8-copy">{bestOfferType}</h3>
     <div className="w-layout-vflex flex-block-40">
       <div className="w-layout-hflex flex-block-45">
-        <div className="w-layout-hflex raiting">
-          <img src="/images/Star-1.svg" loading="lazy" alt="" className="image-8" />
-          <div className="text-block-22">{rating}</div>
-        </div>
         <div className="w-layout-hflex flex-block-39">
           <h4 className="heading-9">{title}</h4>
           <div className="text-block-21">{description}</div>

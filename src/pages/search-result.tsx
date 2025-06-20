@@ -160,24 +160,35 @@ const getBestOffers = (offers: any[]) => {
   if (validOffers.length === 0) return [];
 
   const result: { offer: any; type: string }[] = [];
+  const usedOfferIds = new Set<string>();
 
-  // 1. Самая низкая цена
+  // 1. Самая низкая цена (среди всех предложений)
   const lowestPriceOffer = [...validOffers].sort((a, b) => a.price - b.price)[0];
   if (lowestPriceOffer) {
     result.push({ offer: lowestPriceOffer, type: 'Самая низкая цена' });
+    usedOfferIds.add(`${lowestPriceOffer.articleNumber}-${lowestPriceOffer.price}-${lowestPriceOffer.deliveryDuration}`);
   }
 
-  // 2. Самый дешевый аналог
+  // 2. Самый дешевый аналог (только среди аналогов)
   const analogOffers = validOffers.filter(offer => offer.isAnalog);
   if (analogOffers.length > 0) {
     const cheapestAnalogOffer = [...analogOffers].sort((a, b) => a.price - b.price)[0];
-    result.push({ offer: cheapestAnalogOffer, type: 'Самый дешевый аналог' });
+    const analogId = `${cheapestAnalogOffer.articleNumber}-${cheapestAnalogOffer.price}-${cheapestAnalogOffer.deliveryDuration}`;
+    
+    if (!usedOfferIds.has(analogId)) {
+      result.push({ offer: cheapestAnalogOffer, type: 'Самый дешевый аналог' });
+      usedOfferIds.add(analogId);
+    }
   }
   
-  // 3. Лучший срок доставки
+  // 3. Самая быстрая доставка (среди всех предложений)
   const fastestDeliveryOffer = [...validOffers].sort((a, b) => a.deliveryDuration - b.deliveryDuration)[0];
   if (fastestDeliveryOffer) {
-    result.push({ offer: fastestDeliveryOffer, type: 'Лучший срок доставки' });
+    const fastestId = `${fastestDeliveryOffer.articleNumber}-${fastestDeliveryOffer.price}-${fastestDeliveryOffer.deliveryDuration}`;
+    
+    if (!usedOfferIds.has(fastestId)) {
+      result.push({ offer: fastestDeliveryOffer, type: 'Самая быстрая доставка' });
+    }
   }
   
   return result;
@@ -190,7 +201,6 @@ const transformOffersForCard = (offers: any[]) => {
       id: offer.id,
       productId: offer.productId,
       offerKey: offer.offerKey,
-      rating: offer.rating?.toString() || (isExternal ? "4.5" : "4.8"),
       pcs: `${offer.quantity} шт.`,
       days: `${isExternal ? offer.deliveryTime : offer.deliveryDays} дн.`,
       recommended: !isExternal && offer.available,
@@ -286,13 +296,13 @@ export default function SearchResult() {
     const offers: any[] = [];
     
     // Основной товар
-    result.internalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryDays, rating: o.rating?.toString() || "4.8", type: 'internal', brand: result.brand, articleNumber: result.articleNumber, name: result.name }));
-    result.externalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryTime, rating: "4.5", type: 'external', articleNumber: o.code, name: o.name }));
+    result.internalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryDays, type: 'internal', brand: result.brand, articleNumber: result.articleNumber, name: result.name }));
+    result.externalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryTime, type: 'external', articleNumber: o.code, name: o.name }));
 
     // Аналоги
     Object.values(loadedAnalogs).forEach((analog: any) => {
-      analog.internalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryDays, rating: o.rating?.toString() || "4.8", type: 'internal', brand: analog.brand, articleNumber: analog.articleNumber, name: analog.name, isAnalog: true }));
-      analog.externalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryTime, rating: "4.5", type: 'external', brand: o.brand || analog.brand, articleNumber: o.code || analog.articleNumber, name: o.name, isAnalog: true }));
+      analog.internalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryDays, type: 'internal', brand: analog.brand, articleNumber: analog.articleNumber, name: analog.name, isAnalog: true }));
+      analog.externalOffers.forEach((o: any) => offers.push({ ...o, deliveryDuration: o.deliveryTime, type: 'external', brand: o.brand || analog.brand, articleNumber: o.code || analog.articleNumber, name: o.name, isAnalog: true }));
     });
     
     return offers;
@@ -360,17 +370,7 @@ export default function SearchResult() {
   const searchResultFilters = createFilters(result, loadedAnalogs);
   const bestOffersData = getBestOffers(filteredOffers);
 
-  // Отладочная информация
-  console.log('🔍 Search Result Debug:', {
-    result,
-    hasOffers,
-    internalOffers: result?.internalOffers?.length || 0,
-    externalOffers: result?.externalOffers?.length || 0,
-    analogs: result?.analogs?.length || 0,
-    loadedAnalogs: Object.keys(loadedAnalogs).length,
-    allOffersCount: allOffers.length,
-    filteredOffersCount: filteredOffers.length
-  });
+
 
   // Если это поиск по параметру q (из UnitDetailsSection), используем q как article
   useEffect(() => {
@@ -477,13 +477,8 @@ export default function SearchResult() {
         filters={searchResultFilters}
         open={showFiltersMobile}
         onClose={() => setShowFiltersMobile(false)}
-        onFilterChange={handleFilterChange}
-        initialValues={{
-          'Производитель': selectedBrands,
-          'Цена (₽)': priceRange,
-          'Срок доставки (дни)': deliveryRange,
-          'Количество (шт.)': quantityRange
-        }}
+        searchQuery={filterSearchTerm}
+        onSearchChange={(value) => handleFilterChange('search', value)}
       />
       {/* Лучшие предложения */}
       {bestOffersData.length > 0 && (
@@ -494,7 +489,6 @@ export default function SearchResult() {
                 <BestPriceCard
                   key={`best-${type}-${index}`}
                   bestOfferType={type}
-                  rating={offer.rating}
                   title={`${offer.brand} ${offer.articleNumber}${offer.isAnalog ? ' (аналог)' : ''}`}
                   description={offer.name}
                   price={`${offer.price.toLocaleString()} ₽`}
@@ -546,7 +540,7 @@ export default function SearchResult() {
         <div className="w-layout-blockcontainer container w-container">
           <div className="w-layout-hflex flex-block-13-copy">
             {/* Фильтры для десктопа */}
-            <div className="filters-desktop">
+            <div style={{ width: '300px', marginRight: '20px' }}>
               <Filters 
                 filters={searchResultFilters}
                 onFilterChange={handleFilterChange}
@@ -556,6 +550,8 @@ export default function SearchResult() {
                   'Срок доставки (дни)': deliveryRange,
                   'Количество (шт.)': quantityRange
                 }}
+                searchQuery={filterSearchTerm}
+                onSearchChange={(value) => handleFilterChange('search', value)}
               />
             </div>
 
@@ -563,18 +559,6 @@ export default function SearchResult() {
             <div className="w-layout-vflex flex-block-14-copy">
               {hasOffers && result && (
                 <div className="w-layout-hflex core-product-search-s1">
-                  {!result.hasInternalStock && (
-                    <div className="w-full mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <div className="flex items-center">
-                        <svg className="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-yellow-800 font-medium">
-                          Данный товар доступен только под заказ через внешних поставщиков
-                        </span>
-                      </div>
-                    </div>
-                  )}
                   <CoreProductCard
                     brand={result.brand}
                     article={result.articleNumber}

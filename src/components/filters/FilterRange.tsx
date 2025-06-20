@@ -5,6 +5,7 @@ interface FilterRangeProps {
   min?: number;
   max?: number;
   isMobile?: boolean; // Добавляем флаг для мобильной версии
+  value?: [number, number] | null; // Текущее значение диапазона
   onChange?: (value: [number, number]) => void;
 }
 
@@ -13,12 +14,23 @@ const DEFAULT_MAX = 32000;
 
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(v, max));
 
-const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max = DEFAULT_MAX, isMobile = false, onChange }) => {
-  const [from, setFrom] = useState(min);
-  const [to, setTo] = useState(max);
+const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max = DEFAULT_MAX, isMobile = false, value = null, onChange }) => {
+  const [from, setFrom] = useState(value ? value[0] : min);
+  const [to, setTo] = useState(value ? value[1] : max);
   const [dragging, setDragging] = useState<null | "from" | "to">(null);
   const [trackWidth, setTrackWidth] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
+
+  // Обновляем локальное состояние при изменении внешнего значения
+  useEffect(() => {
+    if (value) {
+      setFrom(value[0]);
+      setTo(value[1]);
+    } else {
+      setFrom(min);
+      setTo(max);
+    }
+  }, [value, min, max]);
 
   // Обновляем ширину полосы при монтировании и ресайзе
   useLayoutEffect(() => {

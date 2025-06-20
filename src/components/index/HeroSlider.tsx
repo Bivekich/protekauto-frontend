@@ -3,8 +3,12 @@ import React, { useEffect } from "react";
 const HeroSlider = () => {
   useEffect(() => {
     if (typeof window !== "undefined" && window.Webflow && window.Webflow.require) {
-      window.Webflow.destroy();
-      window.Webflow.ready();
+      if (window.Webflow.destroy) {
+        window.Webflow.destroy();
+      }
+      if (window.Webflow.ready) {
+        window.Webflow.ready();
+      }
     }
   }, []);
 

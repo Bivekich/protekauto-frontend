@@ -7,7 +7,6 @@ interface CoreProductCardOffer {
   id?: string;
   productId?: string;
   offerKey?: string;
-  rating: string;
   pcs: string;
   days: string;
   recommended?: boolean;
@@ -208,8 +207,7 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
         <div className="w-layout-vflex flex-block-48-copy">
           <div className="w-layout-hflex sort-list-s1">
             <div className="w-layout-hflex flex-block-49">
-              <div className="sort-item first">Рейтинг</div>
-              <div className="sort-item">Наличие</div>
+              <div className="sort-item first">Наличие</div>
               <div className="sort-item">Доставка</div>
             </div>
             <div className="sort-item price">Цена</div>
@@ -219,10 +217,6 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
               <div className="w-layout-hflex product-item-search-s1" key={idx}>
                 <div className="w-layout-hflex flex-block-81">
                   <div className="w-layout-hflex info-block-search-s1">
-                    <div className="w-layout-hflex raiting">
-                      <img src="/images/Star-1.svg" loading="lazy" alt="" className="image-8" />
-                      <div className="text-block-22">{offer.rating}</div>
-                    </div>
                     <div className="pcs-search-s1">{offer.pcs}</div>
                     <div className="pcs-search">{offer.days}</div>
                   </div>

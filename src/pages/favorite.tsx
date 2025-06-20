@@ -34,6 +34,8 @@ const favoriteFilters: FilterConfig[] = [
 
 export default function Favorite() {
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  
   return (
     <>
       <Head>
@@ -68,6 +70,8 @@ export default function Favorite() {
           filters={favoriteFilters}
           open={showFiltersMobile}
           onClose={() => setShowFiltersMobile(false)}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
       </div>
       <section className="main">

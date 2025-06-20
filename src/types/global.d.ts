@@ -4,6 +4,7 @@ declare global {
     Webflow?: {
       ready?: () => void;
       require?: (module: string) => any;
+      destroy?: () => void;
     };
   }
 }
