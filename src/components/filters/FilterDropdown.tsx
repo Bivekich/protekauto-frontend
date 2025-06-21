@@ -5,6 +5,7 @@ interface FilterDropdownProps {
   options: string[];
   multi?: boolean;
   showAll?: boolean;
+  defaultOpen?: boolean; // Открыт ли по умолчанию
   hasMore?: boolean; // Есть ли еще опции для загрузки
   onShowMore?: () => void; // Обработчик "Показать еще"
   isMobile?: boolean; // Добавляем флаг для мобильной версии
@@ -17,13 +18,14 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   options, 
   multi = true, 
   showAll = false,
+  defaultOpen = false,
   hasMore = false,
   onShowMore,
   isMobile = false,
   selectedValues = [],
   onChange
 }) => {
-  const [open, setOpen] = useState(isMobile); // На мобилке сразу открыт
+  const [open, setOpen] = useState(isMobile || defaultOpen); // На мобилке или если defaultOpen - сразу открыт
   const [showAllOptions, setShowAllOptions] = useState(false);
   const [selected, setSelected] = useState<string[]>(selectedValues);
   const visibleOptions = showAll && !showAllOptions ? options.slice(0, 4) : options;

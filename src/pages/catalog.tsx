@@ -17,6 +17,7 @@ import { GET_PARTSAPI_ARTICLES, GET_PARTSAPI_MAIN_IMAGE, SEARCH_PRODUCT_OFFERS }
 import { PartsAPIArticlesData, PartsAPIArticlesVariables, PartsAPIArticle, PartsAPIMainImageData, PartsAPIMainImageVariables } from '@/types/partsapi';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ArticleCard from '@/components/ArticleCard';
+import CatalogEmptyState from '@/components/CatalogEmptyState';
 
 const mockData = Array(12).fill({
   image: "/images/image-10.png",
@@ -45,6 +46,34 @@ export default function Catalog() {
   const [catalogFilters, setCatalogFilters] = useState<FilterConfig[]>([]);
   const [filtersLoading, setFiltersLoading] = useState(true);
   const [sortActive, setSortActive] = useState(0);
+  const [visibleProductsCount, setVisibleProductsCount] = useState(0); // Счетчик товаров с предложениями
+  const [filtersGenerating, setFiltersGenerating] = useState(false); // Состояние генерации фильтров
+  const [targetVisibleCount, setTargetVisibleCount] = useState(ITEMS_PER_PAGE); // Целевое количество видимых товаров
+  const [loadedArticlesCount, setLoadedArticlesCount] = useState(ITEMS_PER_PAGE); // Количество загруженных артикулов
+  const [showEmptyState, setShowEmptyState] = useState(false); // Показывать ли пустое состояние
+
+  // Карта видимости товаров по индексу
+  const [visibilityMap, setVisibilityMap] = useState<Map<number, boolean>>(new Map());
+
+  // Обработчик изменения видимости товара
+  const handleVisibilityChange = useCallback((index: number, isVisible: boolean) => {
+    setVisibilityMap(prev => {
+      const currentVisibility = prev.get(index);
+      // Обновляем только если значение действительно изменилось
+      if (currentVisibility === isVisible) {
+        return prev;
+      }
+      const newMap = new Map(prev);
+      newMap.set(index, isVisible);
+      return newMap;
+    });
+  }, []);
+
+  // Пересчитываем количество видимых товаров при изменении карты видимости
+  useEffect(() => {
+    const visibleCount = Array.from(visibilityMap.values()).filter(Boolean).length;
+    setVisibleProductsCount(visibleCount);
+  }, [visibilityMap]);
 
   // Определяем режим работы
   const isPartsAPIMode = Boolean(strId && categoryName);
@@ -67,34 +96,42 @@ export default function Catalog() {
 
   useEffect(() => {
     if (articlesData?.partsAPIArticles) {
-      setVisibleArticles(articlesData.partsAPIArticles.slice(0, ITEMS_PER_PAGE));
+      // Загружаем изначально только ITEMS_PER_PAGE товаров
+      const initialLoadCount = Math.min(ITEMS_PER_PAGE, articlesData.partsAPIArticles.length);
+      setVisibleArticles(articlesData.partsAPIArticles.slice(0, initialLoadCount));
+      setLoadedArticlesCount(initialLoadCount);
+      setTargetVisibleCount(ITEMS_PER_PAGE);
       setCurrentPage(1);
     }
   }, [articlesData]);
 
   useEffect(() => {
-    fetch("/api/catalog-filters")
-      .then((res) => res.json())
-      .then((data) => {
-        setCatalogFilters(data.filters);
-        setFiltersLoading(false);
-      })
-      .catch(() => setFiltersLoading(false));
+    // Убираем запрос на catalog-filters
+    setFiltersLoading(false);
   }, []);
 
   // Генерируем динамические фильтры для PartsAPI
   const generatePartsAPIFilters = useCallback((): FilterConfig[] => {
     if (!allArticles.length) return [];
 
+    // Получаем список видимых товаров из карты видимости
+    const visibleIndices = Array.from(visibilityMap.entries())
+      .filter(([_, isVisible]) => isVisible)
+      .map(([index]) => index);
+
+    // Если еще нет данных о видимости, используем все товары (для начальной загрузки)
+    const articlesToProcess = visibilityMap.size === 0 ? allArticles : 
+      visibleIndices.map(index => allArticles[index]).filter(Boolean);
+
     const brandCounts = new Map<string, number>();
     const productGroups = new Set<string>();
 
-    // Подсчитываем количество товаров для каждого бренда
-    allArticles.forEach(article => {
-      if (article.artSupBrand) {
+    // Подсчитываем количество товаров для каждого бренда (только видимые)
+    articlesToProcess.forEach(article => {
+      if (article?.artSupBrand) {
         brandCounts.set(article.artSupBrand, (brandCounts.get(article.artSupBrand) || 0) + 1);
       }
-      if (article.productGroup) productGroups.add(article.productGroup);
+      if (article?.productGroup) productGroups.add(article.productGroup);
     });
 
     const filters: FilterConfig[] = [];
@@ -110,10 +147,11 @@ export default function Catalog() {
 
               filters.push({
           type: "dropdown",
-          title: "Производитель",
+          title: "Бренд",
           options: brandsToShow.sort(), // Сортируем по алфавиту для удобства
           multi: true,
           showAll: true,
+          defaultOpen: true, // Делаем раскрытым по умолчанию
           hasMore: !showAllBrands && sortedBrands.length > MAX_BRANDS_DISPLAY,
           onShowMore: () => setShowAllBrands(true)
         });
@@ -130,37 +168,65 @@ export default function Catalog() {
     }
 
     return filters;
-  }, [allArticles, showAllBrands]);
+  }, [allArticles, showAllBrands, visibilityMap]);
 
-  const dynamicFilters = generatePartsAPIFilters();
+  const dynamicFilters = useMemo(() => {
+    return generatePartsAPIFilters();
+  }, [generatePartsAPIFilters]);
 
-  // Обработчик изменения фильтров для десктопа
-  const handleDesktopFilterChange = useCallback((filterTitle: string, newValues: string[]) => {
-    setSelectedFilters(prev => {
-      const currentValues = prev[filterTitle] || [];
-      // Сравниваем содержимое, чтобы избежать ненужных обновлений
-      if (JSON.stringify(currentValues) === JSON.stringify(newValues)) {
-        return prev;
-      }
-      return {
-        ...prev,
-        [filterTitle]: newValues
-      };
-    });
-  }, []);
-  
-  // Обработчик для мобильной панели
-  const handleMobileFilterChange = (type: string, value: any) => {
-    if (type === 'search') {
-      setSearchQuery(value);
+  // Отдельный useEffect для управления состоянием загрузки фильтров
+  useEffect(() => {
+    if (isPartsAPIMode && allArticles.length > 0) {
+      setFiltersGenerating(true);
+      const timer = setTimeout(() => {
+        setFiltersGenerating(false);
+      }, 300);
+      return () => clearTimeout(timer);
     } else {
-      // Для dropdown и range
-      setSelectedFilters(prev => ({
-        ...prev,
-        [type]: value,
-      }));
+      setFiltersGenerating(false);
     }
+  }, [isPartsAPIMode, allArticles.length]);
+
+  // Управляем показом пустого состояния с задержкой
+  useEffect(() => {
+    if (isPartsAPIMode && !articlesLoading && !articlesError) {
+      // Если товаров вообще нет - показываем сразу
+      if (allArticles.length === 0) {
+        setShowEmptyState(true);
+        return;
+      }
+      
+      // Если товары есть, но нет видимых - ждем 2 секунды
+      const timer = setTimeout(() => {
+        setShowEmptyState(visibleProductsCount === 0 && allArticles.length > 0);
+      }, 2000); // Даем 2 секунды на загрузку данных о предложениях
+      
+      return () => clearTimeout(timer);
+    } else {
+      setShowEmptyState(false);
+    }
+  }, [isPartsAPIMode, articlesLoading, articlesError, visibleProductsCount, allArticles.length]);
+
+  const handleDesktopFilterChange = (filterTitle: string, value: string | string[]) => {
+    setSelectedFilters(prev => ({
+      ...prev,
+      [filterTitle]: Array.isArray(value) ? value : [value]
+    }));
   };
+
+  const handleMobileFilterChange = (type: string, value: any) => {
+    setSelectedFilters(prev => ({
+      ...prev,
+      [type]: Array.isArray(value) ? value : [value]
+    }));
+  };
+
+  // Функция для сброса всех фильтров
+  const handleResetFilters = useCallback(() => {
+    setSearchQuery('');
+    setSelectedFilters({});
+    setShowAllBrands(false);
+  }, []);
 
   // Фильтрация по поиску и фильтрам
   const filteredArticles = useMemo(() => {
@@ -180,7 +246,7 @@ export default function Catalog() {
       }
       
       // Фильтрация по выбранным фильтрам
-      const brandFilter = selectedFilters['Производитель'] || [];
+      const brandFilter = selectedFilters['Бренд'] || [];
       if (brandFilter.length > 0 && !brandFilter.includes(article.artSupBrand || '')) {
         return false;
       }
@@ -194,13 +260,36 @@ export default function Catalog() {
     });
   }, [allArticles, searchQuery, selectedFilters]);
 
+  // Убираем автоматическую дозагрузку - товары загружаются только по кнопке "Показать еще"
+  // useEffect(() => {
+  //   const visibleCount = Array.from(visibilityMap.values()).filter(Boolean).length;
+  //   
+  //   // Если видимых товаров меньше целевого количества и есть еще товары для загрузки
+  //   if (visibleCount < targetVisibleCount && loadedArticlesCount < filteredArticles.length && visibilityMap.size > 0) {
+  //     const additionalCount = Math.min(
+  //       ITEMS_PER_PAGE, 
+  //       filteredArticles.length - loadedArticlesCount
+  //     );
+  //     
+  //     if (additionalCount > 0) {
+  //       const newArticles = filteredArticles.slice(loadedArticlesCount, loadedArticlesCount + additionalCount);
+  //       setVisibleArticles(prev => [...prev, ...newArticles]);
+  //       setLoadedArticlesCount(prev => prev + additionalCount);
+  //     }
+  //   }
+  // }, [visibilityMap, targetVisibleCount, loadedArticlesCount, filteredArticles]);
+
   // Обновляем видимые артикулы при изменении поиска или фильтров
   useEffect(() => {
     setVisibleArticles(filteredArticles.slice(0, ITEMS_PER_PAGE));
     setCurrentPage(1);
     setIsLoadingMore(false);
+    setVisibilityMap(new Map()); // Сбрасываем карту видимости при изменении фильтров
+    setVisibleProductsCount(0); // Сбрасываем счетчик
+    setLoadedArticlesCount(ITEMS_PER_PAGE); // Сбрасываем счетчик загруженных
+    setShowEmptyState(false); // Сбрасываем пустое состояние
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, JSON.stringify(selectedFilters)]);
+  }, [searchQuery, JSON.stringify(selectedFilters), filteredArticles.length]);
 
   // Функция для загрузки следующей порции артикулов по кнопке
   const handleLoadMore = useCallback(() => {
@@ -209,23 +298,21 @@ export default function Catalog() {
     setIsLoadingMore(true);
     
     setTimeout(() => {
-      const nextPage = currentPage + 1;
-      const startIndex = (nextPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = nextPage * ITEMS_PER_PAGE;
+      const additionalCount = Math.min(ITEMS_PER_PAGE, filteredArticles.length - loadedArticlesCount);
       
-      const newArticles = filteredArticles.slice(startIndex, endIndex);
-      
-      if (newArticles.length > 0) {
+      if (additionalCount > 0) {
+        const newArticles = filteredArticles.slice(loadedArticlesCount, loadedArticlesCount + additionalCount);
         setVisibleArticles(prev => [...prev, ...newArticles]);
-        setCurrentPage(nextPage);
+        setLoadedArticlesCount(prev => prev + additionalCount);
+        setTargetVisibleCount(prev => prev + ITEMS_PER_PAGE); // Увеличиваем целевое количество
       }
       
       setIsLoadingMore(false);
     }, 300);
-  }, [currentPage, filteredArticles, isLoadingMore]);
+  }, [loadedArticlesCount, filteredArticles, isLoadingMore]);
 
   // Определяем есть ли еще артикулы для загрузки
-  const hasMoreArticles = visibleArticles.length < filteredArticles.length;
+  const hasMoreArticles = loadedArticlesCount < filteredArticles.length;
 
   if (filtersLoading) {
     return <div className="py-8 text-center">Загрузка фильтров...</div>;
@@ -243,7 +330,7 @@ export default function Catalog() {
       </Head>
       <CatalogInfoHeader
         title={isPartsAPIMode ? decodeURIComponent(categoryName as string || 'Запчасти') : "Аккумуляторы"}
-        count={isPartsAPIMode ? filteredArticles.length : 3587}
+        count={isPartsAPIMode ? (visibilityMap.size === 0 && allArticles.length > 0 ? undefined : visibleProductsCount) : 3587}
         productName={isPartsAPIMode ? "запчасть" : "аккумулятор"}
         breadcrumbs={[
           { label: "Главная", href: "/" },
@@ -282,6 +369,7 @@ export default function Catalog() {
                     filterValues={selectedFilters}
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
+                    isLoading={filtersGenerating}
                   />
                 </div>
             ) : (
@@ -292,6 +380,7 @@ export default function Catalog() {
                         filterValues={selectedFilters}
                         searchQuery={searchQuery}
                         onSearchChange={setSearchQuery}
+                        isLoading={filtersLoading}
                     />
                 </div>
             )}
@@ -326,6 +415,7 @@ export default function Catalog() {
                       key={`${article.artId}_${idx}`}
                       article={article}
                       index={idx}
+                      onVisibilityChange={handleVisibilityChange}
                     />
                   ))}
                   
@@ -339,15 +429,11 @@ export default function Catalog() {
                       >
                         {isLoadingMore ? (
                           <>
-            
                             Загружаем...
                           </>
                         ) : (
                           <>
                             Показать еще
-                            <span className="">
-                              ({Math.min(ITEMS_PER_PAGE, filteredArticles.length - visibleArticles.length)})
-                            </span>
                           </>
                         )}
                       </button>
@@ -357,11 +443,12 @@ export default function Catalog() {
               )}
               
               {/* Пустое состояние для PartsAPI */}
-              {isPartsAPIMode && !articlesLoading && !articlesError && visibleArticles.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-12">
-                  <div className="text-gray-500 text-lg mb-4">Товары не найдены</div>
-                  <div className="text-gray-400 text-sm">Попробуйте изменить фильтры или поисковый запрос</div>
-                </div>
+              {isPartsAPIMode && !articlesLoading && !articlesError && showEmptyState && (
+                <CatalogEmptyState 
+                  categoryName={decodeURIComponent(categoryName as string || 'товаров')}
+                  hasFilters={searchQuery.trim() !== '' || Object.keys(selectedFilters).some(key => selectedFilters[key].length > 0)}
+                  onResetFilters={handleResetFilters}
+                />
               )}
               
               {/* Обычные товары (не PartsAPI) */}

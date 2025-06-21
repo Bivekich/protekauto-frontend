@@ -1,75 +1,32 @@
 import React from "react";
 
-const ProductCharacteristics = () => {
+interface ProductCharacteristicsProps {
+  result?: any;
+}
+
+const ProductCharacteristics = ({ result }: ProductCharacteristicsProps) => {
   return (
-    <div className="w-layout-hflex flex-block-52">
-      <div className="w-layout-vflex flex-block-53">
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Бренд</div>
-          <div className="text-block-28">Exide</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Номинальное напряжение, В</div>
-          <div className="text-block-28">12</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Номинальная ёмкость, А/ч</div>
-          <div className="text-block-28">64</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Тип крепления</div>
-          <div className="text-block-28">выступы с 4 сторон</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Ширина, мм</div>
-          <div className="text-block-28">175</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Высота, мм</div>
-          <div className="text-block-28">190</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Длина, мм</div>
-          <div className="text-block-28">242</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Полярность</div>
-          <div className="text-block-28">обратная</div>
-        </div>
+    <div className="w-layout-vflex characteristics-block">
+      <div className="text-block-25">
+        {result?.name ? `Характеристики ${result.name}` : 'Характеристики товара'}
       </div>
-      <div className="w-layout-vflex flex-block-53">
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Бренд</div>
-          <div className="text-block-28">Exide</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Номинальное напряжение, В</div>
-          <div className="text-block-28">12</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Номинальная ёмкость, А/ч</div>
-          <div className="text-block-28">64</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Тип крепления</div>
-          <div className="text-block-28">выступы с 4 сторон</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Ширина, мм</div>
-          <div className="text-block-28">175</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Высота, мм</div>
-          <div className="text-block-28">190</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Длина, мм</div>
-          <div className="text-block-28">242</div>
-        </div>
-        <div className="w-layout-hflex flex-block-55">
-          <div className="text-block-29">Полярность</div>
-          <div className="text-block-28">обратная</div>
-        </div>
+      <div className="characteristics-list">
+        {result && (
+          <>
+            <div className="characteristic-item">
+              <span className="characteristic-label">Бренд:</span>
+              <span className="characteristic-value">{result.brand}</span>
+            </div>
+            <div className="characteristic-item">
+              <span className="characteristic-label">Артикул:</span>
+              <span className="characteristic-value">{result.articleNumber}</span>
+            </div>
+            <div className="characteristic-item">
+              <span className="characteristic-label">Название:</span>
+              <span className="characteristic-value">{result.name}</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -1,44 +1,24 @@
 import React from "react";
 
-const ProductImageGallery = () => {
+interface ProductImageGalleryProps {
+  imageUrl?: string;
+}
+
+export default function ProductImageGallery({ imageUrl }: ProductImageGalleryProps) {
+  const defaultImage = "/images/image-10.png";
+  const displayImage = imageUrl || defaultImage;
+
   return (
-    <div className="w-layout-vflex core-product-copy">
-      <div className="div-block-20">
-        <img
-          src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg"
-          loading="lazy"
-          alt=""
-          className="image-10-copy"
-        />
+    <div className="w-layout-vflex flex-block-49">
+      <div className="w-layout-hflex flex-block-50">
+        <img src={displayImage} loading="lazy" alt="Изображение товара" className="image-12" />
       </div>
-      <div className="w-layout-hflex flex-block-56">
-        <img
-          src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg"
-          loading="lazy"
-          alt=""
-          className="small-img"
-        />
-        <img
-          src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg"
-          loading="lazy"
-          alt=""
-          className="small-img"
-        />
-        <img
-          src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg"
-          loading="lazy"
-          alt=""
-          className="small-img"
-        />
-        <img
-          src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg"
-          loading="lazy"
-          alt=""
-          className="small-img"
-        />
+      <div className="w-layout-hflex flex-block-51">
+        <img src={displayImage} loading="lazy" alt="Миниатюра 1" className="image-13" />
+        <img src={displayImage} loading="lazy" alt="Миниатюра 2" className="image-13" />
+        <img src={displayImage} loading="lazy" alt="Миниатюра 3" className="image-13" />
+        <img src={displayImage} loading="lazy" alt="Миниатюра 4" className="image-13" />
       </div>
     </div>
   );
-};
-
-export default ProductImageGallery; 
+} 

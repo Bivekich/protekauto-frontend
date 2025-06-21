@@ -1,34 +1,36 @@
 import React from "react";
 
-export default function InfoCard() {
+interface InfoCardProps {
+  brand?: string;
+  articleNumber?: string;
+  name?: string;
+}
+
+export default function InfoCard({ brand, articleNumber, name }: InfoCardProps) {
   return (
     <section className="section-info">
       <div className="w-layout-blockcontainer container info w-container">
         <div className="w-layout-vflex flex-block-9">
           <div className="w-layout-hflex flex-block-7">
-            <a href="#" className="link-block w-inline-block">
+            <a href="/" className="link-block w-inline-block">
               <div>Главная</div>
             </a>
             <div className="text-block-3">→</div>
-            <a href="#" className="link-block w-inline-block">
+            <a href="/catalog" className="link-block w-inline-block">
               <div>Каталог</div>
             </a>
             <div className="text-block-3">→</div>
             <a href="#" className="link-block w-inline-block">
-              <div>Аккумуляторы и зарядные устройства</div>
-            </a>
-            <div className="text-block-3">→</div>
-            <a href="#" className="link-block w-inline-block">
-              <div>Аккумуляторы</div>
+              <div>Автозапчасти</div>
             </a>
             <div className="text-block-3">→</div>
             <a href="#" className="link-block-2 w-inline-block">
-              <div>Аккумуляторная батарея SPEEDMATE AGM 60А/ч</div>
+              <div>{name || "Деталь"}</div>
             </a>
           </div>
           <div className="w-layout-hflex flex-block-bi">
             <div className="w-layout-hflex headingbi">
-              <h1 className="heading-bi">Аккумуляторная батарея SPEEDMATE AGM 60А/ч</h1>
+              <h1 className="heading-bi">{name || "Название товара"}</h1>
               <div className="div-block-127">
                 <div className="icon-setting w-embed">
                   <svg width="currentwidth" height="currentheight" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -38,7 +40,7 @@ export default function InfoCard() {
               </div>
             </div>
             <div className="w-layout-hflex rightbi">
-              <div className="text-block-5-copy">SPEEDMATE <strong className="bold-text">SM-EK600</strong></div>
+              <div className="text-block-5-copy">{brand || "БРЕНД"} <strong className="bold-text">{articleNumber || "АРТИКУЛ"}</strong></div>
             </div>
           </div>
         </div>

@@ -248,9 +248,9 @@ export default function SearchResult() {
   const { data, loading, error } = useQuery(SEARCH_PRODUCT_OFFERS, {
     variables: {
       articleNumber: searchQuery,
-      brand: brandQuery
+      brand: brandQuery || '' // Используем пустую строку если бренд не указан
     },
-    skip: !searchQuery || !brandQuery,
+    skip: !searchQuery,
     errorPolicy: 'all'
   });
   
@@ -390,9 +390,9 @@ export default function SearchResult() {
           // Добавьте другие маппинги по необходимости
         };
         
-        setBrandQuery(catalogToBrandMap[catalogFromUrl] || 'UNIVERSAL');
+        setBrandQuery(catalogToBrandMap[catalogFromUrl] || '');
       } else {
-        setBrandQuery('UNIVERSAL');
+        setBrandQuery('');
       }
     }
   }, [q, article, router.query]);
@@ -557,64 +557,111 @@ export default function SearchResult() {
 
             {/* Основной товар */}
             <div className="w-layout-vflex flex-block-14-copy">
-              {hasOffers && result && (
-                <div className="w-layout-hflex core-product-search-s1">
-                  <CoreProductCard
-                    brand={result.brand}
-                    article={result.articleNumber}
-                    name={result.name}
-                    image={mainImageUrl}
-                    offers={transformOffersForCard(
-                      filteredOffers.filter(o => !o.isAnalog)
-                    )}
-                  />
-                </div>
-              )}
+              {hasOffers && result && (() => {
+                const mainProductOffers = transformOffersForCard(
+                  filteredOffers.filter(o => !o.isAnalog)
+                );
+                
+                // Не показываем основной товар, если у него нет предложений
+                if (mainProductOffers.length === 0) {
+                  return null;
+                }
+
+                return (
+                  <div className="w-layout-hflex core-product-search-s1">
+                    <CoreProductCard
+                      brand={result.brand}
+                      article={result.articleNumber}
+                      name={result.name}
+                      image={mainImageUrl}
+                      offers={mainProductOffers}
+                    />
+                  </div>
+                );
+              })()}
               
               {/* Аналоги */}
-              {hasAnalogs && result && (
-                <div className="mt-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Аналоги</h2>
-                  {result.analogs.slice(0, visibleAnalogsCount).map((analog: any, index: number) => {
-                    const analogKey = `${analog.brand}-${analog.articleNumber}`;
-                    const loadedAnalogData = loadedAnalogs[analogKey];
-                    
-                    const analogOffers = loadedAnalogData 
-                      ? transformOffersForCard(
+              {hasAnalogs && result && (() => {
+                // Фильтруем аналоги с предложениями
+                const analogsWithOffers = result.analogs.slice(0, visibleAnalogsCount).filter((analog: any) => {
+                  const analogKey = `${analog.brand}-${analog.articleNumber}`;
+                  const loadedAnalogData = loadedAnalogs[analogKey];
+                  
+                  if (!loadedAnalogData) {
+                    return true; // Показываем загружающиеся аналоги
+                  }
+                  
+                  const analogOffers = transformOffersForCard(
+                    filteredOffers.filter(o => o.isAnalog && o.articleNumber === analog.articleNumber)
+                  );
+                  
+                  // Показываем аналог только если у него есть предложения
+                  return analogOffers.length > 0;
+                });
+
+                // Если нет аналогов с предложениями, не показываем секцию
+                if (analogsWithOffers.length === 0) {
+                  return null;
+                }
+
+                return (
+                  <div className="mt-8">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Аналоги</h2>
+                    {analogsWithOffers.map((analog: any, index: number) => {
+                      const analogKey = `${analog.brand}-${analog.articleNumber}`;
+                      const loadedAnalogData = loadedAnalogs[analogKey];
+                      
+                      const analogOffers = loadedAnalogData 
+                        ? transformOffersForCard(
+                            filteredOffers.filter(o => o.isAnalog && o.articleNumber === analog.articleNumber)
+                          ) 
+                        : [];
+
+                      return (
+                        <div key={analogKey} className="mb-6">
+                            <CoreProductCard
+                                brand={analog.brand}
+                                article={analog.articleNumber}
+                                name={analog.name}
+                                offers={analogOffers}
+                                isAnalog
+                                isLoadingOffers={!loadedAnalogData}
+                            />
+                        </div>
+                      )
+                    })}
+
+                    {(() => {
+                      // Проверяем, есть ли еще аналоги с предложениями для загрузки
+                      const remainingAnalogs = result.analogs.slice(visibleAnalogsCount);
+                      const hasMoreAnalogsWithOffers = remainingAnalogs.some((analog: any) => {
+                        const analogKey = `${analog.brand}-${analog.articleNumber}`;
+                        const loadedAnalogData = loadedAnalogs[analogKey];
+                        
+                        if (!loadedAnalogData) {
+                          return true; // Могут быть предложения у незагруженных аналогов
+                        }
+                        
+                        const analogOffers = transformOffersForCard(
                           filteredOffers.filter(o => o.isAnalog && o.articleNumber === analog.articleNumber)
-                        ) 
-                      : [];
+                        );
+                        
+                        return analogOffers.length > 0;
+                      });
 
-                    // Скрываем аналог, только если фильтры активны и они убрали все его предложения
-                    if (filtersAreActive && loadedAnalogData && analogOffers.length === 0) {
-                      return null;
-                    }
-
-                    return (
-                      <div key={analogKey} className="mb-6">
-                          <CoreProductCard
-                              brand={analog.brand}
-                              article={analog.articleNumber}
-                              name={analog.name}
-                              offers={analogOffers}
-                              isAnalog
-                              isLoadingOffers={!loadedAnalogData}
-                          />
-                      </div>
-                    )
-                  })}
-
-                  {visibleAnalogsCount < result.analogs.length && (
-                     <button
-                      onClick={() => setVisibleAnalogsCount(prev => prev + ANALOGS_CHUNK_SIZE)}
-                      disabled={analogsLoading}
-                      className="w-full bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
-                    >
-                      {analogsLoading ? 'Загрузка...' : 'Показать еще аналоги'}
-                    </button>
-                  )}
-                </div>
-              )}
+                      return hasMoreAnalogsWithOffers && (
+                        <button
+                         onClick={() => setVisibleAnalogsCount(prev => prev + ANALOGS_CHUNK_SIZE)}
+                         disabled={analogsLoading}
+                         className="w-full bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+                       >
+                         {analogsLoading ? 'Загрузка...' : 'Показать еще аналоги'}
+                       </button>
+                      );
+                    })()}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

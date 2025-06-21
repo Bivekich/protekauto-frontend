@@ -27,6 +27,40 @@ const Header = () => {
   const searchDropdownRef = useRef<HTMLDivElement>(null);
   const isClient = useIsClient();
 
+  // Эффект для восстановления поискового запроса из URL
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    // Если мы находимся на странице search-result, восстанавливаем поисковый запрос
+    if (router.pathname === '/search-result') {
+      const { article, brand } = router.query;
+      if (article && brand && typeof article === 'string' && typeof brand === 'string') {
+        // Формируем поисковый запрос из артикула и бренда
+        setSearchQuery(`${brand} ${article}`);
+      } else if (article && typeof article === 'string') {
+        setSearchQuery(article);
+      }
+    }
+    // Если мы находимся на странице search, восстанавливаем поисковый запрос
+    else if (router.pathname === '/search') {
+      const { q } = router.query;
+      if (q && typeof q === 'string') {
+        setSearchQuery(q);
+      }
+    }
+    // Если мы находимся на странице vehicle-search-results, восстанавливаем поисковый запрос
+    else if (router.pathname === '/vehicle-search-results') {
+      const { q } = router.query;
+      if (q && typeof q === 'string') {
+        setSearchQuery(q);
+      }
+    }
+    // Для других страниц очищаем поисковый запрос
+    else {
+      setSearchQuery('');
+    }
+  }, [router.isReady, router.pathname, router.query]);
+
   // Query для поиска по артикулу через Doc FindOEM
   const [findOEMParts] = useLazyQuery(DOC_FIND_OEM, {
     onCompleted: (data) => {

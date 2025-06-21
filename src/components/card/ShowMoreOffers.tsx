@@ -1,10 +1,24 @@
 import React from "react";
 
-const ShowMoreOffers = () => {
+interface ShowMoreOffersProps {
+  hasMoreOffers?: boolean;
+  onShowMore?: () => void;
+  remainingCount?: number;
+}
+
+const ShowMoreOffers = ({ hasMoreOffers = false, onShowMore, remainingCount = 0 }: ShowMoreOffersProps) => {
+  if (!hasMoreOffers || remainingCount <= 0) {
+    return null;
+  }
+
   return (
-    <div className="w-layout-hflex show-more-search">
-      <div className="text-block-27">Ещё предложения от 4726 руб и 5 дней</div>
-      <img src="images/arrow_drop_down.svg" loading="lazy" alt="" />
+    <div className="w-layout-hflex show-more-offers">
+      <button 
+        onClick={onShowMore}
+        className="button_strock w-button"
+      >
+        Показать еще предложения ({remainingCount})
+      </button>
     </div>
   );
 };

@@ -1,24 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 
-const ProductDescriptionTabs = () => {
-  const [activeTab, setActiveTab] = useState<'characteristics' | 'description'>('characteristics');
+interface ProductDescriptionTabsProps {
+  result?: any;
+}
 
+const ProductDescriptionTabs = ({ result }: ProductDescriptionTabsProps) => {
   return (
-    <div className="w-layout-hflex flex-block-51">
-      <div
-        className={activeTab === 'characteristics' ? 'tab_card-activ' : 'tab_card'}
-        onClick={() => setActiveTab('characteristics')}
-        style={{ cursor: 'pointer' }}
-      >
-        Характеристики
-      </div>
-      <div
-        className={activeTab === 'description' ? 'tab_card-activ' : 'tab_card'}
-        onClick={() => setActiveTab('description')}
-        style={{ cursor: 'pointer' }}
-      >
-        Описание
-      </div>
+    <div className="w-layout-hflex tabs-block">
+      <div className="tab active">Описание</div>
+      <div className="tab">Характеристики</div>
+      <div className="tab">Отзывы</div>
+      <div className="tab">Аналоги</div>
     </div>
   );
 };

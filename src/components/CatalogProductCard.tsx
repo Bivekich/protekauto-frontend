@@ -11,6 +11,7 @@ interface CatalogProductCardProps {
   articleNumber?: string;
   brandName?: string;
   artId?: string;
+  onAddToCart?: (e: React.MouseEvent) => void | Promise<void>;
 }
 
 const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
@@ -23,14 +24,25 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
   articleNumber,
   brandName,
   artId,
+  onAddToCart,
 }) => {
-  // Создаем ссылку на search-result с параметрами товара
-  const searchResultUrl = articleNumber && brandName 
-    ? `/search-result?article=${encodeURIComponent(articleNumber)}&brand=${encodeURIComponent(brandName)}${artId ? `&artId=${artId}` : ''}`
-    : '/cart'; // Fallback на старую логику если нет данных
+  // Создаем ссылку на card с параметрами товара
+  const cardUrl = articleNumber && brandName 
+    ? `/card?article=${encodeURIComponent(articleNumber)}&brand=${encodeURIComponent(brandName)}${artId ? `&artId=${artId}` : ''}`
+    : '/card'; // Fallback на card если нет данных
+
+  // Обработчик клика по кнопке "Купить"
+  const handleBuyClick = (e: React.MouseEvent) => {
+    if (onAddToCart) {
+      onAddToCart(e);
+    } else {
+      // Fallback - переходим на страницу товара
+      window.location.href = cardUrl;
+    }
+  };
 
   return (
-    <div className="w-layout-vflex flex-block-15-copy">
+    <div className="w-layout-vflex flex-block-15-copy" data-article-card="visible">
       <div className="favcardcat">
         <div className="icon-setting w-embed">
           <svg width="currentwidth" height="currentheight" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -39,13 +51,13 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
         </div>
       </div>
       
-      {/* Делаем картинку и контент кликабельными для перехода на search-result */}
-      <Link href={searchResultUrl} className="div-block-4" style={{ textDecoration: 'none', color: 'inherit' }}>
+      {/* Делаем картинку и контент кликабельными для перехода на card */}
+      <Link href={cardUrl} className="div-block-4" style={{ textDecoration: 'none', color: 'inherit' }}>
         <img src={image} loading="lazy" width="Auto" height="Auto" alt="" className="image-5" />
         <div className="text-block-7">{discount}</div>
       </Link>
       
-      <Link href={searchResultUrl} className="div-block-3" style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Link href={cardUrl} className="div-block-3" style={{ textDecoration: 'none', color: 'inherit' }}>
         <div className="w-layout-hflex flex-block-16">
           <div className="text-block-8">{price}</div>
           <div className="text-block-9">{oldPrice}</div>
@@ -54,7 +66,8 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
         <div className="text-block-11">{brand}</div>
       </Link>
       
-      <Link href={searchResultUrl} className="catc w-inline-block">
+      {/* Обновляем кнопку купить */}
+      <div className="catc w-inline-block" onClick={handleBuyClick} style={{ cursor: 'pointer' }}>
         <div className="div-block-25">
           <div className="icon-setting w-embed">
             <svg width="currentWidht" height="currentHeight" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -63,7 +76,7 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
           </div>
         </div>
         <div className="text-block-6">Купить</div>
-      </Link>
+      </div>
     </div>
   );
 };

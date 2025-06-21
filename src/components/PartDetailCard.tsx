@@ -49,6 +49,13 @@ const PartDetailCard: React.FC<PartDetailCardProps> = ({
     }
   };
 
+  const handleFindOffers = () => {
+    // Переходим на поиск предложений для этой детали
+    // Если бренд не указан или пустой, передаем пустую строку (AutoEuro API автоматически определит бренд)
+    const brandParam = brand && brand.trim() !== '' ? `&brand=${encodeURIComponent(brand)}` : '&brand=';
+    router.push(`/search-result?article=${encodeURIComponent(oem)}${brandParam}&name=${encodeURIComponent(name)}`);
+  };
+
   const handleOpenFullInfo = () => {
     // Переход на отдельную страницу с детальной информацией о детали
     const url = `/vehicle-search/${catalogCode}/${vehicleId}/part/${oem}?use_storage=1&ssd_length=${ssd.length}`;
@@ -60,12 +67,15 @@ const PartDetailCard: React.FC<PartDetailCardProps> = ({
   const totalUnits = oemResult?.categories.reduce((total, cat) => total + cat.units.length, 0) || 0;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-all duration-200">
-      {/* Основная информация */}
-      <div className="p-4">
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md hover:border-red-300 transition-all duration-200 cursor-pointer">
+      {/* Основная информация - кликабельная область */}
+      <div 
+        className="p-4 hover:bg-gray-50 transition-colors"
+        onClick={handleFindOffers}
+      >
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-red-600 transition-colors">
               {name}
             </h3>
             
@@ -89,9 +99,14 @@ const PartDetailCard: React.FC<PartDetailCardProps> = ({
               <p className="text-sm text-gray-600 mb-3">{description}</p>
             )}
 
+            {/* Подсказка о переходе */}
+            <div className="text-sm text-gray-500 italic">
+              Нажмите, чтобы найти предложения для этой детали
+            </div>
+
             {/* Краткая информация о применимости */}
             {oemResult && (
-              <div className="text-sm text-gray-600 mb-3">
+              <div className="text-sm text-gray-600 mt-2">
                 <span className="font-medium">Применимость:</span> 
                 <span className="ml-1">
                   {oemResult.categories.length} категорий, {totalUnits} узлов
@@ -99,49 +114,48 @@ const PartDetailCard: React.FC<PartDetailCardProps> = ({
               </div>
             )}
           </div>
+          
+          {/* Иконка перехода */}
+          <div className="ml-4 text-gray-400">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
         </div>
+      </div>
 
-        {/* Кнопки действий */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={handleToggleExpand}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+      {/* Дополнительные действия */}
+      <div className="px-4 pb-4 flex flex-wrap gap-2 border-t border-gray-100">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggleExpand();
+          }}
+          className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+        >
+          <svg 
+            className={`w-4 h-4 mr-2 transform transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
           >
-            <svg 
-              className={`w-4 h-4 mr-2 transform transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-            {expanded ? 'Скрыть применимость' : 'Показать применимость'}
-          </button>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+          {expanded ? 'Скрыть применимость' : 'Показать применимость'}
+        </button>
 
-          <button
-            onClick={handleOpenFullInfo}
-            className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M7 7l10 10M17 7v4" />
-            </svg>
-            Подробная информация
-          </button>
-
-          <button className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors">
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            В корзину
-          </button>
-
-          <button className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors">
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-            Найти аналоги
-          </button>
-        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOpenFullInfo();
+          }}
+          className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+        >
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Подробно
+        </button>
       </div>
 
       {/* Развернутая информация */}

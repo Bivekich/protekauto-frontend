@@ -2,11 +2,16 @@ import React from "react";
 import ProductInfo from "./ProductInfo";
 import ProductBuyBlock from "./ProductBuyBlock";
 
-const ProductItemCard = ({ isLast = false }: { isLast?: boolean }) => {
+interface ProductItemCardProps {
+  isLast?: boolean;
+  offer?: any;
+}
+
+const ProductItemCard = ({ isLast = false, offer }: ProductItemCardProps) => {
   return (
     <div className={`w-layout-hflex product-item-card${isLast ? " last" : ""}`}>
-      <ProductInfo />
-      <ProductBuyBlock />
+      <ProductInfo offer={offer} />
+      <ProductBuyBlock offer={offer} />
     </div>
   );
 };
