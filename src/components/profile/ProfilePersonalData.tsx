@@ -9,8 +9,6 @@ interface ProfilePersonalDataProps {
   setPhone: (v: string) => void;
   email: string;
   setEmail: (v: string) => void;
-  notifySwitch: boolean;
-  setNotifySwitch: (v: boolean | ((prev: boolean) => boolean)) => void;
   phoneError: string;
   emailError: string;
   onSave?: () => void;
@@ -25,8 +23,6 @@ const ProfilePersonalData: React.FC<ProfilePersonalDataProps> = ({
   setPhone,
   email,
   setEmail,
-  notifySwitch,
-  setNotifySwitch,
   phoneError,
   emailError,
   onSave,
@@ -88,16 +84,7 @@ const ProfilePersonalData: React.FC<ProfilePersonalDataProps> = ({
           {emailError && <div className="text-red-500 text-xs mt-1 ml-2">{emailError}</div>}
         </div>
       </div>
-      <div className="flex flex-wrap gap-5 items-center mt-8 w-full max-md:max-w-full">
-        <div className="flex flex-col self-stretch my-auto w-9 cursor-pointer" onClick={() => setNotifySwitch((prev: boolean) => !prev)}>
-          <div className={`flex flex-col justify-center items-start p-0.5 rounded-[100px] ${notifySwitch ? 'bg-black' : 'bg-zinc-300'}`} style={{ width: 32, height: 20 }}>
-            <div className={`flex shrink-0 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${notifySwitch ? 'translate-x-4' : ''}`} />
-          </div>
-        </div>
-        <div className="self-stretch my-auto text-base leading-snug text-gray-600 max-md:max-w-full">
-          Получать уведомления об акциях и новостях компании
-        </div>
-      </div>
+
       {onSave && (
         <div className="flex justify-end mt-6">
           <button

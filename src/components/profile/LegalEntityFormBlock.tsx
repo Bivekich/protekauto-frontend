@@ -1,6 +1,6 @@
 import React from "react";
 import { useMutation } from '@apollo/client';
-import { CREATE_CLIENT_LEGAL_ENTITY } from '@/lib/graphql';
+import { CREATE_CLIENT_LEGAL_ENTITY, UPDATE_CLIENT_LEGAL_ENTITY } from '@/lib/graphql';
 
 interface LegalEntityFormBlockProps {
   inn: string;
@@ -44,6 +44,24 @@ interface LegalEntityFormBlockProps {
   setResponsiblePhone: (v: string) => void;
   signatory: string;
   setSignatory: (v: string) => void;
+  editingEntity?: {
+    id: string;
+    shortName: string;
+    fullName?: string;
+    form?: string;
+    legalAddress?: string;
+    actualAddress?: string;
+    taxSystem?: string;
+    responsiblePhone?: string;
+    responsiblePosition?: string;
+    responsibleName?: string;
+    accountant?: string;
+    signatory?: string;
+    registrationReasonCode?: string;
+    ogrn?: string;
+    inn: string;
+    vatPercent: number;
+  } | null;
   onAdd: () => void;
   onCancel: () => void;
 }
@@ -90,29 +108,13 @@ const LegalEntityFormBlock: React.FC<LegalEntityFormBlockProps> = ({
   setResponsiblePhone,
   signatory,
   setSignatory,
+  editingEntity,
   onAdd,
   onCancel,
 }) => {
-  const [createLegalEntity, { loading }] = useMutation(CREATE_CLIENT_LEGAL_ENTITY, {
+  const [createLegalEntity, { loading: createLoading }] = useMutation(CREATE_CLIENT_LEGAL_ENTITY, {
     onCompleted: () => {
       console.log('Юридическое лицо создано');
-      // Очищаем форму
-      setInn('');
-      setForm('Выбрать');
-      setOgrn('');
-      setKpp('');
-      setJurAddress('');
-      setShortName('');
-      setFullName('');
-      setFactAddress('');
-      setTaxSystem('Выбрать');
-      setNds('Выбрать');
-      setNdsPercent('');
-      setAccountant('');
-      setResponsible('');
-      setResponsiblePosition('');
-      setResponsiblePhone('');
-      setSignatory('');
       onAdd();
     },
     onError: (error) => {
@@ -120,6 +122,19 @@ const LegalEntityFormBlock: React.FC<LegalEntityFormBlockProps> = ({
       alert('Ошибка создания юридического лица: ' + error.message);
     }
   });
+
+  const [updateLegalEntity, { loading: updateLoading }] = useMutation(UPDATE_CLIENT_LEGAL_ENTITY, {
+    onCompleted: () => {
+      console.log('Юридическое лицо обновлено');
+      onAdd();
+    },
+    onError: (error) => {
+      console.error('Ошибка обновления юридического лица:', error);
+      alert('Ошибка обновления юридического лица: ' + error.message);
+    }
+  });
+
+  const loading = createLoading || updateLoading;
 
   const handleSave = async () => {
     // Валидация
@@ -161,27 +176,54 @@ const LegalEntityFormBlock: React.FC<LegalEntityFormBlockProps> = ({
         vatPercent = parseFloat(ndsPercent) || 20;
       }
 
-      await createLegalEntity({
-        variables: {
-          input: {
-            inn: inn.trim(),
-            shortName: shortName.trim(),
-            fullName: fullName.trim() || shortName.trim(),
-            form: form,
-            legalAddress: jurAddress.trim(),
-            actualAddress: factAddress.trim() || null,
-            taxSystem: taxSystem,
-            vatPercent: vatPercent,
-            accountant: accountant.trim() || null,
-            responsibleName: responsible.trim() || null,
-            responsiblePosition: responsiblePosition.trim() || null,
-            responsiblePhone: responsiblePhone.trim() || null,
-            signatory: signatory.trim() || null,
-            ogrn: ogrn.trim() || null,
-            registrationReasonCode: kpp.trim() || null
+      if (editingEntity) {
+        // Обновляем существующее юридическое лицо
+        await updateLegalEntity({
+          variables: {
+            id: editingEntity.id,
+            input: {
+              inn: inn.trim(),
+              shortName: shortName.trim(),
+              fullName: fullName.trim() || shortName.trim(),
+              form: form,
+              legalAddress: jurAddress.trim(),
+              actualAddress: factAddress.trim() || null,
+              taxSystem: taxSystem,
+              vatPercent: vatPercent,
+              accountant: accountant.trim() || null,
+              responsibleName: responsible.trim() || null,
+              responsiblePosition: responsiblePosition.trim() || null,
+              responsiblePhone: responsiblePhone.trim() || null,
+              signatory: signatory.trim() || null,
+              ogrn: ogrn.trim() || null,
+              registrationReasonCode: kpp.trim() || null
+            }
           }
-        }
-      });
+        });
+      } else {
+        // Создаем новое юридическое лицо
+        await createLegalEntity({
+          variables: {
+            input: {
+              inn: inn.trim(),
+              shortName: shortName.trim(),
+              fullName: fullName.trim() || shortName.trim(),
+              form: form,
+              legalAddress: jurAddress.trim(),
+              actualAddress: factAddress.trim() || null,
+              taxSystem: taxSystem,
+              vatPercent: vatPercent,
+              accountant: accountant.trim() || null,
+              responsibleName: responsible.trim() || null,
+              responsiblePosition: responsiblePosition.trim() || null,
+              responsiblePhone: responsiblePhone.trim() || null,
+              signatory: signatory.trim() || null,
+              ogrn: ogrn.trim() || null,
+              registrationReasonCode: kpp.trim() || null
+            }
+          }
+        });
+      }
     } catch (error) {
       console.error('Ошибка сохранения:', error);
     }
@@ -190,7 +232,7 @@ const LegalEntityFormBlock: React.FC<LegalEntityFormBlockProps> = ({
   return (
   <div className="flex overflow-hidden flex-col p-8 mt-5 w-full bg-white rounded-2xl max-md:px-5 max-md:max-w-full">
     <div className="text-3xl font-bold leading-none text-gray-950">
-      Данные юридического лица
+      {editingEntity ? 'Редактирование юридического лица' : 'Данные юридического лица'}
     </div>
     <div className="flex flex-col mt-8 w-full text-sm leading-snug max-md:max-w-full">
       <div className="flex flex-wrap gap-5 items-start w-full whitespace-nowrap max-md:max-w-full">
@@ -444,7 +486,7 @@ const LegalEntityFormBlock: React.FC<LegalEntityFormBlockProps> = ({
         className={`gap-2.5 self-stretch px-5 py-4 rounded-xl min-h-[50px] cursor-pointer text-white ${loading ? 'bg-gray-400' : 'bg-red-600 hover:bg-red-700'}`} 
         onClick={loading ? undefined : handleSave}
       >
-        {loading ? 'Сохранение...' : 'Добавить'}
+{loading ? 'Сохранение...' : (editingEntity ? 'Сохранить изменения' : 'Добавить')}
       </div>
       <div className="gap-2.5 self-stretch px-5 py-4 rounded-xl border border-red-600 min-h-[50px] cursor-pointer bg-white text-gray-950 hover:bg-gray-50" onClick={onCancel}>
         Отменить

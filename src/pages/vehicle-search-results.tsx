@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useLazyQuery } from '@apollo/client';
 import Header from '@/components/Header';
@@ -16,6 +16,7 @@ const VehicleSearchResultsPage: React.FC<VehicleSearchResultsPageProps> = () => 
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState<'vin' | 'plate' | ''>('');
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Query для поиска по VIN
   const [findVehicleByVin] = useLazyQuery(FIND_LAXIMO_VEHICLE, {
@@ -89,8 +90,8 @@ const VehicleSearchResultsPage: React.FC<VehicleSearchResultsPageProps> = () => 
     }
   }, [routerQuery.q, findVehicleByVin, findVehicleByPlate]);
 
-  const handleVehicleSelect = (vehicle: LaximoVehicleSearchResult) => {
-    console.log('🚗 handleVehicleSelect вызвана для автомобиля:', vehicle);
+  const handleVehicleSelect = useCallback((vehicle: LaximoVehicleSearchResult, skipToCategories = false) => {
+    console.log('🚗 handleVehicleSelect вызвана для автомобиля:', vehicle, 'skipToCategories:', skipToCategories);
     
     // Переходим к выбору групп запчастей для найденного автомобиля
     const catalogCode = vehicle.catalog || vehicle.brand?.toLowerCase() || '';
@@ -120,14 +121,49 @@ const VehicleSearchResultsPage: React.FC<VehicleSearchResultsPageProps> = () => 
       
       localStorage.setItem(vehicleKey, ssd);
       
-      const url = `/vehicle-search/${catalogCode}/${vehicleId}?use_storage=1&ssd_length=${ssd.length}`;
+      // Выбираем URL в зависимости от того, нужно ли пропустить промежуточную страницу
+      const url = skipToCategories 
+        ? `/vehicle-search/${catalogCode}/${vehicleId}?use_storage=1&ssd_length=${ssd.length}&searchType=categories`
+        : `/vehicle-search/${catalogCode}/${vehicleId}?use_storage=1&ssd_length=${ssd.length}`;
+      
       console.log('🔗 Переходим на URL с localStorage:', url);
-      router.push(url);
+      // Используем replace вместо push для моментального перехода
+      router.replace(url);
     } else {
-      const url = `/vehicle-search/${catalogCode}/${vehicleId}`;
+      // Выбираем URL в зависимости от того, нужно ли пропустить промежуточную страницу
+      const url = skipToCategories 
+        ? `/vehicle-search/${catalogCode}/${vehicleId}?searchType=categories`
+        : `/vehicle-search/${catalogCode}/${vehicleId}`;
+      
       console.log('🔗 Переходим на URL без SSD:', url);
-      router.push(url);
+      // Используем replace вместо push для моментального перехода
+      router.replace(url);
     }
+  }, [router]);
+
+  // Предзагрузка и автоматический переход при поиске по VIN, если найден только один автомобиль
+  useEffect(() => {
+    if (!isLoading && searchType === 'vin' && vehicles.length === 1 && !isRedirecting) {
+      console.log('🚗 Найден один автомобиль по VIN, подготавливаем мгновенный переход');
+      
+      const vehicle = vehicles[0];
+      const catalogCode = vehicle.catalog || vehicle.brand?.toLowerCase() || '';
+      const vehicleId = vehicle.vehicleid || '';
+      
+      // Предзагружаем целевую страницу для ускорения перехода (сразу с категориями)
+      const targetUrl = `/vehicle-search/${catalogCode}/${vehicleId}?searchType=categories`;
+      router.prefetch(targetUrl);
+      console.log('🔄 Предзагружаем страницу с категориями:', targetUrl);
+      
+      setIsRedirecting(true);
+      
+      // Мгновенный переход сразу к категориям
+      handleVehicleSelect(vehicle, true);
+    }
+  }, [isLoading, searchType, vehicles, handleVehicleSelect, isRedirecting, router]);
+
+  const handleCancelRedirect = () => {
+    setIsRedirecting(false);
   };
 
   return (
@@ -170,7 +206,7 @@ const VehicleSearchResultsPage: React.FC<VehicleSearchResultsPageProps> = () => 
               <p className="text-lg text-gray-600">
                 Запрос: <span className="font-mono font-bold">{searchQuery}</span>
               </p>
-              {!isLoading && vehicles.length > 0 && (
+              {!isLoading && vehicles.length > 0 && !isRedirecting && (
                 <p className="text-sm text-gray-500 mt-2">
                   Найдено {vehicles.length} автомобилей
                 </p>
@@ -190,8 +226,39 @@ const VehicleSearchResultsPage: React.FC<VehicleSearchResultsPageProps> = () => 
               </div>
             )}
 
+            {/* Auto-redirect notification for VIN search with single result */}
+            {!isLoading && searchType === 'vin' && vehicles.length === 1 && isRedirecting && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <svg className="animate-spin h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <div>
+                      <h3 className="text-lg font-medium text-green-900">✅ Автомобиль найден!</h3>
+                      <p className="text-green-700">
+                        <strong>{vehicles[0]?.brand} {vehicles[0]?.name}</strong> 
+                        {vehicles[0]?.year && ` (${vehicles[0].year} г.)`}
+                        {vehicles[0]?.engine && `, двигатель: ${vehicles[0].engine}`}
+                      </p>
+                                          <p className="text-sm text-green-600 mt-1">
+                      🚀 Переходим сразу к категориям запчастей...
+                    </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => router.back()}
+                    className="text-green-600 hover:text-green-800 border border-green-300 hover:border-green-400 px-3 py-1 rounded text-sm font-medium transition-colors"
+                  >
+                    Назад
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Results Table */}
-            {!isLoading && vehicles.length > 0 && (
+            {!isLoading && vehicles.length > 0 && !isRedirecting && (
               <div className="bg-white shadow-sm rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">

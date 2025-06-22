@@ -726,14 +726,23 @@ export const GET_LAXIMO_UNITS = gql`
       quickgroupid
       name
       link
+      code
+      imageurl
+      largeimageurl
       children {
         quickgroupid
         name
         link
+        code
+        imageurl
+        largeimageurl
         children {
           quickgroupid
           name
           link
+          code
+          imageurl
+          largeimageurl
         }
       }
     }

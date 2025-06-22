@@ -76,19 +76,28 @@ export const GET_LAXIMO_CATEGORIES = gql`
 `;
 
 export const GET_LAXIMO_UNITS = gql`
-  query GetLaximoUnits($catalogCode: String!, $vehicleId: String, $ssd: String) {
-    laximoUnits(catalogCode: $catalogCode, vehicleId: $vehicleId, ssd: $ssd) {
+  query GetLaximoUnits($catalogCode: String!, $vehicleId: String, $ssd: String, $categoryId: String) {
+    laximoUnits(catalogCode: $catalogCode, vehicleId: $vehicleId, ssd: $ssd, categoryId: $categoryId) {
       quickgroupid
       name
       link
+      code
+      imageurl
+      largeimageurl
       children {
         quickgroupid
         name
         link
+        code
+        imageurl
+        largeimageurl
         children {
           quickgroupid
           name
           link
+          code
+          imageurl
+          largeimageurl
         }
       }
     }

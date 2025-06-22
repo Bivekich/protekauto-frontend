@@ -1,5 +1,7 @@
 import React from 'react';
 import MobileMenuButton from './MobileMenuButton';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { useCart } from '@/contexts/CartContext';
 
 const GarageIcon = (
   <svg width="30" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -26,17 +28,42 @@ const CabinetIcon = (
   </svg>
 );
 
-const MobileMenuBottomSection: React.FC = () => (
-  <nav className="mobile-menu-buttom-section">
-    <div className="w-layout-blockcontainer mobile-menu-bottom w-container">
-      <div className="w-layout-hflex flex-block-87">
-        <MobileMenuButton icon={GarageIcon} label="Гараж" href="/profile-gar" />
-        <MobileMenuButton icon={FavoriteIcon} label="Избранное" href="/favorite" />
-        <MobileMenuButton icon={CartIcon} label="Корзина" href="/cart" counter={<div className="text-block-39">12</div>} status="danger" />
-        <MobileMenuButton icon={CabinetIcon} label="Кабинет" href="/login" counter={<div className="text-block-39">!</div>} status="success" />
+const MobileMenuBottomSection: React.FC = () => {
+  const { favorites } = useFavorites();
+  const { state: cartState } = useCart();
+
+  const favoriteCounter = favorites.length > 0 ? (
+    <div className="text-block-39">{favorites.length}</div>
+  ) : undefined;
+
+  const cartCounter = cartState.items.length > 0 ? (
+    <div className="text-block-39">{cartState.items.length}</div>
+  ) : undefined;
+
+  return (
+    <nav className="mobile-menu-buttom-section">
+      <div className="w-layout-blockcontainer mobile-menu-bottom w-container">
+        <div className="w-layout-hflex flex-block-87">
+          <MobileMenuButton icon={GarageIcon} label="Гараж" href="/profile-gar" />
+          <MobileMenuButton 
+            icon={FavoriteIcon} 
+            label="Избранное" 
+            href="/favorite" 
+            counter={favoriteCounter}
+            status={favorites.length > 0 ? "warning" : undefined}
+          />
+          <MobileMenuButton 
+            icon={CartIcon} 
+            label="Корзина" 
+            href="/cart" 
+            counter={cartCounter} 
+            status={cartState.items.length > 0 ? "danger" : undefined}
+          />
+          <MobileMenuButton icon={CabinetIcon} label="Кабинет" href="/login" counter={<div className="text-block-39">!</div>} status="success" />
+        </div>
       </div>
-    </div>
-  </nav>
-);
+    </nav>
+  );
+};
 
 export default MobileMenuBottomSection; 

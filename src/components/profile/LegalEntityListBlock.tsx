@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { useRouter } from 'next/router';
 import { useMutation } from '@apollo/client';
 import { DELETE_CLIENT_LEGAL_ENTITY } from '@/lib/graphql';
 
@@ -33,10 +34,11 @@ interface LegalEntity {
 interface LegalEntityListBlockProps {
   legalEntities: LegalEntity[];
   onRefetch: () => void;
+  onEdit?: (entity: LegalEntity) => void;
 }
 
-const LegalEntityListBlock: React.FC<LegalEntityListBlockProps> = ({ legalEntities, onRefetch }) => {
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
+const LegalEntityListBlock: React.FC<LegalEntityListBlockProps> = ({ legalEntities, onRefetch, onEdit }) => {
+  const router = useRouter();
 
   const [deleteLegalEntity] = useMutation(DELETE_CLIENT_LEGAL_ENTITY, {
     onCompleted: () => {
@@ -111,7 +113,7 @@ const LegalEntityListBlock: React.FC<LegalEntityListBlockProps> = ({ legalEntiti
                   className="flex relative gap-1.5 items-center cursor-pointer hover:text-red-600"
                   role="button"
                   tabIndex={0}
-                  onClick={() => { /* TODO: обработчик открытия реквизитов */ }}
+                  onClick={() => router.push('/profile-requisites')}
                 >
                   <div
                     layer-name="icon-wallet"
@@ -133,50 +135,14 @@ const LegalEntityListBlock: React.FC<LegalEntityListBlockProps> = ({ legalEntiti
                     Реквизиты компании
                   </div>
                 </div>
-                <div
-                  layer-name="link_control_element"
-                  className="flex relative gap-1.5 items-center"
-                >
-                  <div
-                    layer-name="radio"
-                    className="relative aspect-[1/1] h-[18px] w-[18px] cursor-pointer"
-                    onClick={() => setSelectedIndex(idx)}
-                  >
-                    <div>
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html:
-                            selectedIndex === idx
-                              ? `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="9" r="8.5" stroke="#EC1C24"/><circle cx="9.0001" cy="8.99961" r="5.4" fill="#FF0000"/></svg>`
-                              : `<svg id=\"I48:1882;1739:11034;1705:18492;1599:10866\" width=\"18\" height=\"19\" viewBox=\"0 0 18 19\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" class=\"radio-circle-inactive\" style=\"width: 18px; height: 18px; flex-shrink: 0; stroke-width: 1px; stroke: #D0D0D0; position: absolute; left: 0; top: 0\"> <circle cx=\"9\" cy=\"9.97461\" r=\"8.5\" stroke=\"#D0D0D0\"></circle> </svg>`
-                        }}
-                      />
-                    </div>
-                    {selectedIndex === idx && (
-                      <div>
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html:
-                              "<svg id=\"I48:1881;1739:11034;1705:18492;1599:10880\" width=\"12\" height=\"12\" viewBox=\"0 0 12 12\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" class=\"radio-dot-active\" style=\"width: 11px; height: 11px; flex-shrink: 0; fill: #FF0000; position: absolute; left: 3.5px; top: 3.5px\"> <circle cx=\"6.00001\" cy=\"5.97422\" r=\"5.4\" fill=\"#FF0000\"></circle> </svg>"
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <div
-                    layer-name="Редактировать"
-                    className="text-sm leading-5 text-gray-600"
-                  >
-                    Основное юр лицо
-                  </div>
-                </div>
+
               </div>
               <div className="flex relative gap-5 items-center pr-2.5 max-md:gap-4 max-sm:flex-wrap max-sm:gap-2.5">
                 <div
                   role="button"
                   tabIndex={0}
                   className="flex relative gap-1.5 items-center cursor-pointer hover:text-red-600"
-                  onClick={() => {/* TODO: редактирование */}}
+                  onClick={() => onEdit && onEdit(entity)}
                 >
                   <div className="relative h-4 w-[18px]">
                     <Image

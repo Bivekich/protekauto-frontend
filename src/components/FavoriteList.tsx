@@ -1,17 +1,9 @@
 import React, { useState } from "react";
 import Filters, { FilterConfig } from "./Filters";
-
-const initialItems = Array.from({ length: 10 }, (_, i) => ({
-  id: i + 1,
-  brand: "VAG",
-  article: "6RU807421BGRU",
-  name: "Ролик ремня ГРМ VW AD GANZ GIE37312",
-  price: "от 18 763 ₽",
-  comment: "",
-}));
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 const FavoriteList: React.FC<{ filters: FilterConfig[] }> = ({ filters }) => {
-  const [items, setItems] = useState(initialItems);
+  const { favorites, removeFromFavorites, clearFavorites } = useFavorites();
   const [filterValues, setFilterValues] = useState<{[key: string]: any}>({});
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -26,12 +18,38 @@ const FavoriteList: React.FC<{ filters: FilterConfig[] }> = ({ filters }) => {
     setSearchQuery(value);
   };
 
-  const handleRemove = (id: number) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  const handleRemove = (id: string) => {
+    removeFromFavorites(id);
   };
 
   const handleRemoveAll = () => {
-    setItems([]);
+    clearFavorites();
+  };
+
+  // Применяем фильтры к избранным товарам
+  const filteredFavorites = favorites.filter(item => {
+    // Фильтр по поисковому запросу
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = 
+        item.name.toLowerCase().includes(query) ||
+        item.brand.toLowerCase().includes(query) ||
+        item.article.toLowerCase().includes(query);
+      
+      if (!matchesSearch) return false;
+    }
+
+    // Здесь можно добавить логику для других фильтров
+    // Например, фильтр по категории, производителю и т.д.
+    
+    return true;
+  });
+
+  const formatPrice = (price: number, currency: string) => {
+    if (currency === 'RUB') {
+      return `от ${price.toLocaleString('ru-RU')} ₽`;
+    }
+    return `от ${price} ${currency}`;
   };
 
   return (
@@ -57,7 +75,7 @@ const FavoriteList: React.FC<{ filters: FilterConfig[] }> = ({ filters }) => {
               <img src="/images/delete.svg" alt="" className="image-13" />
             </div>
           </div>
-          {items.map((item) => (
+          {filteredFavorites.map((item) => (
             <div className="div-block-21" key={item.id}>
               <div className="w-layout-hflex favorite-item">
                 <div className="w-layout-hflex info-block-search">
@@ -68,7 +86,15 @@ const FavoriteList: React.FC<{ filters: FilterConfig[] }> = ({ filters }) => {
                   </div>
                   <div className="comments_f w-form">
                     <form className="form-copy">
-                      <input className="text-field-copy w-input" maxLength={256} name="Search-5" data-name="Search 5" placeholder="Комментарий" type="text" id={`Search-5-${item.id}`} required />
+                      <input 
+                        className="text-field-copy w-input" 
+                        maxLength={256} 
+                        name="Search-5" 
+                        data-name="Search 5" 
+                        placeholder="Комментарий" 
+                        type="text" 
+                        id={`Search-5-${item.id}`} 
+                      />
                     </form>
                     <div className="success-message w-form-done">
                       <div>Thank you! Your submission has been received!</div>
@@ -79,16 +105,25 @@ const FavoriteList: React.FC<{ filters: FilterConfig[] }> = ({ filters }) => {
                   </div>
                 </div>
                 <div className="w-layout-hflex add-to-cart-block-copy">
-                  <h4 className="heading-9-copy-copy">{item.price}</h4>
+                  <h4 className="heading-9-copy-copy">{formatPrice(item.price, item.currency)}</h4>
                   <div className="w-layout-hflex control-element-copy">
-                    <img loading="lazy" src="/images/delete.svg" alt="" className="image-13" style={{ cursor: 'pointer' }} onClick={() => handleRemove(item.id)} />
+                    <img 
+                      loading="lazy" 
+                      src="/images/delete.svg" 
+                      alt="" 
+                      className="image-13" 
+                      style={{ cursor: 'pointer' }} 
+                      onClick={() => handleRemove(item.id)} 
+                    />
                   </div>
                 </div>
               </div>
             </div>
           ))}
-          {items.length === 0 && (
-            <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>Нет избранных товаров</div>
+          {filteredFavorites.length === 0 && (
+            <div style={{ padding: 32, textAlign: 'center', color: '#888' }}>
+              {favorites.length === 0 ? 'Нет избранных товаров' : 'Нет товаров, соответствующих фильтрам'}
+            </div>
           )}
         </div>
       </div>

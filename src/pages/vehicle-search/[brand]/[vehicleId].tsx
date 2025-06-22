@@ -23,10 +23,13 @@ interface LaximoVehicleInfo {
 
 const VehicleDetailsPage = () => {
   const router = useRouter();
-  const { brand, vehicleId, oemNumber } = router.query;
+  const { brand, vehicleId, oemNumber, searchType: searchTypeParam } = router.query;
   
-  // Устанавливаем тип поиска по умолчанию
-  const [searchType, setSearchType] = useState<'quickgroups' | 'categories' | 'fulltext'>('quickgroups');
+  // Устанавливаем тип поиска из URL или по умолчанию
+  const defaultSearchType = (searchTypeParam === 'categories' || searchTypeParam === 'quickgroups' || searchTypeParam === 'fulltext') 
+    ? searchTypeParam 
+    : 'quickgroups';
+  const [searchType, setSearchType] = useState<'quickgroups' | 'categories' | 'fulltext'>(defaultSearchType);
 
   // Получаем информацию о каталоге
   const { data: catalogData } = useQuery<{ laximoCatalogInfo: LaximoCatalogInfo }>(

@@ -136,6 +136,9 @@ export interface LaximoQuickGroup {
   name: string
   link: boolean
   children?: LaximoQuickGroup[]
+  code?: string
+  imageurl?: string
+  largeimageurl?: string
 }
 
 export interface LaximoQuickDetail {

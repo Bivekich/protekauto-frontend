@@ -360,6 +360,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   )
 }
 
+
 // Хук для использования контекста корзины
 export const useCart = (): CartContextType => {
   const context = useContext(CartContext)
