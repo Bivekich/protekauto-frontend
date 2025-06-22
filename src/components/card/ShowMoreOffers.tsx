@@ -12,13 +12,14 @@ const ShowMoreOffers = ({ hasMoreOffers = false, onShowMore, remainingCount = 0 
   }
 
   return (
-    <div className="w-layout-hflex show-more-offers">
+    <div className="w-layout-hflex show-more-search">
       <button 
         onClick={onShowMore}
-        className="button_strock w-button"
+        className="text-block-27"
       >
         Показать еще предложения ({remainingCount})
       </button>
+      <img src="images/arrow_drop_down.svg" loading="lazy" alt="" />
     </div>
   );
 };

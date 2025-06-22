@@ -19,6 +19,7 @@ const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max
   const [to, setTo] = useState(value ? value[1] : max);
   const [dragging, setDragging] = useState<null | "from" | "to">(null);
   const [trackWidth, setTrackWidth] = useState(0);
+  const [open, setOpen] = useState(true);
   const trackRef = useRef<HTMLDivElement>(null);
 
   // Обновляем локальное состояние при изменении внешнего значения
@@ -193,82 +194,84 @@ const FilterRange: React.FC<FilterRangeProps> = ({ title, min = DEFAULT_MIN, max
 
   // Десктопная версия - с dropdown
   return (
-    <div className="dropdown w-dropdown w--open">
-      <div className="dropdown-toggle w-dropdown-toggle">
+    <div className={`dropdown w-dropdown${open ? " w--open" : ""}`}>
+      <div className="dropdown-toggle w-dropdown-toggle" onClick={() => setOpen(o => !o)} tabIndex={0} aria-expanded={open} aria-label={`Фильтр диапазона ${title}`}>
         <h4 className="heading-2">{title}</h4>
         <div className="icon-3 w-icon-dropdown-toggle"></div>
       </div>
-      <nav className="dropdown-list w-dropdown-list">
-        <div className="form-block-2">
-          <form className="form-2" onSubmit={e => e.preventDefault()}>
-            <div className="div-block-5">
-              <label htmlFor="from" className="field-label">от</label>
-              <input
-                className="text-field-2 w-input"
-                maxLength={6}
-                name="from"
-                placeholder={String(min)}
-                type="text"
-                id="from"
-                value={from}
-                onChange={handleFromInput}
-                onBlur={handleInputBlur}
-              />
-            </div>
-            <div className="div-block-5">
-              <label htmlFor="to" className="field-label">до</label>
-              <input
-                className="text-field-2 w-input"
-                maxLength={6}
-                name="to"
-                placeholder={String(max)}
-                type="text"
-                id="to"
-                value={to}
-                onChange={handleToInput}
-                onBlur={handleInputBlur}
-              />
-            </div>
-          </form>
-        </div>
-        <div className="div-block-6" style={{ position: "relative", height: 32, marginTop: 12 }} ref={trackRef}>
-          <div className="track" style={{ position: "absolute", top: 14, left: 0, right: 0, height: 4, borderRadius: 2 }}></div>
-          <div
-            className="track fill"
-            style={{
-              position: "absolute",
-              top: 14,
-              left: pxFrom,
-              width: pxTo - pxFrom,
-              height: 4,
-              borderRadius: 2,
-              zIndex: 2,
-            }}
-          ></div>
-          <div
-            className="start"
-            style={{
-              position: "absolute",
-              top: 6,
-              left: pxFrom - 8,
-              zIndex: 3,
-              cursor: "pointer"
-            }}
-            onMouseDown={onMouseDown("from")}
-          ></div>
-          <div
-            className="start end"
-            style={{
-              position: "absolute",
-              top: 6,
-              left: pxTo - 8,
-              zIndex: 3,
-              cursor: "pointer"
-            }}
-            onMouseDown={onMouseDown("to")}
-          ></div>
-        </div>
-      </nav>
+      {open && (
+        <nav className="dropdown-list w-dropdown-list">
+          <div className="form-block-2">
+            <form className="form-2" onSubmit={e => e.preventDefault()}>
+              <div className="div-block-5">
+                <label htmlFor="from" className="field-label">от</label>
+                <input
+                  className="text-field-2 w-input"
+                  maxLength={6}
+                  name="from"
+                  placeholder={String(min)}
+                  type="text"
+                  id="from"
+                  value={from}
+                  onChange={handleFromInput}
+                  onBlur={handleInputBlur}
+                />
+              </div>
+              <div className="div-block-5">
+                <label htmlFor="to" className="field-label">до</label>
+                <input
+                  className="text-field-2 w-input"
+                  maxLength={6}
+                  name="to"
+                  placeholder={String(max)}
+                  type="text"
+                  id="to"
+                  value={to}
+                  onChange={handleToInput}
+                  onBlur={handleInputBlur}
+                />
+              </div>
+            </form>
+          </div>
+          <div className="div-block-6" style={{ position: "relative", height: 32, marginTop: 12 }} ref={trackRef}>
+            <div className="track" style={{ position: "absolute", top: 14, left: 0, right: 0, height: 4, borderRadius: 2 }}></div>
+            <div
+              className="track fill"
+              style={{
+                position: "absolute",
+                top: 14,
+                left: pxFrom,
+                width: pxTo - pxFrom,
+                height: 4,
+                borderRadius: 2,
+                zIndex: 2,
+              }}
+            ></div>
+            <div
+              className="start"
+              style={{
+                position: "absolute",
+                top: 6,
+                left: pxFrom - 8,
+                zIndex: 3,
+                cursor: "pointer"
+              }}
+              onMouseDown={onMouseDown("from")}
+            ></div>
+            <div
+              className="start end"
+              style={{
+                position: "absolute",
+                top: 6,
+                left: pxTo - 8,
+                zIndex: 3,
+                cursor: "pointer"
+              }}
+              onMouseDown={onMouseDown("to")}
+            ></div>
+          </div>
+        </nav>
+      )}
     </div>
   );
 };

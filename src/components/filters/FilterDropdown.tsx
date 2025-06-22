@@ -78,14 +78,28 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
                 </div>
               ))}
               {((showAll && options.length > 4) || hasMore) && (
-                <div className="show-all-option" onClick={() => {
-                  if (hasMore && onShowMore) {
-                    onShowMore();
-                  } else {
-                    setShowAllOptions(!showAllOptions);
-                  }
-                }} style={{ color: '#007bff', cursor: 'pointer', fontSize: 15 }}>
-                  {hasMore ? "Показать еще" : (showAllOptions ? "Скрыть" : "Показать все")}
+                <div className="w-layout-vflex flex-block-17">
+                  <div
+                    className="div-block-8"
+                    onClick={() => {
+                      if (hasMore && onShowMore) {
+                        onShowMore();
+                      } else {
+                        setShowAllOptions(!showAllOptions);
+                      }
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="text-block-13">
+                      {hasMore ? "Показать еще" : (showAllOptions ? "Скрыть" : "Показать все")}
+                    </div>
+                    <img
+                      loading="lazy"
+                      src="/images/arrow_drop_down.svg"
+                      alt=""
+                      style={{ marginLeft: 4, transform: showAllOptions ? 'rotate(180deg)' : undefined }}
+                    />
+                  </div>
                 </div>
               )}
             </div>
@@ -121,14 +135,28 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
             ))}
           </div>
           {((showAll && options.length > 4) || hasMore) && (
-            <div className="show-all-option" onClick={() => {
-              if (hasMore && onShowMore) {
-                onShowMore();
-              } else {
-                setShowAllOptions(!showAllOptions);
-              }
-            }}>
-              {hasMore ? "Показать еще" : (showAllOptions ? "Скрыть" : "Показать все")}
+            <div className="w-layout-vflex flex-block-17">
+              <div
+                className="div-block-8"
+                onClick={() => {
+                  if (hasMore && onShowMore) {
+                    onShowMore();
+                  } else {
+                    setShowAllOptions(!showAllOptions);
+                  }
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="text-block-13">
+                  {hasMore ? "Показать еще" : (showAllOptions ? "Скрыть" : "Показать все")}
+                </div>
+                <img
+                  loading="lazy"
+                  src="/images/arrow_drop_down.svg"
+                  alt=""
+                  style={{ marginLeft: 4, transform: showAllOptions ? 'rotate(180deg)' : undefined }}
+                />
+              </div>
             </div>
           )}
         </nav>

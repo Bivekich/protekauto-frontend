@@ -3,7 +3,7 @@
   --back: #0d336c;
   --_fonts---font-family: Onest, sans-serif;
   --_fonts---color--dark-blue: #0d336c;
-  --_fonts---font-size--core: 16px;
+  --_fonts---font-size--core: 14px;
   --_fonts---font-size--small-font-size: 14px;
   --_fonts---color--black: #000;
   --_fonts---font-size--bigger: 18px;
@@ -2461,7 +2461,7 @@ body {
 
 .delivery-time-search {
   font-size: var(--_fonts---font-size--core);
-  width: 120px;
+  width: 160px;
   max-height: 40px;
   overflow: hidden;
 }
@@ -2474,7 +2474,7 @@ body {
 }
 
 .price.opencard {
-  width: 70px;
+  width: 33%;
 }
 
 .add-to-cart-block {
@@ -2615,7 +2615,7 @@ body {
   color: var(--_fonts---color--black);
   font-size: var(--_fonts---font-size--core);
   text-align: left;
-  width: 60px;
+  width: 33vw;
   max-height: 40px;
   overflow: hidden;
 }
@@ -5865,7 +5865,7 @@ body {
     margin-top: 12px;
   }
 
-  .fsfav, .favcardcat {
+  .fsfav {
     border: 1px solid var(--_icon---light-blue-grey);
     color: var(--_icon---light-blue-grey);
     border-radius: 50px;
