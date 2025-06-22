@@ -25,12 +25,12 @@ export default function InfoCard({ brand, articleNumber, name }: InfoCardProps) 
             </a>
             <div className="text-block-3">→</div>
             <a href="#" className="link-block-2 w-inline-block">
-              <div>{name || "Деталь"}</div>
+              <div>{name || "Деталь"} </div>
             </a>
           </div>
           <div className="w-layout-hflex flex-block-bi">
             <div className="w-layout-hflex headingbi">
-              <h1 className="heading-bi">{name || "Название товара"}</h1>
+              <h1 className="heading-bi">{name || "Название товара"} {brand || "БРЕНД"}</h1>
               <div className="div-block-127">
                 <div className="icon-setting w-embed">
                   <svg width="currentwidth" height="currentheight" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
