@@ -12,6 +12,7 @@ interface PickupPointSelectorProps {
   onCityChange?: (cityName: string) => void;
   placeholder?: string;
   className?: string;
+  typeFilter?: string;
 }
 
 const PickupPointSelector: React.FC<PickupPointSelectorProps> = ({
@@ -19,7 +20,8 @@ const PickupPointSelector: React.FC<PickupPointSelectorProps> = ({
   onPointSelect,
   onCityChange,
   placeholder = "Выберите пункт выдачи",
-  className = ""
+  className = "",
+  typeFilter
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -156,11 +158,15 @@ const PickupPointSelector: React.FC<PickupPointSelectorProps> = ({
   // Популярные города с ПВЗ Яндекса (расширенный список)
   const availableCities = Object.keys(cityCoordinates).sort();
 
-  // Фильтрация ПВЗ по поисковому запросу
-  const filteredPoints = pickupPoints.filter((point: YandexPickupPoint) =>
-    point.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    point.address.fullAddress.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Фильтрация ПВЗ по поисковому запросу и типу
+  const filteredPoints = pickupPoints.filter((point: YandexPickupPoint) => {
+    const matchesSearch = point.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      point.address.fullAddress.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesType = !typeFilter || point.type === typeFilter;
+    
+    return matchesSearch && matchesType;
+  });
 
   // Получение геолокации
   const handleGetLocation = () => {

@@ -3,7 +3,7 @@ import { useMutation, useLazyQuery } from '@apollo/client';
 import CustomCheckbox from './CustomCheckbox';
 import PickupPointSelector from '../delivery/PickupPointSelector';
 import { YandexPickupPoint } from '@/lib/graphql/yandex-delivery';
-import { CREATE_CLIENT_DELIVERY_ADDRESS, GET_CLIENT_DELIVERY_ADDRESSES, GET_ADDRESS_SUGGESTIONS } from '@/lib/graphql';
+import { CREATE_CLIENT_DELIVERY_ADDRESS, UPDATE_CLIENT_DELIVERY_ADDRESS, GET_CLIENT_DELIVERY_ADDRESSES, GET_ADDRESS_SUGGESTIONS } from '@/lib/graphql';
 
 interface AddressFormWithPickupProps {
   onDetectLocation: () => void;
@@ -13,6 +13,7 @@ interface AddressFormWithPickupProps {
   onCityChange: (cityName: string) => void;
   onPickupPointSelect: (point: YandexPickupPoint) => void;
   selectedPickupPoint?: YandexPickupPoint;
+  editingAddress?: any; // Для редактирования существующего адреса
 }
 
 // Компонент автокомплита адресов
@@ -146,6 +147,123 @@ const Tabs = ({ deliveryType, setDeliveryType }: {
   </div>
 );
 
+// Компонент фильтра по типу ПВЗ
+const PickupTypeFilter = ({ selectedType, onTypeChange }: { 
+  selectedType: string; 
+  onTypeChange: (type: string) => void;
+}) => (
+  <div className="flex flex-col gap-3">
+    <label className="text-sm font-medium text-gray-700">Тип пункта выдачи *</label>
+    <div className="flex gap-2">
+      <button
+        onClick={() => onTypeChange('pickup_point')}
+        className={`flex-1 px-4 py-2 text-sm font-medium rounded-md border transition-colors ${
+          selectedType === 'pickup_point'
+            ? 'bg-red-600 text-white border-red-600'
+            : 'bg-white text-gray-700 border-gray-300 hover:border-red-300'
+        }`}
+      >
+        ПВЗ
+      </button>
+      <button
+        onClick={() => onTypeChange('terminal')}
+        className={`flex-1 px-4 py-2 text-sm font-medium rounded-md border transition-colors ${
+          selectedType === 'terminal'
+            ? 'bg-red-600 text-white border-red-600'
+            : 'bg-white text-gray-700 border-gray-300 hover:border-red-300'
+        }`}
+      >
+        Постомат
+      </button>
+    </div>
+  </div>
+);
+
+// Компонент детальной информации о ПВЗ
+const PickupPointDetails = ({ point, onConfirm, onCancel }: {
+  point: YandexPickupPoint;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) => (
+  <div className="flex flex-col gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+    <div className="flex justify-between items-start">
+      <h3 className="text-lg font-semibold text-gray-900">Подтверждение выбора ПВЗ</h3>
+      <button onClick={onCancel} className="text-gray-400 hover:text-gray-600">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+        </svg>
+      </button>
+    </div>
+    
+    <div className="space-y-3">
+      <div>
+        <h4 className="font-medium text-gray-900">{point.name}</h4>
+        <p className="text-sm text-gray-600">{point.address.fullAddress}</p>
+        <span className="inline-block mt-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+          {point.typeLabel}
+        </span>
+      </div>
+
+      <div>
+        <h5 className="font-medium text-gray-900 mb-2">Режим работы:</h5>
+        <div className="text-sm text-gray-600 whitespace-pre-line">
+          {point.formattedSchedule}
+        </div>
+      </div>
+
+      {point.contact.phone && (
+        <div>
+          <h5 className="font-medium text-gray-900">Телефон:</h5>
+          <p className="text-sm text-gray-600">{point.contact.phone}</p>
+        </div>
+      )}
+
+      {point.instruction && (
+        <div>
+          <h5 className="font-medium text-gray-900">Дополнительная информация:</h5>
+          <p className="text-sm text-gray-600">{point.instruction}</p>
+        </div>
+      )}
+
+      <div className="flex gap-2 pt-2">
+        <div className="flex items-center gap-2">
+          {point.paymentMethods.includes('card_on_receipt') && (
+            <span className="flex items-center gap-1 text-xs text-green-600">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path fillRule="evenodd" d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+              </svg>
+              Оплата картой
+            </span>
+          )}
+          {point.isYandexBranded && (
+            <span className="flex items-center gap-1 text-xs text-blue-600">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path fillRule="evenodd" d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+              </svg>
+              Яндекс ПВЗ
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <div className="flex gap-3 pt-2">
+      <button
+        onClick={onCancel}
+        className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+      >
+        Изменить выбор
+      </button>
+      <button
+        onClick={onConfirm}
+        className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+      >
+        Подтвердить выбор
+      </button>
+    </div>
+  </div>
+);
+
 const AddressFormWithPickup = ({ 
   onDetectLocation, 
   address, 
@@ -153,19 +271,22 @@ const AddressFormWithPickup = ({
   onBack,
   onCityChange,
   onPickupPointSelect,
-  selectedPickupPoint
+  selectedPickupPoint,
+  editingAddress
 }: AddressFormWithPickupProps) => {
-  const [deliveryType, setDeliveryType] = useState('COURIER');
+  const [deliveryType, setDeliveryType] = useState(editingAddress?.deliveryType || 'COURIER');
+  const [pickupTypeFilter, setPickupTypeFilter] = useState<string>('pickup_point');
+  const [showPickupDetails, setShowPickupDetails] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    address: '',
-    entrance: '',
-    floor: '',
-    apartment: '',
-    intercom: '',
-    deliveryTime: '',
-    contactPhone: '',
-    comment: ''
+    name: editingAddress?.name || '',
+    address: editingAddress?.address || '',
+    entrance: editingAddress?.entrance || '',
+    floor: editingAddress?.floor || '',
+    apartment: editingAddress?.apartment || '',
+    intercom: editingAddress?.intercom || '',
+    deliveryTime: editingAddress?.deliveryTime || '',
+    contactPhone: editingAddress?.contactPhone || '',
+    comment: editingAddress?.comment || ''
   });
 
   const [createAddress] = useMutation(CREATE_CLIENT_DELIVERY_ADDRESS, {
@@ -180,6 +301,29 @@ const AddressFormWithPickup = ({
     refetchQueries: [{ query: GET_CLIENT_DELIVERY_ADDRESSES }]
   });
 
+  const [updateAddress] = useMutation(UPDATE_CLIENT_DELIVERY_ADDRESS, {
+    onCompleted: () => {
+      alert('Адрес доставки обновлен!');
+      onBack();
+    },
+    onError: (error) => {
+      console.error('Ошибка обновления адреса:', error);
+      alert('Ошибка обновления адреса: ' + error.message);
+    },
+    refetchQueries: [{ query: GET_CLIENT_DELIVERY_ADDRESSES }]
+  });
+
+  const handlePickupPointSelect = (point: YandexPickupPoint) => {
+    // Проверяем соответствие выбранному типу
+    if (point.type !== pickupTypeFilter) {
+      alert(`Выбранный пункт не соответствует типу "${pickupTypeFilter === 'pickup_point' ? 'ПВЗ' : 'Постомат'}". Пожалуйста, выберите другой пункт.`);
+      return;
+    }
+    
+    onPickupPointSelect(point);
+    setShowPickupDetails(true);
+  };
+
   const handleSave = async () => {
     if (deliveryType === 'COURIER') {
       if (!formData.name || !formData.address) {
@@ -187,49 +331,81 @@ const AddressFormWithPickup = ({
         return;
       }
 
+      const addressInput = {
+        name: formData.name,
+        address: formData.address,
+        deliveryType: 'COURIER',
+        comment: formData.comment,
+        entrance: formData.entrance || null,
+        floor: formData.floor || null,
+        apartment: formData.apartment || null,
+        intercom: formData.intercom || null,
+        deliveryTime: formData.deliveryTime || null,
+        contactPhone: formData.contactPhone || null
+      };
+
       try {
-        await createAddress({
-          variables: {
-            input: {
-              name: formData.name,
-              address: formData.address,
-              deliveryType: 'COURIER',
-              comment: formData.comment,
-              entrance: formData.entrance || null,
-              floor: formData.floor || null,
-              apartment: formData.apartment || null,
-              intercom: formData.intercom || null,
-              deliveryTime: formData.deliveryTime || null,
-              contactPhone: formData.contactPhone || null
+        if (editingAddress) {
+          // Обновляем существующий адрес
+          await updateAddress({
+            variables: {
+              id: editingAddress.id,
+              input: addressInput
             }
-          }
-        });
+          });
+        } else {
+          // Создаем новый адрес
+          await createAddress({
+            variables: {
+              input: addressInput
+            }
+          });
+        }
       } catch (error) {
         console.error('Ошибка сохранения:', error);
       }
     } else if (deliveryType === 'PICKUP' && selectedPickupPoint) {
+      // Для самовывоза показываем детали перед сохранением
+      if (!showPickupDetails) {
+        setShowPickupDetails(true);
+        return;
+      }
+      
+      const pickupInput = {
+        name: selectedPickupPoint.name,
+        address: selectedPickupPoint.address.fullAddress,
+        deliveryType: 'PICKUP',
+        comment: formData.comment || null,
+        entrance: null,
+        floor: null,
+        apartment: null,
+        intercom: null,
+        deliveryTime: null,
+        contactPhone: null
+      };
+
       try {
-        await createAddress({
-          variables: {
-            input: {
-              name: selectedPickupPoint.name,
-              address: selectedPickupPoint.address.fullAddress,
-              deliveryType: 'PICKUP',
-              comment: formData.comment || null,
-              entrance: null,
-              floor: null,
-              apartment: null,
-              intercom: null,
-              deliveryTime: null,
-              contactPhone: null
+        if (editingAddress) {
+          // Обновляем существующий адрес
+          await updateAddress({
+            variables: {
+              id: editingAddress.id,
+              input: pickupInput
             }
-          }
-        });
+          });
+        } else {
+          // Создаем новый адрес
+          await createAddress({
+            variables: {
+              input: pickupInput
+            }
+          });
+        }
       } catch (error) {
         console.error('Ошибка сохранения ПВЗ:', error);
       }
     } else {
-      alert('Пожалуйста, выберите пункт выдачи');
+      alert('Пожалуйста, выберите пункт выдачи соответствующего типа');
     }
   };
 
@@ -247,7 +423,7 @@ const AddressFormWithPickup = ({
         <div className="flex relative flex-col gap-5 items-start self-stretch max-sm:gap-4">
           <div className="flex relative gap-2.5 justify-center items-center self-stretch pr-10 max-md:pr-5">
             <div className="text-3xl font-bold leading-9 flex-[1_0_0] text-gray-950 max-md:text-2xl max-sm:text-2xl">
-              Адрес доставки
+              {editingAddress ? 'Редактировать адрес' : 'Адрес доставки'}
             </div>
             <div onClick={onBack} className="cursor-pointer absolute right-0 top-1">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -370,19 +546,54 @@ const AddressFormWithPickup = ({
             </div>
           </div>
         ) : (
-          <PickupPointSelector
-            selectedPoint={selectedPickupPoint}
-            onPointSelect={onPickupPointSelect}
-            onCityChange={onCityChange}
-            placeholder="Выберите пункт выдачи"
-          />
+          <div className="flex flex-col gap-4 items-start self-stretch">
+            <PickupTypeFilter 
+              selectedType={pickupTypeFilter} 
+              onTypeChange={setPickupTypeFilter} 
+            />
+            
+            {showPickupDetails && selectedPickupPoint ? (
+              <PickupPointDetails
+                point={selectedPickupPoint}
+                onConfirm={() => {
+                  setShowPickupDetails(false);
+                  handleSave();
+                }}
+                onCancel={() => setShowPickupDetails(false)}
+              />
+            ) : (
+              <PickupPointSelector
+                selectedPoint={selectedPickupPoint}
+                onPointSelect={handlePickupPointSelect}
+                onCityChange={onCityChange}
+                placeholder={`Выберите ${pickupTypeFilter === 'pickup_point' ? 'ПВЗ' : 'постомат'}`}
+                typeFilter={pickupTypeFilter}
+              />
+            )}
+
+            {/* Комментарий для самовывоза */}
+            <div className="flex flex-col gap-2 items-start self-stretch">
+              <label className="text-sm font-medium text-gray-700">Комментарий</label>
+              <textarea
+                value={formData.comment}
+                onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
+                placeholder="Дополнительная информация"
+                rows={3}
+                className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+              />
+            </div>
+          </div>
         )}
 
         <button
           onClick={handleSave}
           className="w-full px-5 py-3.5 text-base font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors"
+          disabled={deliveryType === 'PICKUP' && !selectedPickupPoint}
         >
-          Сохранить адрес доставки
+          {deliveryType === 'PICKUP' && selectedPickupPoint && !showPickupDetails 
+            ? 'Показать детали и сохранить' 
+            : editingAddress ? 'Сохранить изменения' : 'Сохранить адрес доставки'
+          }
         </button>
       </div>
     </div>
