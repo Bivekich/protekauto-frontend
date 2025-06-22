@@ -28,6 +28,7 @@ interface FiltersProps {
   };
   searchQuery?: string;
   onSearchChange?: (value: string) => void;
+  isLoading?: boolean;
 }
 
 const Filters: React.FC<FiltersProps> = ({ 
@@ -35,7 +36,8 @@ const Filters: React.FC<FiltersProps> = ({
   onFilterChange, 
   filterValues = {},
   searchQuery = '',
-  onSearchChange 
+  onSearchChange,
+  isLoading = false
 }) => (
   <div className="w-layout-vflex flex-block-12">
     {/* Поиск - показываем только если есть обработчик */}

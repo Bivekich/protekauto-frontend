@@ -8,6 +8,9 @@ interface CartRecommendedProductCardProps {
   oldPrice: string;
   title: string;
   brand: string;
+  articleNumber?: string;
+  brandName?: string;
+  artId?: string;
 }
 
 const CartRecommendedProductCard: React.FC<CartRecommendedProductCardProps> = ({
@@ -17,6 +20,9 @@ const CartRecommendedProductCard: React.FC<CartRecommendedProductCardProps> = ({
   oldPrice,
   title,
   brand,
+  articleNumber,
+  brandName,
+  artId,
 }) => (
   <div className="w-layout-vflex flex-block-15">
     <Link href="/card" className="card-link" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>

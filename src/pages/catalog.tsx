@@ -151,7 +151,6 @@ export default function Catalog() {
           options: brandsToShow.sort(), // Сортируем по алфавиту для удобства
           multi: true,
           showAll: true,
-          defaultOpen: true, // Делаем раскрытым по умолчанию
           hasMore: !showAllBrands && sortedBrands.length > MAX_BRANDS_DISPLAY,
           onShowMore: () => setShowAllBrands(true)
         });
