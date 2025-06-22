@@ -131,6 +131,22 @@ input.text-block-31 {
   box-shadow: 0 2px 8px rgba(124,58,237,0.08);
 }
 
+.filters-panel-mobile-clear {
+  margin: 16px 24px 24px 24px;
+  padding: 14px 0;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.filters-panel-mobile-clear:hover {
+  background: #e5e7eb;
+}
 
 .form-block, .text-field.w-input {
   min-height: 48px !important;

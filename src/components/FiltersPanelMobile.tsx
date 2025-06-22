@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import FilterDropdown from "./filters/FilterDropdown";
 import FilterRange from "./filters/FilterRange";
 import type { FilterConfig } from "./Filters";
@@ -10,9 +10,29 @@ interface FiltersPanelMobileProps {
   onApply?: () => void;
   searchQuery: string;
   onSearchChange: (value: string) => void;
+  filterValues?: {[key: string]: any};
+  onFilterChange?: (type: string, value: any) => void;
 }
 
-const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ filters, open, onClose, onApply, searchQuery, onSearchChange }) => {
+const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ 
+  filters, 
+  open, 
+  onClose, 
+  onApply, 
+  searchQuery, 
+  onSearchChange,
+  filterValues = {},
+  onFilterChange
+}) => {
+  const [localFilterValues, setLocalFilterValues] = useState<{[key: string]: any}>({});
+
+  // Синхронизируем локальные значения с внешними при открытии панели
+  useEffect(() => {
+    if (open) {
+      setLocalFilterValues(filterValues);
+    }
+  }, [open, filterValues]);
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -23,6 +43,30 @@ const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ filters, open, 
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  const handleLocalFilterChange = (type: string, value: any) => {
+    setLocalFilterValues(prev => ({
+      ...prev,
+      [type]: value
+    }));
+  };
+
+  const handleApply = () => {
+    // Применяем все локальные фильтры к основному состоянию
+    Object.entries(localFilterValues).forEach(([key, value]) => {
+      onFilterChange?.(key, value);
+    });
+    onApply?.();
+  };
+
+  const handleClearFilters = () => {
+    setLocalFilterValues({});
+    onSearchChange('');
+    // Сбрасываем фильтры в родительском компоненте
+    Object.keys(filterValues).forEach(key => {
+      onFilterChange?.(key, []);
+    });
+  };
 
   return (
     <>
@@ -60,10 +104,9 @@ const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ filters, open, 
                 className="text-field w-input"
                 maxLength={256}
                 name="Search"
-                placeholder="Введите код запчасти или VIN номер автомобиля"
+                placeholder="Поиск по названию, бренду или артикулу"
                 type="text"
                 id="Search-4"
-                required
                 value={searchQuery}
                 onChange={e => onSearchChange(e.target.value)}
               />
@@ -82,6 +125,8 @@ const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ filters, open, 
                   options={filter.options}
                   multi={filter.multi}
                   showAll={filter.showAll}
+                  selectedValues={localFilterValues[filter.title] || []}
+                  onChange={(values) => handleLocalFilterChange(filter.title, values)}
                   isMobile
                 />
               );
@@ -93,6 +138,8 @@ const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ filters, open, 
                   title={filter.title}
                   min={filter.min}
                   max={filter.max}
+                  value={localFilterValues[filter.title] || null}
+                  onChange={(value) => handleLocalFilterChange(filter.title, value)}
                   isMobile
                 />
               );
@@ -101,7 +148,20 @@ const FiltersPanelMobile: React.FC<FiltersPanelMobileProps> = ({ filters, open, 
           })}
         </div>
         {/* Apply Button */}
-        <button className="filters-panel-mobile-apply" onClick={onApply || onClose}>Показать</button>
+        <div className="flex gap-2 p-4">
+          <button 
+            className="filters-panel-mobile-clear flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium"
+            onClick={handleClearFilters}
+          >
+            Сбросить
+          </button>
+          <button 
+            className="filters-panel-mobile-apply flex-1 bg-red-600 text-white py-3 px-4 rounded-lg font-medium"
+            onClick={handleApply}
+          >
+            Показать
+          </button>
+        </div>
       </div>
     </>
   );
