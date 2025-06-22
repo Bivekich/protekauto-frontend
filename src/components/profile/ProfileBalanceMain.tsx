@@ -59,8 +59,20 @@ const ProfileBalanceMain = () => {
       const invoice = data.createBalanceInvoice;
       
       try {
-        // Получаем токен из localStorage
-        const token = localStorage.getItem('authToken') || localStorage.getItem('clientToken');
+        // Получаем токен так же, как в Apollo Client
+        let token = null;
+        const userData = localStorage.getItem('userData');
+        
+        if (userData) {
+          try {
+            const user = JSON.parse(userData);
+            // Создаем токен в формате, который ожидает CMS
+            token = `client_${user.id}`;
+            console.log('Создан токен для скачивания PDF:', token);
+          } catch (error) {
+            console.error('Ошибка парсинга userData:', error);
+          }
+        }
         
         if (!token) {
           toast.error('Ошибка авторизации. Попробуйте перезайти.');
@@ -70,6 +82,9 @@ const ProfileBalanceMain = () => {
         
         // Скачиваем PDF с токеном авторизации
         const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/invoice/${invoice.id}`;
+        
+        console.log('Скачиваем PDF с URL:', downloadUrl);
+        console.log('Используем токен:', token);
         
         const response = await fetch(downloadUrl, {
           headers: {
