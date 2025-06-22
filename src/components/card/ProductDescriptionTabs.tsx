@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 
+interface ProductDescriptionTabsProps {
+  result?: any;
+}
+
 const tabList = [
   { key: 'description', label: 'Описание' },
   { key: 'characteristics', label: 'Характеристики' },
@@ -7,7 +11,7 @@ const tabList = [
   // { key: 'analogs', label: 'Аналоги' }
 ];
 
-const ProductDescriptionTabs = () => {
+const ProductDescriptionTabs = ({ result }: ProductDescriptionTabsProps) => {
   const [activeTab, setActiveTab] = useState<'description' | 'characteristics' | 'reviews' | 'analogs'>('characteristics');
 
   return (

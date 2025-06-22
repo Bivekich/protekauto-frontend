@@ -10,6 +10,7 @@ export type FilterConfig =
       options: string[];
       multi?: boolean;
       showAll?: boolean;
+      defaultOpen?: boolean;
       hasMore?: boolean;
       onShowMore?: () => void;
     }
@@ -78,9 +79,9 @@ const Filters: React.FC<FiltersProps> = ({
             options={filter.options}
             multi={filter.multi}
             showAll={filter.showAll}
+            defaultOpen={filter.defaultOpen}
             selectedValues={(filterValues && filterValues[filter.title]) || []}
             onChange={(values) => onFilterChange(filter.title, values)}
-            defaultOpen={true}
           />
         );
       }
