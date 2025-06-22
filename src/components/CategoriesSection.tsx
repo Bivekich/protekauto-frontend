@@ -39,6 +39,15 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   );
 
   const handleCategorySelect = (categoryId: string, categoryName: string) => {
+    console.log('🔍 CategoriesSection: выбрана категория', {
+      categoryId,
+      categoryName,
+      catalogCode,
+      vehicleId,
+      hasSSD: !!ssd,
+      ssdLength: ssd?.length,
+      ssdPreview: ssd ? ssd.substring(0, 50) + '...' : 'отсутствует'
+    });
     setSelectedCategoryId(categoryId);
     setSelectedCategoryName(categoryName);
   };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useQuery } from '@apollo/client';
-import { GET_LAXIMO_UNITS } from '@/lib/graphql';
+import { useQuery, useApolloClient } from '@apollo/client';
+import { GET_LAXIMO_UNITS } from '@/lib/graphql/laximo';
 import { useRouter } from 'next/router';
 import UnitDetailsSection from './UnitDetailsSection';
 
@@ -19,6 +19,7 @@ interface LaximoUnit {
   link: boolean;
   code?: string;
   imageurl?: string;
+  largeimageurl?: string;
 }
 
 const UnitsSection: React.FC<UnitsSectionProps> = ({
@@ -30,7 +31,23 @@ const UnitsSection: React.FC<UnitsSectionProps> = ({
   onBack
 }) => {
   const router = useRouter();
+  const apolloClient = useApolloClient();
   const [selectedUnit, setSelectedUnit] = useState<{ unitId: string; unitName: string } | null>(null);
+
+  // Функция для правильного формирования URL изображения
+  const getImageUrl = (baseUrl: string, size: string = '250') => {
+    if (!baseUrl) return '';
+    
+    // Декодируем HTML-сущности и заменяем размер
+    const decodedUrl = baseUrl
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace('%size%', size);
+    
+    return decodedUrl;
+  };
 
   // Получаем список узлов для выбранной категории
   const { data: unitsData, loading: unitsLoading, error: unitsError } = useQuery<{ laximoUnits: LaximoUnit[] }>(
@@ -43,7 +60,9 @@ const UnitsSection: React.FC<UnitsSectionProps> = ({
         ...(ssd && ssd.trim() !== '' && { ssd })
       },
       skip: !catalogCode || !vehicleId || !categoryId,
-      errorPolicy: 'all'
+      errorPolicy: 'all',
+      fetchPolicy: 'no-cache', // Полностью отключаем кэширование для гарантии свежих данных
+      notifyOnNetworkStatusChange: true
     }
   );
 
@@ -54,6 +73,18 @@ const UnitsSection: React.FC<UnitsSectionProps> = ({
 
   const handleBackToUnits = () => {
     setSelectedUnit(null);
+  };
+
+  const handleClearCache = async () => {
+    console.log('🧹 Очищаем кэш Apollo Client...');
+    try {
+      await apolloClient.clearStore();
+      console.log('✅ Кэш очищен успешно');
+      // Принудительный refetch данных
+      window.location.reload();
+    } catch (error) {
+      console.error('❌ Ошибка очистки кэша:', error);
+    }
   };
 
   // Если выбран узел, показываем детали узла
@@ -133,21 +164,53 @@ const UnitsSection: React.FC<UnitsSectionProps> = ({
 
   const units = unitsData?.laximoUnits || [];
 
+  // Отладочная информация
+  console.log('🔍 UnitsSection: RAW данные от Apollo:', unitsData);
+  console.log('🔍 UnitsSection: полученные данные узлов:', {
+    categoryId,
+    categoryName,
+    unitsCount: units.length,
+    units: units.map(unit => ({
+      id: unit.quickgroupid,
+      name: unit.name,
+      code: unit.code,
+      hasImageUrl: !!unit.imageurl,
+      imageUrl: unit.imageurl || 'отсутствует'
+    }))
+  });
+  
+  // Дополнительная отладка первого узла
+  if (units.length > 0) {
+    console.log('🔍 Первый узел (полные данные):', units[0]);
+    console.log('🔍 Все поля первого узла:', Object.keys(units[0]));
+  }
+
   return (
     <div>
-      <div className="flex items-center mb-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <button
+            onClick={onBack}
+            className="flex items-center text-gray-600 hover:text-gray-900 mr-4 transition-colors"
+          >
+            <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Назад к категориям
+          </button>
+          <h3 className="text-lg font-medium text-gray-900">
+            {categoryName}
+          </h3>
+        </div>
+        
+        {/* Кнопка отладки - очистка кэша */}
         <button
-          onClick={onBack}
-          className="flex items-center text-gray-600 hover:text-gray-900 mr-4 transition-colors"
+          onClick={handleClearCache}
+          className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+          title="Очистить кэш Apollo и перезагрузить"
         >
-          <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Назад к категориям
+          🧹 Очистить кэш
         </button>
-        <h3 className="text-lg font-medium text-gray-900">
-          {categoryName}
-        </h3>
       </div>
 
       {units.length === 0 ? (
@@ -168,46 +231,88 @@ const UnitsSection: React.FC<UnitsSectionProps> = ({
             Найдено узлов: {units.length}. Выберите узел для просмотра деталей.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {units.map((unit) => (
               <button
                 key={unit.quickgroupid}
                 onClick={() => handleUnitSelect(unit.quickgroupid, unit.name)}
-                className="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-red-300 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                className="bg-white border border-gray-200 rounded-lg overflow-hidden text-left hover:border-red-300 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 group"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900 mb-1">
-                      {unit.name}
-                    </h4>
-                    {unit.code && (
-                      <p className="text-sm text-gray-500 mb-2">
-                        Код: {unit.code}
-                      </p>
-                    )}
-                    <p className="text-sm text-gray-500">
-                      Нажмите для просмотра деталей
-                    </p>
-                  </div>
-                  <div className="ml-3 text-gray-400">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-                
-                {unit.imageurl && (
-                  <div className="mt-3">
+                {/* Изображение узла */}
+                {unit.imageurl ? (
+                  <div className="relative h-48 bg-gray-50 border-b border-gray-200">
                     <img
-                      src={unit.imageurl.replace('%size%', '150')}
+                      src={getImageUrl(unit.imageurl || '', '250')}
                       alt={unit.name}
-                      className="w-full h-32 object-contain bg-gray-50 rounded"
+                      className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-200"
                       onError={(e) => {
-                        e.currentTarget.style.display = 'none';
+                        console.log('❌ Ошибка загрузки изображения:', {
+                          originalUrl: unit.imageurl || 'отсутствует',
+                          processedUrl: getImageUrl(unit.imageurl || '', '250'),
+                          unitName: unit.name
+                        });
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          parent.classList.add('hidden');
+                          // Показываем заглушку
+                          const nextSibling = parent.nextElementSibling;
+                          if (nextSibling && nextSibling.classList.contains('hidden')) {
+                            nextSibling.classList.remove('hidden');
+                          }
+                        }
+                      }}
+                      onLoad={(e) => {
+                        console.log('✅ Изображение успешно загружено:', {
+                          src: e.currentTarget.src,
+                          unitName: unit.name
+                        });
                       }}
                     />
+                    {/* Индикатор увеличения */}
+                    <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                      </svg>
+                    </div>
                   </div>
-                )}
+                ) : null}
+                
+                {/* Заглушка для отсутствующего изображения */}
+                <div className={`${unit.imageurl ? 'hidden' : ''} h-48 bg-gray-100 border-b border-gray-200 flex items-center justify-center`}>
+                  <div className="text-center text-gray-400">
+                    <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <p className="text-sm">Изображение недоступно</p>
+                  </div>
+                </div>
+
+                {/* Информация об узле */}
+                <div className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-900 mb-2 overflow-hidden text-ellipsis group-hover:text-red-600 transition-colors" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
+                        {unit.name}
+                      </h4>
+                      {unit.code && (
+                        <p className="text-sm text-gray-500 mb-2 font-mono bg-gray-50 px-2 py-1 rounded">
+                          Код: {unit.code}
+                        </p>
+                      )}
+                      <div className="flex items-center text-sm text-gray-600">
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Нажмите для просмотра деталей
+                      </div>
+                    </div>
+                    <div className="ml-3 text-gray-400 group-hover:text-red-500 transition-colors">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
               </button>
             ))}
           </div>

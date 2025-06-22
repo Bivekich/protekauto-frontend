@@ -6,29 +6,32 @@ interface ProductCharacteristicsProps {
 
 const ProductCharacteristics = ({ result }: ProductCharacteristicsProps) => {
   return (
-    <div className="w-layout-vflex characteristics-block">
-      <div className="text-block-25">
-        {result?.name ? `Характеристики ${result.name}` : 'Характеристики товара'}
-      </div>
-      <div className="characteristics-list">
+    <>
+
+      <div className="w-layout-hflex flex-block-52">
         {result && (
           <>
-            <div className="characteristic-item">
-              <span className="characteristic-label">Бренд:</span>
-              <span className="characteristic-value">{result.brand}</span>
+          <div className="w-layout-vflex flex-block-53">
+            <div className="w-layout-hflex flex-block-55">
+              <span className="text-block-29">Бренд:</span>
+              <span className="text-block-28">{result.brand}</span>
             </div>
-            <div className="characteristic-item">
-              <span className="characteristic-label">Артикул:</span>
-              <span className="characteristic-value">{result.articleNumber}</span>
+            <div className="w-layout-hflex flex-block-55">
+              <span className="text-block-29">Артикул:</span>
+              <span className="text-block-28">{result.articleNumber}</span>
             </div>
-            <div className="characteristic-item">
-              <span className="characteristic-label">Название:</span>
-              <span className="characteristic-value">{result.name}</span>
+          </div>
+          <div className="w-layout-vflex flex-block-53">
+
+            <div className="w-layout-hflex flex-block-55">
+              <span className="text-block-29">Название:</span>
+              <span className="text-block-28">{result.name}</span>
             </div>
+          </div>
           </>
         )}
       </div>
-    </div>
+    </>
   );
 };
 

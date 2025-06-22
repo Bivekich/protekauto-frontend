@@ -1,9 +1,11 @@
 import React from "react";
 import CartItem from "./CartItem";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 const CartList: React.FC = () => {
-  const { state, toggleSelect, toggleFavorite, updateComment, removeItem, selectAll, removeSelected, updateQuantity } = useCart();
+  const { state, toggleSelect, updateComment, removeItem, selectAll, removeSelected, updateQuantity } = useCart();
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const { items } = state;
 
   const allSelected = items.length > 0 && items.every((item) => item.selected);
@@ -21,7 +23,28 @@ const CartList: React.FC = () => {
   };
 
   const handleFavorite = (id: string) => {
-    toggleFavorite(id);
+    const item = items.find(item => item.id === id);
+    if (!item) return;
+
+    const isInFavorites = isFavorite(item.productId, item.offerKey, item.article, item.brand);
+
+    if (isInFavorites) {
+      // Удаляем из избранного
+      const favoriteId = `${item.productId || item.offerKey || ''}:${item.article}:${item.brand}`;
+      removeFromFavorites(favoriteId);
+    } else {
+      // Добавляем в избранное
+      addToFavorites({
+        productId: item.productId,
+        offerKey: item.offerKey,
+        name: item.name,
+        brand: item.brand || '',
+        article: item.article || '',
+        price: item.price,
+        currency: item.currency,
+        image: item.image
+      });
+    }
   };
 
   const handleComment = (id: string, comment: string) => {
@@ -69,27 +92,31 @@ const CartList: React.FC = () => {
             <p>Добавьте товары из каталога</p>
           </div>
         ) : (
-          items.map((item) => (
-            <div className="div-block-21" key={item.id}>
-              <CartItem
-                name={item.name}
-                description={item.description}
-                delivery={item.deliveryTime || 'Уточняется'}
-                deliveryDate={item.deliveryDate || ''}
-                price={formatPrice(item.price, item.currency)}
-                pricePerItem={`${formatPrice(item.price, item.currency)}/шт`}
-                count={item.quantity}
-                comment={item.comment || ''}
-                selected={item.selected}
-                favorite={item.favorite}
-                onSelect={() => handleSelect(item.id)}
-                onFavorite={() => handleFavorite(item.id)}
-                onComment={(comment) => handleComment(item.id, comment)}
-                onCountChange={(count) => handleCountChange(item.id, count)}
-                onRemove={() => handleRemove(item.id)}
-              />
-            </div>
-          ))
+          items.map((item) => {
+            const isInFavorites = isFavorite(item.productId, item.offerKey, item.article, item.brand);
+            
+            return (
+              <div className="div-block-21" key={item.id}>
+                <CartItem
+                  name={item.name}
+                  description={item.description}
+                  delivery={item.deliveryTime || 'Уточняется'}
+                  deliveryDate={item.deliveryDate || ''}
+                  price={formatPrice(item.price, item.currency)}
+                  pricePerItem={`${formatPrice(item.price, item.currency)}/шт`}
+                  count={item.quantity}
+                  comment={item.comment || ''}
+                  selected={item.selected}
+                  favorite={isInFavorites}
+                  onSelect={() => handleSelect(item.id)}
+                  onFavorite={() => handleFavorite(item.id)}
+                  onComment={(comment) => handleComment(item.id, comment)}
+                  onCountChange={(count) => handleCountChange(item.id, count)}
+                  onRemove={() => handleRemove(item.id)}
+                />
+              </div>
+            );
+          })
         )}
       </div>
     </div>

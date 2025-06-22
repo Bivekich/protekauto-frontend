@@ -88,11 +88,17 @@ export const GET_CLIENT_ME = gql`
         vatPercent
         bankDetails {
           id
+          legalEntityId
           name
           accountNumber
           bankName
           bik
           correspondentAccount
+          legalEntity {
+            id
+            shortName
+            inn
+          }
         }
       }
     }
@@ -134,11 +140,17 @@ export const CREATE_CLIENT_LEGAL_ENTITY = gql`
       vatPercent
       bankDetails {
         id
+        legalEntityId
         name
         accountNumber
         bankName
         bik
         correspondentAccount
+        legalEntity {
+          id
+          shortName
+          inn
+        }
       }
     }
   }
@@ -165,11 +177,17 @@ export const UPDATE_CLIENT_LEGAL_ENTITY = gql`
       vatPercent
       bankDetails {
         id
+        legalEntityId
         name
         accountNumber
         bankName
         bik
         correspondentAccount
+        legalEntity {
+          id
+          shortName
+          inn
+        }
       }
     }
   }
@@ -202,8 +220,8 @@ export const CREATE_CLIENT_BANK_DETAILS = gql`
 `
 
 export const UPDATE_CLIENT_BANK_DETAILS = gql`
-  mutation UpdateClientBankDetails($id: ID!, $input: ClientBankDetailsInput!) {
-    updateClientBankDetails(id: $id, input: $input) {
+  mutation UpdateClientBankDetails($id: ID!, $input: ClientBankDetailsInput!, $legalEntityId: ID) {
+    updateClientBankDetails(id: $id, input: $input, legalEntityId: $legalEntityId) {
       id
       legalEntityId
       name
@@ -726,14 +744,23 @@ export const GET_LAXIMO_UNITS = gql`
       quickgroupid
       name
       link
+      code
+      imageurl
+      largeimageurl
       children {
         quickgroupid
         name
         link
+        code
+        imageurl
+        largeimageurl
         children {
           quickgroupid
           name
           link
+          code
+          imageurl
+          largeimageurl
         }
       }
     }

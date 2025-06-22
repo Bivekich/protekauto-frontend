@@ -56,6 +56,7 @@ const ProfileSettingsMain = () => {
     const ndsOptions = ["Без НДС", "НДС 10%", "НДС 20%", "Другое"];
 
     const [showLegalEntityForm, setShowLegalEntityForm] = React.useState(false);
+    const [editingEntity, setEditingEntity] = React.useState<ClientData['legalEntities'][0] | null>(null);
 
     // Состояние для формы юридического лица
     const [inn, setInn] = React.useState("");
@@ -77,7 +78,7 @@ const ProfileSettingsMain = () => {
     const [lastName, setLastName] = React.useState("");
     const [phone, setPhone] = React.useState("");
     const [email, setEmail] = React.useState("");
-    const [notifySwitch, setNotifySwitch] = React.useState(false);
+
     const [phoneError, setPhoneError] = React.useState("");
     const [emailError, setEmailError] = React.useState("");
 
@@ -93,7 +94,7 @@ const ProfileSettingsMain = () => {
           setLastName(nameParts.slice(1).join(' ') || '');
           setPhone(client.phone || '');
           setEmail(client.email || '');
-          setNotifySwitch(client.emailNotifications || false);
+
         }
       },
       onError: (error) => {
@@ -134,7 +135,7 @@ const ProfileSettingsMain = () => {
               name: `${firstName} ${lastName}`.trim(),
               phone,
               email,
-              emailNotifications: notifySwitch
+              emailNotifications: false
             }
           }
         });
@@ -144,6 +145,46 @@ const ProfileSettingsMain = () => {
         console.error('Ошибка сохранения:', error);
         alert('Ошибка сохранения данных');
       }
+    };
+
+    const handleEditEntity = (entity: ClientData['legalEntities'][0]) => {
+      setEditingEntity(entity);
+      setShowLegalEntityForm(true);
+      // Заполняем форму данными редактируемого юридического лица
+      setShortName(entity.shortName);
+      setFullName(entity.fullName || '');
+      setForm(entity.form || 'ООО');
+      setJurAddress(entity.legalAddress || '');
+      setFactAddress(entity.actualAddress || '');
+      setInn(entity.inn);
+      setOgrn(entity.ogrn || '');
+      setTaxSystem(entity.taxSystem || 'УСН');
+      setNdsPercent(entity.vatPercent.toString());
+      setAccountant(entity.accountant || '');
+      setResponsible(entity.responsibleName || '');
+      setResponsiblePosition(entity.responsiblePosition || '');
+      setResponsiblePhone(entity.responsiblePhone || '');
+      setSignatory(entity.signatory || '');
+    };
+
+    const handleAddEntity = () => {
+      setEditingEntity(null);
+      setShowLegalEntityForm(true);
+      // Очищаем форму для нового юридического лица
+      setShortName('');
+      setFullName('');
+      setForm('ООО');
+      setJurAddress('');
+      setFactAddress('');
+      setInn('');
+      setOgrn('');
+      setTaxSystem('УСН');
+      setNdsPercent('20');
+      setAccountant('');
+      setResponsible('');
+      setResponsiblePosition('');
+      setResponsiblePhone('');
+      setSignatory('');
     };
 
     if (loading) {
@@ -185,8 +226,6 @@ const ProfileSettingsMain = () => {
                 setPhone={setPhone}
                 email={email}
                 setEmail={setEmail}
-                notifySwitch={notifySwitch}
-                setNotifySwitch={setNotifySwitch}
                 phoneError={phoneError}
                 emailError={emailError}
                 onSave={handleSavePersonalData}
@@ -194,6 +233,7 @@ const ProfileSettingsMain = () => {
           <LegalEntityListBlock 
             legalEntities={clientData?.legalEntities || []}
             onRefetch={refetch}
+            onEdit={handleEditEntity}
           />
           {showLegalEntityForm && (
             <LegalEntityFormBlock
@@ -238,14 +278,19 @@ const ProfileSettingsMain = () => {
               setResponsiblePhone={setResponsiblePhone}
               signatory={signatory}
               setSignatory={setSignatory}
+              editingEntity={editingEntity}
               onAdd={() => {
                 setShowLegalEntityForm(false);
-                refetch(); // Обновляем данные после добавления
+                setEditingEntity(null);
+                refetch(); // Обновляем данные после добавления/редактирования
               }}
-              onCancel={() => setShowLegalEntityForm(false)}
+              onCancel={() => {
+                setShowLegalEntityForm(false);
+                setEditingEntity(null);
+              }}
             />
           )}
-          <ProfileSettingsActionsBlock onAddLegalEntity={() => setShowLegalEntityForm(true)} />
+          <ProfileSettingsActionsBlock onAddLegalEntity={handleAddEntity} />
         </div>
       );
     }

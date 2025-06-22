@@ -11,6 +11,7 @@ import {
 
 interface ProfileAddressWayWithMapProps {
   onBack: () => void;
+  editingAddress?: any; // Для редактирования существующего адреса
 }
 
 // Координаты городов для центрирования карты
@@ -112,7 +113,7 @@ const cityCoordinates: Record<string, [number, number]> = {
   'Южно-Сахалинск': [46.9588, 142.7386]
 };
 
-const ProfileAddressWayWithMap: React.FC<ProfileAddressWayWithMapProps> = ({ onBack }) => {
+const ProfileAddressWayWithMap: React.FC<ProfileAddressWayWithMapProps> = ({ onBack, editingAddress }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [address, setAddress] = useState("");
   const [pickupPoints, setPickupPoints] = useState<YandexPickupPoint[]>([]);
@@ -216,6 +217,7 @@ const ProfileAddressWayWithMap: React.FC<ProfileAddressWayWithMapProps> = ({ onB
           onCityChange={handleCityChange}
           onPickupPointSelect={handlePickupPointSelect}
           selectedPickupPoint={selectedPickupPoint}
+          editingAddress={editingAddress}
         />
       )}
       

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 interface CatalogProductCardProps {
   image: string;
@@ -11,6 +12,9 @@ interface CatalogProductCardProps {
   articleNumber?: string;
   brandName?: string;
   artId?: string;
+  productId?: string;
+  offerKey?: string;
+  currency?: string;
   onAddToCart?: (e: React.MouseEvent) => void | Promise<void>;
 }
 
@@ -24,12 +28,47 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
   articleNumber,
   brandName,
   artId,
+  productId,
+  offerKey,
+  currency = 'RUB',
   onAddToCart,
 }) => {
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
+
   // Создаем ссылку на card с параметрами товара
   const cardUrl = articleNumber && brandName 
     ? `/card?article=${encodeURIComponent(articleNumber)}&brand=${encodeURIComponent(brandName)}${artId ? `&artId=${artId}` : ''}`
     : '/card'; // Fallback на card если нет данных
+
+  // Проверяем, есть ли товар в избранном
+  const isItemFavorite = isFavorite(productId, offerKey, articleNumber, brandName || brand);
+
+  // Обработчик клика по сердечку
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Извлекаем цену как число
+    const numericPrice = parseFloat(price.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+
+    if (isItemFavorite) {
+      // Создаем ID для удаления
+      const id = `${productId || offerKey || ''}:${articleNumber}:${brandName || brand}`;
+      removeFromFavorites(id);
+    } else {
+      // Добавляем в избранное
+      addToFavorites({
+        productId,
+        offerKey,
+        name: title,
+        brand: brandName || brand,
+        article: articleNumber || '',
+        price: numericPrice,
+        currency,
+        image
+      });
+    }
+  };
 
   // Обработчик клика по кнопке "Купить"
   const handleBuyClick = (e: React.MouseEvent) => {
@@ -43,10 +82,10 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
 
   return (
     <div className="w-layout-vflex flex-block-15-copy" data-article-card="visible">
-      <div className="favcardcat">
+      <div className="favcardcat" onClick={handleFavoriteClick} style={{ cursor: 'pointer' }}>
         <div className="icon-setting w-embed">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13.5996 3.5C15.8107 3.5 17.5 5.1376 17.5 7.19629C17.5 8.46211 16.9057 9.65758 15.7451 11.0117C14.8712 12.0314 13.7092 13.1034 12.3096 14.3311L10.833 15.6143L10.832 15.6152L10 16.3369L9.16797 15.6152L9.16699 15.6143L7.69043 14.3311C6.29084 13.1034 5.12883 12.0314 4.25488 11.0117C3.09428 9.65758 2.50003 8.46211 2.5 7.19629C2.5 5.1376 4.18931 3.5 6.40039 3.5C7.6497 3.50012 8.85029 4.05779 9.62793 4.92188L10 5.33398L10.3721 4.92188C11.1497 4.05779 12.3503 3.50012 13.5996 3.5Z" fill="currentColor" stroke="black"></path>
+          <svg width="currentwidth" height="currentheight" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 25L13.405 23.5613C7.74 18.4714 4 15.1035 4 10.9946C4 7.6267 6.662 5 10.05 5C11.964 5 13.801 5.88283 15 7.26703C16.199 5.88283 18.036 5 19.95 5C23.338 5 26 7.6267 26 10.9946C26 15.1035 22.26 18.4714 16.595 23.5613L15 25Z" fill="currentColor"></path>
           </svg>
         </div>
       </div>

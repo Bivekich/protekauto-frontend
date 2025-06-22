@@ -54,8 +54,27 @@ const cache = new InMemoryCache({
         partsAPIArticles: {
           keyArgs: ['strId', 'carId', 'carType'],
         },
+        // Кэшируем избранное
+        favorites: {
+          merge(existing = [], incoming: any[]) {
+            return incoming;
+          }
+        }
       },
     },
+    Mutation: {
+      fields: {
+        addToFavorites: {
+          merge: false,
+        },
+        removeFromFavorites: {
+          merge: false,
+        },
+        clearFavorites: {
+          merge: false,
+        }
+      }
+    }
   },
 });
 

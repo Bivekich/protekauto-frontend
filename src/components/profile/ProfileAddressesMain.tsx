@@ -10,6 +10,12 @@ interface DeliveryAddress {
   address: string;
   deliveryType: 'COURIER' | 'PICKUP' | 'POST' | 'TRANSPORT';
   comment?: string;
+  entrance?: string;
+  floor?: string;
+  apartment?: string;
+  intercom?: string;
+  deliveryTime?: string;
+  contactPhone?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,6 +33,7 @@ const getDeliveryTypeLabel = (type: string) => {
 const ProfileAddressesMain = () => {
   const [mainIndex, setMainIndex] = React.useState(0);
   const [showWay, setShowWay] = React.useState(false);
+  const [editingAddress, setEditingAddress] = React.useState<DeliveryAddress | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_CLIENT_DELIVERY_ADDRESSES, {
     errorPolicy: 'all'
@@ -54,12 +61,23 @@ const ProfileAddressesMain = () => {
     }
   };
 
+  const handleEditAddress = (address: DeliveryAddress) => {
+    setEditingAddress(address);
+    setShowWay(true);
+  };
+
   const handleWayClose = () => {
     setShowWay(false);
+    setEditingAddress(null);
     refetch(); // Обновляем данные после закрытия формы
   };
 
-  if (showWay) return <ProfileAddressWayWithMap onBack={handleWayClose} />;
+  if (showWay) return (
+    <ProfileAddressWayWithMap 
+      onBack={handleWayClose} 
+      editingAddress={editingAddress}
+    />
+  );
 
   if (loading) {
     return (
@@ -99,6 +117,7 @@ const ProfileAddressesMain = () => {
               title={addr.name}
               address={addr.address}
               comment={addr.comment}
+              onEdit={() => handleEditAddress(addr)}
               onSelectMain={() => setMainIndex(idx)}
               onDelete={() => handleDeleteAddress(addr.id)}
               isMain={mainIndex === idx}
@@ -126,7 +145,7 @@ const ProfileAddressesMain = () => {
       </div>
     </div>
   );
-}
+};
 
 export default ProfileAddressesMain;
 

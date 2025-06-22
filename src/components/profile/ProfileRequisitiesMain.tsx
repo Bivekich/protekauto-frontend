@@ -56,9 +56,11 @@ const ProfileRequisitiesMain = () => {
       // Устанавливаем первое юридическое лицо как выбранное по умолчанию
       if (data?.clientMe?.legalEntities?.length > 0) {
         setSelectedLegalEntityId(data.clientMe.legalEntities[0].id);
-        // Устанавливаем первый банковский счет как выбранный по умолчанию
-        if (data.clientMe.legalEntities[0].bankDetails?.length > 0) {
-          setSelectedBankDetailId(data.clientMe.legalEntities[0].bankDetails[0].id);
+        
+        // Находим первый банковский счет среди всех юридических лиц
+        const allBankDetails = data.clientMe.legalEntities.flatMap((le: LegalEntity) => le.bankDetails || []);
+        if (allBankDetails.length > 0) {
+          setSelectedBankDetailId(allBankDetails[0].id);
         }
       }
     },
@@ -140,7 +142,15 @@ const ProfileRequisitiesMain = () => {
       return;
     }
 
-    if (!selectedLegalEntityId) {
+    // Определяем legalEntityId для сохранения
+    let legalEntityIdForSave = selectedLegalEntityId;
+    
+    // Если юридическое лицо не выбрано, но есть только одно - используем его
+    if (!legalEntityIdForSave && legalEntities.length === 1) {
+      legalEntityIdForSave = legalEntities[0].id;
+    }
+    
+    if (!legalEntityIdForSave) {
       alert('Выберите юридическое лицо');
       return;
     }
@@ -159,14 +169,15 @@ const ProfileRequisitiesMain = () => {
         await updateBankDetails({
           variables: {
             id: editingBankDetail.id,
-            input
+            input,
+            legalEntityId: legalEntityIdForSave
           }
         });
       } else {
         // Создаем новые реквизиты
         await createBankDetails({
           variables: {
-            legalEntityId: selectedLegalEntityId,
+            legalEntityId: legalEntityIdForSave,
             input
           }
         });
@@ -177,6 +188,7 @@ const ProfileRequisitiesMain = () => {
   };
 
   const handleEdit = (bankDetail: BankDetail) => {
+    console.log('Редактирование банковских реквизитов:', bankDetail);
     setEditingBankDetail(bankDetail);
     setAccountName(bankDetail.name);
     setAccountNumber(bankDetail.accountNumber);
@@ -297,16 +309,16 @@ const ProfileRequisitiesMain = () => {
                   <div className="self-stretch my-auto text-gray-600 text-sm">
                     БИК: {bankDetail.bik}
                   </div>
-                  <div className="flex gap-1.5 items-center self-stretch my-auto cursor-pointer hover:text-red-600" role="button" tabIndex={0} aria-label="Настройки юридического лица">
+                  <div className="flex gap-1.5 items-center self-stretch my-auto" role="button" tabIndex={0} aria-label="Юридическое лицо">
                     <img
                       src="/images/icon-setting.svg"
-                      alt="Настройки"
+                      alt="ЮЛ"
                       className="object-contain w-[18px] h-[18px]"
                     />
                     <div className="self-stretch my-auto text-gray-600">
                       {(() => {
                         const entity = legalEntities.find(le => le.id === bankDetail.legalEntityId);
-                        return entity ? entity.shortName : 'Неизвестное ЮЛ';
+                        return entity ? entity.shortName : (bankDetail.legalEntityId ? 'Неизвестное ЮЛ' : 'Не привязан к ЮЛ');
                       })()}
                     </div>
                   </div>
@@ -386,9 +398,16 @@ const ProfileRequisitiesMain = () => {
           </div>
           
           {/* Выбор юридического лица */}
-          {!editingBankDetail && legalEntities.length > 1 && (
+          {legalEntities.length > 1 && (
             <div className="flex flex-col mt-4 w-full">
-              <div className="text-sm text-gray-950 mb-2">Юридическое лицо</div>
+              <div className="text-sm text-gray-950 mb-2">
+                Юридическое лицо
+                {editingBankDetail && (
+                  <span className="text-xs text-gray-500 ml-2">
+                    (при редактировании можно изменить привязку)
+                  </span>
+                )}
+              </div>
               <select
                 value={selectedLegalEntityId || ''}
                 onChange={(e) => setSelectedLegalEntityId(e.target.value)}
@@ -401,6 +420,16 @@ const ProfileRequisitiesMain = () => {
                   </option>
                 ))}
               </select>
+            </div>
+          )}
+          
+          {/* Если юридическое лицо одно, показываем его */}
+          {legalEntities.length === 1 && (
+            <div className="flex flex-col mt-4 w-full">
+              <div className="text-sm text-gray-950 mb-2">Юридическое лицо</div>
+              <div className="gap-2.5 px-6 py-4 w-full bg-gray-50 rounded border border-solid border-stone-300 min-h-[52px] text-gray-600 flex items-center">
+                {legalEntities[0].shortName} (ИНН: {legalEntities[0].inn})
+              </div>
             </div>
           )}
 
