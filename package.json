@@ -12,12 +12,17 @@
     "@apollo/client": "^3.13.8",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/line-clamp": "^0.4.4",
+    "@types/qrcode": "^1.5.5",
+    "@types/uuid": "^10.0.0",
     "graphql": "^16.11.0",
     "next": "15.3.3",
+    "qrcode": "^1.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
-    "react-loading-skeleton": "^3.5.0"
+    "react-loading-skeleton": "^3.5.0",
+    "react-qr-code": "^2.0.16",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.8",

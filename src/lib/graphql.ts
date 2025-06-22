@@ -101,6 +101,26 @@ export const GET_CLIENT_ME = gql`
           }
         }
       }
+      contracts {
+        id
+        contractNumber
+        contractDate
+        name
+        ourLegalEntity
+        clientLegalEntity
+        balance
+        currency
+        isActive
+        isDefault
+        contractType
+        relationship
+        paymentDelay
+        creditLimit
+        delayDays
+        fileUrl
+        createdAt
+        updatedAt
+      }
     }
   }
 `
@@ -1187,5 +1207,32 @@ export const GET_CLIENT_DELIVERY_ADDRESSES = gql`
 export const GET_ADDRESS_SUGGESTIONS = gql`
   query GetAddressSuggestions($query: String!) {
     addressSuggestions(query: $query)
+  }
+`
+
+export const UPDATE_CONTRACT_BALANCE = gql`
+  mutation UpdateContractBalance($contractId: ID!, $amount: Float!, $comment: String) {
+    updateContractBalance(contractId: $contractId, amount: $amount, comment: $comment) {
+      id
+      balance
+      updatedAt
+    }
+  }
+`
+
+export const CREATE_BALANCE_INVOICE = gql`
+  mutation CreateBalanceInvoice($contractId: ID!, $amount: Float!) {
+    createBalanceInvoice(contractId: $contractId, amount: $amount) {
+      id
+      invoiceNumber
+      amount
+      currency
+      status
+      qrCode
+      pdfUrl
+      paymentUrl
+      expiresAt
+      createdAt
+    }
   }
 `
