@@ -80,6 +80,7 @@ const Filters: React.FC<FiltersProps> = ({
             showAll={filter.showAll}
             selectedValues={(filterValues && filterValues[filter.title]) || []}
             onChange={(values) => onFilterChange(filter.title, values)}
+            defaultOpen={true}
           />
         );
       }

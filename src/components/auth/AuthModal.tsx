@@ -126,24 +126,27 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
 
   return (
     <ApolloProvider client={apolloClient}>
-      {/* Выкатывающийся блок под шапку */}
+      {/* Модальное окно под хэдером */}
       <div 
-        className="fixed left-0 right-0 bg-white z-50 shadow-lg"
+        className="fixed left-0 right-0 bg-white z-50 shadow-lg flex justify-center"
         style={{ 
-          top: '0',
-          paddingTop: '50px', 
-          paddingBottom: '50px', 
-          paddingLeft: '130px', 
-          paddingRight: '130px',
-          width: '1920px',
-          margin: '0 auto'
+          top: '144px', // высота header + subheader (подберите под ваш макет)
+          paddingTop: '40px', 
+          paddingBottom: '40px', 
+          paddingLeft: '24px', 
+          paddingRight: '24px',
+          maxWidth: '700px',
+          width: '100%',
+          margin: '0 auto',
+          left: 0,
+          right: 0
         }}
       >
-        <div className="flex flex-col" style={{ gap: '40px' }}>
+        <div className="flex flex-col w-full" style={{ gap: '40px' }}>
             {/* Header */}
             <div className="flex justify-between items-center w-full">
               <h2 style={{ 
-                fontSize: '52px', 
+                fontSize: '32px', 
                 lineHeight: '1.2', 
                 fontWeight: 800,
                 fontFamily: 'Onest, sans-serif',
@@ -157,8 +160,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
                 onClick={handleClose}
                 className="hover:opacity-70"
                 style={{ 
-                  width: '17.5px', 
-                  height: '17.5px',
+                  width: '24px', 
+                  height: '24px',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
@@ -167,7 +170,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
                   flexShrink: 0
                 }}
               >
-                <svg width="17.5" height="17.5" viewBox="0 0 18 18" fill="none">
+                <svg width="24" height="24" viewBox="0 0 18 18" fill="none">
                   <path d="M13.5 4.5L4.5 13.5M4.5 4.5L13.5 13.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
@@ -190,7 +193,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
               {renderStep()}
             </div>
           </div>
-        </div>
+      </div>
     </ApolloProvider>
   )
 }

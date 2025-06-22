@@ -149,7 +149,7 @@ input.text-block-31 {
 }
 
 .form-block, .text-field.w-input {
-  min-height: 48px !important;
+  min-height: 44px !important;
 }
 
 .w-layout-hflex.core-product-search-s2 {
@@ -193,7 +193,9 @@ header.section-4 {
   display: none !important;
 }
 
-
+.w-nav-brand {
+  z-index: 1003 !important;
+}
 
 .w-nav-button,
 .menu-button.w-nav-button.w--open{
@@ -334,4 +336,16 @@ input.input-receiver:focus {
 .show-more-btn:disabled {
   background-color: #9CA3AF;
   cursor: not-allowed;
+} 
+
+.div-block-3 {
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  text-align: left !important;
+  width: 100% !important;
+} 
+
+.sort-item.active {
+  color: #111;
+  font-weight: 700;
 } 

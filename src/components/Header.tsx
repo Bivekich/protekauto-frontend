@@ -729,7 +729,7 @@ const Header = () => {
                     }
                   }}
                   className="button_h login w-inline-block"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                  style={{  cursor: 'pointer' }}
                 >
                   <div className="code-embed-8 w-embed"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 3C8.376 3 3 8.376 3 15C3 21.624 8.376 27 15 27C21.624 27 27 21.624 27 15C27 8.376 21.624 3 15 3ZM15 7.8C17.316 7.8 19.2 9.684 19.2 12C19.2 14.316 17.316 16.2 15 16.2C12.684 16.2 10.8 14.316 10.8 12C10.8 9.684 12.684 7.8 15 7.8ZM15 24.6C12.564 24.6 9.684 23.616 7.632 21.144C9.73419 19.4955 12.3285 18.5995 15 18.5995C17.6715 18.5995 20.2658 19.4955 22.368 21.144C20.316 23.616 17.436 24.6 15 24.6Z" fill="currentColor" /></svg></div>
                   <div className="text-block-2">{currentUser ? 'Личный кабинет' : 'Войти'}</div>

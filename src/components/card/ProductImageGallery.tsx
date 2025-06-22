@@ -9,15 +9,15 @@ export default function ProductImageGallery({ imageUrl }: ProductImageGalleryPro
   const displayImage = imageUrl || defaultImage;
 
   return (
-    <div className="w-layout-vflex flex-block-49">
-      <div className="w-layout-hflex flex-block-50">
-        <img src={displayImage} loading="lazy" alt="Изображение товара" className="image-12" />
+    <div className="w-layout-vflex core-product-copy-copy">
+      <div className="div-block-20">
+        <img src={displayImage} loading="lazy" alt="Изображение товара" className="image-10-copy" />
       </div>
-      <div className="w-layout-hflex flex-block-51">
-        <img src={displayImage} loading="lazy" alt="Миниатюра 1" className="image-13" />
-        <img src={displayImage} loading="lazy" alt="Миниатюра 2" className="image-13" />
-        <img src={displayImage} loading="lazy" alt="Миниатюра 3" className="image-13" />
-        <img src={displayImage} loading="lazy" alt="Миниатюра 4" className="image-13" />
+      <div className="w-layout-hflex flex-block-56">
+        <img src={displayImage} loading="lazy" alt="Миниатюра 1" className="small-img" />
+        <img src={displayImage} loading="lazy" alt="Миниатюра 2" className="small-img" />
+        <img src={displayImage} loading="lazy" alt="Миниатюра 3" className="small-img" />
+        <img src={displayImage} loading="lazy" alt="Миниатюра 4" className="small-img" />
       </div>
     </div>
   );
