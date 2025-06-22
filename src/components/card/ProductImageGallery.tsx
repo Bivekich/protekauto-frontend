@@ -9,8 +9,8 @@ export default function ProductImageGallery({ imageUrl }: ProductImageGalleryPro
   const displayImage = imageUrl || defaultImage;
 
   return (
-    <div className="w-layout-vflex core-product-copy">
-      <div className="w-layout-hflex flex-block-20">
+    <div className="w-layout-vflex core-product-copy-copy">
+      <div className="div-block-20">
         <img src={displayImage} loading="lazy" alt="Изображение товара" className="image-10-copy" />
       </div>
       <div className="w-layout-hflex flex-block-56">

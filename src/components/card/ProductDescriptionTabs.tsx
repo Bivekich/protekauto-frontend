@@ -3,8 +3,8 @@ import React, { useState } from "react";
 const tabList = [
   { key: 'description', label: 'Описание' },
   { key: 'characteristics', label: 'Характеристики' },
-  { key: 'reviews', label: 'Отзывы' },
-  { key: 'analogs', label: 'Аналоги' }
+  // { key: 'reviews', label: 'Отзывы' },
+  // { key: 'analogs', label: 'Аналоги' }
 ];
 
 const ProductDescriptionTabs = () => {
