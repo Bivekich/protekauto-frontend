@@ -45,11 +45,14 @@ const FavoriteList: React.FC<{ filters: FilterConfig[] }> = ({ filters }) => {
     return true;
   });
 
-  const formatPrice = (price: number, currency: string) => {
+  const formatPrice = (price?: number, currency?: string) => {
+    if (!price) {
+      return 'Цена не указана';
+    }
     if (currency === 'RUB') {
       return `от ${price.toLocaleString('ru-RU')} ₽`;
     }
-    return `от ${price} ${currency}`;
+    return `от ${price} ${currency || ''}`;
   };
 
   return (
