@@ -24,7 +24,7 @@ export default function ProfileInfo() {
   const currentPath: string = normalizePath(router.asPath);
   const crumbLabel: string = crumbsMap[currentPath] || "Профиль";
   return (
-    <section>
+    <section className="section-info">
       <div className="w-layout-blockcontainer container info w-container">
         <div className="w-layout-vflex flex-block-9">
           <div className="w-layout-hflex flex-block-7">
@@ -36,7 +36,7 @@ export default function ProfileInfo() {
               <div>Личный кабинет</div>
             </a>
             <div className="text-block-3">→</div>
-            <a href={currentPath} className={`link-block-2 w-inline-block text-red-600 font-bold pointer-events-none`}>
+            <a href="#" className="link-block-2 w-inline-block">
               <div>{crumbLabel}</div>
             </a>
           </div>

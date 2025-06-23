@@ -50,7 +50,7 @@ const CatalogSection = () => {
 
   const handleBrandClick = (brand: { name: string; code?: string }) => {
     if (brand.code) {
-      router.push(`/vehicle-search/${brand.code}`);
+      router.push(`/brands?selected=${brand.code}`);
     } else {
       console.warn('Brand code not available for', brand.name);
     }
