@@ -17,7 +17,7 @@ const CatalogTabs = () => (
               {[...Array(7)].map((_, i) => (
                 <div className="w-layout-vflex flex-block-26" key={i}>
                   {["Audi", "BMW", "Cadillac", "Chevrolet", "Citroen", "Fiat", "Mazda"].map((brand) => (
-                    <a href="#" className="link-block-6 w-inline-block" key={brand}>
+                    <a href={`/brand?selected=${encodeURIComponent(brand)}`} className="link-block-6 w-inline-block" key={brand}>
                       <div>{brand}</div>
                     </a>
                   ))}

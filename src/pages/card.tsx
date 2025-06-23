@@ -154,6 +154,8 @@ export default function CardPage() {
       <>
         <Head>
           <title>Загрузка товара - Protek</title>
+          <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+          <link href="images/webclip.png" rel="apple-touch-icon" />
         </Head>
         <Header />
         <main className="min-h-screen bg-gray-50 flex items-center justify-center">

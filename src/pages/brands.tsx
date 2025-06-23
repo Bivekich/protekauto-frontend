@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import MobileMenuBottomSection from "@/components/MobileMenuBottomSection";
 import { GET_LAXIMO_BRANDS } from "@/lib/graphql";
 import { LaximoBrand } from "@/types/laximo";
+import BrandWizardSearchSection from "@/components/BrandWizardSearchSection";
 
 const InfoBrands = () => (
   <section className="section-info">
@@ -77,7 +78,7 @@ const BrandsPage = () => {
   const letters = Object.keys(brandsByLetter).sort();
 
   const handleBrandClick = (brand: { name: string; code?: string }) => {
-    if (brand.code) router.push(`/vehicle-search/${brand.code}`);
+    if (brand.code) router.push(`/brands?selected=${brand.code}`);
   };
 
   const handleLetterClick = (letter: string) => {
@@ -89,64 +90,11 @@ const BrandsPage = () => {
       <Head>
         <title>Все марки автомобилей - Protek</title>
         <meta name="description" content="Полный каталог автомобильных брендов для поиска запчастей" />
+        <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+        <link href="images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <InfoBrands />
-      <main className="min-h-screen bg-[#F5F8FB] py-8 px-2">
-        <div className="max-w-[1400px] mx-auto">
-          <div className="bg-white rounded-2xl shadow p-6 md:p-10 mb-8">
-            <div className="text-gray-600 mb-6">
-              Выберите марку автомобиля для поиска запчастей. Всего доступно <b>{brands.length}</b> брендов.
-            </div>
-            {/* Алфавитный указатель */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {letters.map(letter => (
-                <button
-                  key={letter}
-                  onClick={() => handleLetterClick(letter)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold border transition-all duration-200
-                    ${selectedLetter === letter
-                      ? 'bg-[#EC1C24] border-[#EC1C24]'
-                      : 'bg-white text-[#000814] border-gray-300 hover:bыg-[#F5F8FB] hover:border-[#EC1C24]'}
-                  `}
-                  style={selectedLetter === letter ? { color: '#fff' } : {}}
-                >
-                  {letter}
-                </button>
-              ))}
-              {selectedLetter && (
-                <button
-                  onClick={() => setSelectedLetter('')}
-                  className="rounded-full px-4 py-2 text-sm font-semibold border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
-                >
-                  Показать все
-                </button>
-              )}
-            </div>
-            {/* Список брендов */}
-            <div>
-              {loading ? (
-                <div className="flex justify-center items-center py-16">
-                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#EC1C24]"></div>
-                  <span className="ml-4 text-lg text-gray-500">Загружаем бренды...</span>
-                </div>
-              ) : (
-                <div>
-                  {selectedLetter ? (
-                    <BrandGrid brands={brandsByLetter[selectedLetter] || []} onBrandClick={handleBrandClick} />
-                  ) : (
-                    letters.map(letter => (
-                      <div key={letter} className="mb-8">
-                        <h2 className="text-xl font-bold text-[#000814] mb-4">{letter}</h2>
-                        <BrandGrid brands={brandsByLetter[letter] || []} onBrandClick={handleBrandClick} />
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </main>
+      <BrandWizardSearchSection />
       <Footer />
       <MobileMenuBottomSection />
     </>
