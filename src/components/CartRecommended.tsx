@@ -1,5 +1,5 @@
 import React from "react";
-import CartRecommendedProductCard from "./CartRecommendedProductCard";
+import CatalogProductCard from "./CatalogProductCard";
 
 interface CartRecommendedProps {
   recommendedProducts?: any[];
@@ -29,9 +29,9 @@ const CartRecommended: React.FC<CartRecommendedProps> = ({
   return (
     <>
       <h2 className="heading-11">Рекомендованные товары</h2>
-      <div className="w-layout-hflex core-product-search-copy">
+      <div className="w-layout-hflex core-product-search">
         {validRecommendations.map((item, idx) => (
-          <CartRecommendedProductCard 
+          <CatalogProductCard 
             key={`${item.brand}-${item.articleNumber}-${idx}`} 
             image="/images/image-10.png"
             discount=""

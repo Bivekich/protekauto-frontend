@@ -2474,7 +2474,7 @@ body {
 }
 
 .price.opencard {
-  width: 33%;
+  width: 170px;
 }
 
 .add-to-cart-block {
@@ -2615,7 +2615,7 @@ body {
   color: var(--_fonts---color--black);
   font-size: var(--_fonts---font-size--core);
   text-align: left;
-  width: 33vw;
+  width: 200px;
   max-height: 40px;
   overflow: hidden;
 }
