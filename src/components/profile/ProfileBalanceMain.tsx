@@ -58,6 +58,13 @@ const ProfileBalanceMain = () => {
       
       const invoice = data.createBalanceInvoice;
       
+      // Проверяем, что счет создан корректно
+      if (!invoice || !invoice.id) {
+        toast.error('Ошибка: некорректные данные счета');
+        setIsCreatingInvoice(false);
+        return;
+      }
+      
       try {
         // Получаем токен так же, как в Apollo Client
         let token = null;
@@ -66,11 +73,16 @@ const ProfileBalanceMain = () => {
         if (userData) {
           try {
             const user = JSON.parse(userData);
+            if (!user.id) {
+              throw new Error('Отсутствует ID пользователя');
+            }
             // Создаем токен в формате, который ожидает CMS
             token = `client_${user.id}`;
-            console.log('Создан токен для скачивания PDF:', token);
           } catch (error) {
             console.error('Ошибка парсинга userData:', error);
+            toast.error('Ошибка получения данных пользователя');
+            setIsCreatingInvoice(false);
+            return;
           }
         }
         
@@ -81,10 +93,12 @@ const ProfileBalanceMain = () => {
         }
         
         // Скачиваем PDF с токеном авторизации
-        const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/invoice/${invoice.id}`;
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        const downloadUrl = `${baseUrl}/api/invoice/${invoice.id}`;
         
-        console.log('Скачиваем PDF с URL:', downloadUrl);
-        console.log('Используем токен:', token);
+        if (!baseUrl) {
+          throw new Error('Не настроен URL API сервера');
+        }
         
         const response = await fetch(downloadUrl, {
           headers: {
@@ -93,8 +107,23 @@ const ProfileBalanceMain = () => {
         });
         
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: 'Неизвестная ошибка' }));
-          throw new Error(errorData.error || `HTTP ${response.status}`);
+          let errorMessage = `HTTP ${response.status}`;
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorData.message || errorMessage;
+          } catch (jsonError) {
+            // Если не удалось распарсить JSON, используем текст ответа
+            try {
+              const errorText = await response.text();
+              if (errorText) {
+                errorMessage = errorText.substring(0, 100); // Ограничиваем длину
+              }
+            } catch (textError) {
+              // Если и текст не удалось получить, используем стандартное сообщение
+              errorMessage = `Ошибка ${response.status}: ${response.statusText}`;
+            }
+          }
+          throw new Error(errorMessage);
         }
         
         // Создаем blob и скачиваем файл
@@ -116,7 +145,8 @@ const ProfileBalanceMain = () => {
         
       } catch (error) {
         console.error('Ошибка скачивания PDF:', error);
-        toast.error('Ошибка скачивания PDF: ' + (error as Error).message);
+        const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+        toast.error(`Ошибка скачивания PDF: ${errorMessage}`);
       }
       
       setIsCreatingInvoice(false);
@@ -152,7 +182,8 @@ const ProfileBalanceMain = () => {
     } catch (error) {
       toast.dismiss(loadingToast);
       console.error('Ошибка создания счета:', error);
-      toast.error('Ошибка создания счета: ' + (error as Error).message);
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+      toast.error(`Ошибка создания счета: ${errorMessage}`);
       setIsCreatingInvoice(false);
     }
   };

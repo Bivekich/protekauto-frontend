@@ -34,7 +34,7 @@ const ProductSortHeader: React.FC<ProductSortHeaderProps> = ({
     <div className="w-layout-hflex sort-list-card">
       {sortOptions.map(option => (
         <div
-          key={option.key}Add commentMore actions
+          key={option.key}
           className={`sort-item${sortBy === option.key ? " active" : ""}`}
           onClick={() => handleClick(option.key)}
           style={{ cursor: "pointer" }}
