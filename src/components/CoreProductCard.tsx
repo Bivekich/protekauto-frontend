@@ -45,13 +45,13 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
 }) => {
   const { addItem } = useCart();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
-  const [showAllOffers, setShowAllOffers] = useState(false);
+  const [visibleOffersCount, setVisibleOffersCount] = useState(INITIAL_OFFERS_LIMIT);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>(
     offers.reduce((acc, _, index) => ({ ...acc, [index]: 1 }), {})
   );
 
-  const displayedOffers = showAllOffers ? offers : offers.slice(0, INITIAL_OFFERS_LIMIT);
-  const hasMoreOffers = offers.length > INITIAL_OFFERS_LIMIT;
+  const displayedOffers = offers.slice(0, visibleOffersCount);
+  const hasMoreOffers = visibleOffersCount < offers.length;
 
   // Проверяем, есть ли товар в избранном
   const isItemFavorite = isFavorite(
@@ -262,82 +262,119 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
             <div className="sort-item price">Цена</div>
           </div>
           <div className="w-layout-vflex product-list-search-s1">
-            {displayedOffers.map((offer, idx) => (
-              <div className="w-layout-hflex product-item-search-s1" key={idx}>
-                <div className="w-layout-hflex flex-block-81">
-                  <div className="w-layout-hflex info-block-search-s1">
-                    <div className="pcs-search-s1">{offer.pcs}</div>
-                    <div className="pcs-search">{offer.days}</div>
+            {displayedOffers.map((offer, idx) => {
+              const isLast = idx === displayedOffers.length - 1;
+              return (
+                <div 
+                  className="w-layout-hflex product-item-search-s1"
+                  key={idx}
+                  style={isLast ? { borderBottom: 'none' } : undefined}
+                >
+                  <div className="w-layout-hflex flex-block-81">
+                    <div className="w-layout-hflex info-block-search-s1">
+                      <div className="pcs-search-s1">{offer.pcs}</div>
+                      <div className="pcs-search">{offer.days}</div>
+                    </div>
+                    <div className="w-layout-hflex info-block-product-card-search-s1">
+                      {offer.recommended && (
+                        <>
+                          <div className="w-layout-hflex item-recommend">
+                            <img src="/images/ri_refund-fill.svg" loading="lazy" alt="" />
+                          </div>
+                          <div className="text-block-25-s1">Рекомендуем</div>
+                        </>
+                      )}
+                    </div>
+                    <div className="price-s1">{offer.price}</div>
                   </div>
-                  <div className="w-layout-hflex info-block-product-card-search-s1">
-                    {offer.recommended && (
-                      <>
-                        <div className="w-layout-hflex item-recommend">
-                          <img src="/images/ri_refund-fill.svg" loading="lazy" alt="" />
+                  <div className="w-layout-hflex add-to-cart-block-s1">
+                    <div className="w-layout-hflex flex-block-82">
+                      <div className="w-layout-hflex pcs-cart-s1">
+                        <button
+                          type="button"
+                          className="minus-plus"
+                          onClick={() => handleQuantityChange(idx, -1)}
+                          style={{ cursor: 'pointer' }}
+                          aria-label="Уменьшить количество"
+                        >
+                          <div className="pluspcs w-embed">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M6 10.5V9.5H14V10.5H6Z" fill="currentColor" />
+                            </svg>
+                          </div>
+                        </button>
+                        <div className="input-pcs">
+                          <div className="text-block-26">{quantities[idx] || 1}</div>
                         </div>
-                        <div className="text-block-25-s1">Рекомендуем</div>
-                      </>
-                    )}
-                  </div>
-                  <div className="price-s1">{offer.price}</div>
-                </div>
-                <div className="w-layout-hflex add-to-cart-block-s1">
-                  <div className="w-layout-hflex flex-block-82">
-                    <div className="w-layout-hflex pcs-cart-s1">
-                      <button
-                        type="button"
-                        className="minus-plus"
-                        onClick={() => handleQuantityChange(idx, -1)}
-                        style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
-                        aria-label="Уменьшить количество"
-                      >
-                        <div className="pluspcs w-embed">
-                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 10.5V9.5H14V10.5H6Z" fill="currentColor" />
-                          </svg>
-                        </div>
-                      </button>
-                      <div className="input-pcs">
-                        <div className="text-block-26">{quantities[idx] || 1}</div>
+                        <button
+                          type="button"
+                          className="minus-plus"
+                          onClick={() => handleQuantityChange(idx, 1)}
+                          style={{ cursor: 'pointer' }}
+                          aria-label="Увеличить количество"
+                        >
+                          <div className="pluspcs w-embed">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M6 10.5V9.5H14V10.5H6ZM9.5 6H10.5V14H9.5V6Z" fill="currentColor" />
+                            </svg>
+                          </div>
+                        </button>
                       </div>
                       <button
                         type="button"
-                        className="minus-plus"
-                        onClick={() => handleQuantityChange(idx, 1)}
-                        style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
-                        aria-label="Увеличить количество"
+                        onClick={() => handleAddToCart(offer, idx)}
+                        className="button-icon w-inline-block"
+                        style={{ cursor: 'pointer' }}
+                        aria-label="Добавить в корзину"
                       >
-                        <div className="pluspcs w-embed">
-                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 10.5V9.5H14V10.5H6ZM9.5 6H10.5V14H9.5V6Z" fill="currentColor" />
-                          </svg>
+                        <div className="div-block-26">
+                          <img loading="lazy" src="/images/cart_icon.svg" alt="В корзину" className="image-11" />
                         </div>
                       </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleAddToCart(offer, idx)}
-                      className="button-icon w-inline-block"
-                      style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                      aria-label="Добавить в корзину"
-                    >
-                      <div className="div-block-26">
-                        <img loading="lazy" src="/images/cart_icon.svg" alt="В корзину" className="image-11" />
-                      </div>
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
+          {hasMoreOffers || visibleOffersCount > INITIAL_OFFERS_LIMIT ? (
+            <div 
+              className="w-layout-hflex show-more-search"
+              onClick={() => {
+                if (hasMoreOffers) {
+                  setVisibleOffersCount(prev => Math.min(prev + 10, offers.length));
+                } else {
+                  setVisibleOffersCount(INITIAL_OFFERS_LIMIT);
+                }
+              }}
+              style={{ cursor: 'pointer' }}
+              tabIndex={0}
+              role="button"
+              aria-label={hasMoreOffers ? `Еще ${offers.length - visibleOffersCount} предложений` : 'Скрыть предложения'}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  if (hasMoreOffers) {
+                    setVisibleOffersCount(prev => Math.min(prev + 10, offers.length));
+                  } else {
+                    setVisibleOffersCount(INITIAL_OFFERS_LIMIT);
+                  }
+                }
+              }}
+            >
+              <div className="text-block-27">
+                {hasMoreOffers ? `Еще ${offers.length - visibleOffersCount} предложений` : 'Скрыть'}
+              </div>
+              <img 
+                src="/images/arrow_drop_down.svg" 
+                loading="lazy" 
+                alt="" 
+                className={`transition-transform duration-200 ${!hasMoreOffers ? 'rotate-180' : ''}`}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
-      {showMoreText && (
-        <div className="w-layout-hflex show-more-search">
-          <div className="text-block-27">{showMoreText}</div>
-          <img src="/images/arrow_drop_down.svg" loading="lazy" alt="" />
-        </div>
-      )}
+
     </>
   );
 };

@@ -451,9 +451,10 @@ export default function SearchResult() {
         offersCount={result ? result.totalOffers : 0}
         minPrice={minPrice}
       />
+      <section className="main">
       <div className="w-layout-blockcontainer container w-container">
         <div className="w-layout-hflex flex-block-84">
-          <CatalogSortDropdown active={sortActive} onChange={setSortActive} />
+          {/* <CatalogSortDropdown active={sortActive} onChange={setSortActive} /> */}
           <div className="w-layout-hflex flex-block-85" onClick={() => setShowFiltersMobile((v) => !v)}>
           <span className="code-embed-9 w-embed">
               <svg width="currentwidth" height="currentheight" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -472,6 +473,7 @@ export default function SearchResult() {
           </div>
         </div>
       </div>
+      </section>
       {/* Мобильная панель фильтров */}
       <FiltersPanelMobile
         filters={searchResultFilters}
@@ -482,7 +484,7 @@ export default function SearchResult() {
       />
       {/* Лучшие предложения */}
       {bestOffersData.length > 0 && (
-        <section>
+        <section className="section-6">
           <div className="w-layout-blockcontainer container w-container">
             <div className="w-layout-vflex flex-block-36">
               {bestOffersData.map(({ offer, type }, index) => (
@@ -568,15 +570,16 @@ export default function SearchResult() {
                 }
 
                 return (
-                  <div className="w-layout-hflex core-product-search-s1">
+                  <>
                     <CoreProductCard
                       brand={result.brand}
                       article={result.articleNumber}
                       name={result.name}
                       image={mainImageUrl}
                       offers={mainProductOffers}
+                      showMoreText={mainProductOffers.length < filteredOffers.filter(o => !o.isAnalog).length ? "Показать еще" : undefined}
                     />
-                  </div>
+                  </>
                 );
               })()}
               
@@ -603,10 +606,9 @@ export default function SearchResult() {
                 if (analogsWithOffers.length === 0) {
                   return null;
                 }
-
                 return (
-                  <div className="mt-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Аналоги</h2>
+                  <>
+                    <h2 className="heading-11">Аналоги</h2>
                     {analogsWithOffers.map((analog: any, index: number) => {
                       const analogKey = `${analog.brand}-${analog.articleNumber}`;
                       const loadedAnalogData = loadedAnalogs[analogKey];
@@ -618,16 +620,15 @@ export default function SearchResult() {
                         : [];
 
                       return (
-                        <div key={analogKey} className="mb-6">
-                            <CoreProductCard
-                                brand={analog.brand}
-                                article={analog.articleNumber}
-                                name={analog.name}
-                                offers={analogOffers}
-                                isAnalog
-                                isLoadingOffers={!loadedAnalogData}
-                            />
-                        </div>
+                        <CoreProductCard
+                            key={analogKey}
+                            brand={analog.brand}
+                            article={analog.articleNumber}
+                            name={analog.name}
+                            offers={analogOffers}
+                            isAnalog
+                            isLoadingOffers={!loadedAnalogData}
+                        />
                       )
                     })}
 
@@ -650,16 +651,18 @@ export default function SearchResult() {
                       });
 
                       return hasMoreAnalogsWithOffers && (
-                        <button
-                         onClick={() => setVisibleAnalogsCount(prev => prev + ANALOGS_CHUNK_SIZE)}
-                         disabled={analogsLoading}
-                         className="w-full bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
-                       >
-                         {analogsLoading ? 'Загрузка...' : 'Показать еще аналоги'}
-                       </button>
+                        <div className="w-layout-hflex pagination">
+<button
+  onClick={() => setVisibleAnalogsCount(prev => prev + ANALOGS_CHUNK_SIZE)}
+  disabled={analogsLoading}
+  className="button_strock w-button"
+>
+  {analogsLoading ? "Загружаем..." : "Показать еще"}
+</button>
+</div>
                       );
                     })()}
-                  </div>
+                  </>
                 );
               })()}
             </div>
