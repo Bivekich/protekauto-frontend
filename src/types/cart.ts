@@ -36,7 +36,9 @@ export interface DeliveryInfo {
   type: string
   address: string
   date?: string
+  time?: string
   price: number
+  cost?: number
 }
 
 export interface CartState {

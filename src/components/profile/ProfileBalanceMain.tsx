@@ -129,41 +129,35 @@ const ProfileBalanceMain = () => {
     }
   });
 
-  const handleTopUp = async (contractId: string, amount: number) => {
-    if (amount <= 0) {
-      toast.error('Сумма пополнения должна быть больше 0');
-      return;
-    }
-
-    if (isCreatingInvoice) {
-      toast.error('Дождитесь завершения создания предыдущего счета');
-      return;
-    }
-
-    setIsCreatingInvoice(true);
+  const handleCreateInvoice = async (contractId: string, amount: number) => {
+    if (isCreatingInvoice) return;
     
-    // Показываем тоастер загрузки
-    const loadingToastId = toast.loading('Создаем счет на оплату...', {
-      duration: Infinity
-    });
+    setIsCreatingInvoice(true);
+    const loadingToast = toast.loading('Создаем счет на оплату...');
 
     try {
-      await createBalanceInvoice({
+      const { data } = await createBalanceInvoice({
         variables: {
-          contractId,
-          amount
+          contractId: contractId,
+          amount: amount
         }
       });
-      
-      // Убираем тоастер загрузки (он будет заменен на success/error в onCompleted/onError)
-      toast.dismiss(loadingToastId);
-      
+
+      if (data?.createBalanceInvoice) {
+        toast.dismiss(loadingToast);
+        // Логика скачивания уже в onCompleted мутации
+        // Обновляем данные
+        await refetch();
+      }
     } catch (error) {
+      toast.dismiss(loadingToast);
       console.error('Ошибка создания счета:', error);
-      toast.dismiss(loadingToastId);
+      toast.error('Ошибка создания счета: ' + (error as Error).message);
       setIsCreatingInvoice(false);
     }
   };
+
+
 
   if (loading) {
     return (
@@ -306,7 +300,7 @@ const ProfileBalanceMain = () => {
                 paid="0 ₽" // TODO: Добавить расчет оплаченной суммы
                 inputValue="0 ₽"
                 buttonLabel="Пополнить"
-                onTopUp={handleTopUp}
+                onTopUp={handleCreateInvoice}
                 isOverLimit={Boolean(isOverLimit)}
                 isCreatingInvoice={isCreatingInvoice}
               />

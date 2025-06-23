@@ -1221,18 +1221,38 @@ export const UPDATE_CONTRACT_BALANCE = gql`
 `
 
 export const CREATE_BALANCE_INVOICE = gql`
-  mutation CreateBalanceInvoice($contractId: ID!, $amount: Float!) {
+  mutation CreateBalanceInvoice($contractId: String!, $amount: Float!) {
     createBalanceInvoice(contractId: $contractId, amount: $amount) {
       id
       invoiceNumber
       amount
-      currency
       status
-      qrCode
-      pdfUrl
-      paymentUrl
-      expiresAt
       createdAt
+    }
+  }
+`
+
+export const GET_INVOICE_PDF = gql`
+  mutation GetInvoicePDF($invoiceId: String!) {
+    getInvoicePDF(invoiceId: $invoiceId) {
+      success
+      pdfBase64
+      filename
+      error
+    }
+  }
+`
+
+// Мутация для получения офферов доставки
+export const GET_DELIVERY_OFFERS = gql`
+  mutation GetDeliveryOffers($input: DeliveryOffersInput!) {
+    getDeliveryOffers(input: $input) {
+      id
+      name
+      description
+      deliveryDate
+      deliveryTime
+      cost
     }
   }
 `

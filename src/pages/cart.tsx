@@ -7,8 +7,10 @@ import CartSummary from "@/components/CartSummary";
 import CartRecommended from "../components/CartRecommended";
 import CatalogSubscribe from "@/components/CatalogSubscribe";
 import MobileMenuBottomSection from "@/components/MobileMenuBottomSection";
+import CartDebug from "@/components/CartDebug";
 
 export default function CartPage() {
+
   return (
     <><Head>
         <title>Cart</title>
@@ -37,6 +39,7 @@ export default function CartPage() {
       </section>
       <Footer />
       <MobileMenuBottomSection />
+      <CartDebug />
     </>
   );
 } 

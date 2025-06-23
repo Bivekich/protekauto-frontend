@@ -17,3 +17,50 @@
   --color-gray-800: #1F2937;
   --color-gray-900: #111827;
 }
+
+/* Стили для корзины */
+.div-block-7.active {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.div-block-7 {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tag-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.tag-button:hover {
+  background-color: #e9ecef;
+}
+
+.tag-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.radio-text {
+  font-size: 14px;
+  color: #333;
+  margin-left: 8px;
+  margin-right: 8px;
+}

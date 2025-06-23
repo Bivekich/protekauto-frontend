@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useReducer, useEffect } from 'react'
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react'
 import { CartState, CartContextType, CartItem, DeliveryInfo } from '@/types/cart'
 
 // Начальное состояние корзины
@@ -37,6 +37,7 @@ type CartAction =
   | { type: 'UPDATE_DELIVERY'; payload: Partial<DeliveryInfo> }
   | { type: 'CLEAR_CART' }
   | { type: 'LOAD_CART'; payload: CartItem[] }
+  | { type: 'LOAD_FULL_STATE'; payload: { items: CartItem[]; delivery: DeliveryInfo; orderComment: string } }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string }
 
@@ -243,6 +244,18 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       }
     }
 
+    case 'LOAD_FULL_STATE': {
+      const newSummary = calculateSummary(action.payload.items, action.payload.delivery.price || state.delivery.price)
+      
+      return {
+        ...state,
+        items: action.payload.items,
+        delivery: action.payload.delivery,
+        orderComment: action.payload.orderComment,
+        summary: newSummary
+      }
+    }
+
     case 'SET_LOADING': {
       return {
         ...state,
@@ -269,24 +282,57 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 // Провайдер корзины
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   // Загрузка корзины из localStorage при инициализации
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart')
-    if (savedCart) {
+    if (typeof window === 'undefined') return
+
+    console.log('🔄 Загружаем состояние корзины из localStorage...')
+    
+    const savedCartState = localStorage.getItem('cartState')
+    if (savedCartState) {
       try {
-        const cartItems = JSON.parse(savedCart)
-        dispatch({ type: 'LOAD_CART', payload: cartItems })
+        const cartState = JSON.parse(savedCartState)
+        console.log('✅ Найдено сохраненное состояние корзины:', cartState)
+        // Загружаем полное состояние корзины
+        dispatch({ type: 'LOAD_FULL_STATE', payload: cartState })
       } catch (error) {
-        console.error('Ошибка загрузки корзины из localStorage:', error)
+        console.error('❌ Ошибка загрузки корзины из localStorage:', error)
+        // Попытаемся загрузить старый формат (только товары)
+        const savedCart = localStorage.getItem('cart')
+        if (savedCart) {
+          try {
+            const cartItems = JSON.parse(savedCart)
+            console.log('✅ Найдены товары в старом формате:', cartItems)
+            dispatch({ type: 'LOAD_CART', payload: cartItems })
+          } catch (error) {
+            console.error('❌ Ошибка загрузки старой корзины:', error)
+          }
+        }
       }
+    } else {
+      console.log('ℹ️ Сохраненное состояние корзины не найдено')
     }
+    
+    setIsInitialized(true)
   }, [])
 
-  // Сохранение корзины в localStorage при изменении
+  // Сохранение полного состояния корзины в localStorage при изменении (только после инициализации)
   useEffect(() => {
+    if (!isInitialized || typeof window === 'undefined') return
+
+    const stateToSave = {
+      items: state.items,
+      delivery: state.delivery,
+      orderComment: state.orderComment
+    }
+    
+    console.log('💾 Сохраняем состояние корзины:', stateToSave)
+    localStorage.setItem('cartState', JSON.stringify(stateToSave))
+    // Сохраняем также старый формат для совместимости
     localStorage.setItem('cart', JSON.stringify(state.items))
-  }, [state.items])
+  }, [state.items, state.delivery, state.orderComment, isInitialized])
 
   // Функции для работы с корзиной
   const addItem = (item: Omit<CartItem, 'id' | 'selected' | 'favorite'>) => {
@@ -335,6 +381,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => {
     dispatch({ type: 'CLEAR_CART' })
+    // Очищаем localStorage при очистке корзины
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('cartState')
+      localStorage.removeItem('cart')
+    }
   }
 
   const contextValue: CartContextType = {
