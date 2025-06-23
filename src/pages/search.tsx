@@ -111,9 +111,9 @@ const SearchPage = () => {
       <div className="page-wrapper bg-[#F5F8FB] min-h-screen">
         <div className="flex flex-col px-32 pt-10 pb-16 max-md:px-5">
           <div className="flex flex-col items-center w-full">
-            <div className="w-full max-w-[1200px]">
+            <div className="w-full max-w-[1580px]">
               {/* Переключатель режима поиска */}
-              {searchQuery && (
+              {/* {searchQuery && (
                 <div className="bg-white rounded-2xl shadow p-6 mb-6 flex flex-col items-center">
                   <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 w-full max-w-md">
                     <button
@@ -138,7 +138,7 @@ const SearchPage = () => {
                     </button>
                   </div>
                 </div>
-              )}
+              )} */}
 
               {/* Обработка ошибок */}
               {searchQuery && hasError && (
@@ -199,10 +199,12 @@ const SearchPage = () => {
                               <div key={detail.detailid || index}>
                                 <button
                                   onClick={() => handlePartDetail(detail)}
-                                  className="w-full text-left p-4 hover:bg-gray-50 transition-colors block"
+                                  className="w-full text-left p-4 hover:bg-gray-50 transition-colors block group"
                                 >
-                                  <div className="self-stretch my-auto font-bold leading-snug text-gray-950 max-md:w-full hover:text-[#EC1C24] transition-colors">
-                                    {detail.manufacturer}: {detail.formattedoem || detail.oem} {detail.name}
+                                  <div className="flex w-full items-center gap-2">
+                                    <div className="w-1/4 font-bold text-left truncate" style={{ color: 'rgb(77, 180, 94)' }}>{detail.manufacturer}</div>
+                                    <div className="w-1/4 font-bold text-center truncate group-hover:text-[#EC1C24] transition-colors">{detail.formattedoem || detail.oem}</div>
+                                    <div className="w-2/4 text-right truncate">{detail.name}</div>
                                   </div>
                                 </button>
                               </div>
