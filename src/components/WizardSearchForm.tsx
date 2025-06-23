@@ -19,7 +19,7 @@ const WizardSearchForm: React.FC<WizardSearchFormProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [queries, setQueries] = useState<Record<string, string>>({});
-  const buttonRefs = useRef<Record<string, React.RefObject<HTMLButtonElement>>>({});
+  const buttonRefs = useRef<Record<string, React.RefObject<HTMLButtonElement | null>>>({});
 
   const [getWizard2] = useLazyQuery(GET_LAXIMO_WIZARD2, {
     onCompleted: (data) => {
@@ -199,7 +199,7 @@ const WizardSearchForm: React.FC<WizardSearchFormProps> = ({
         const filteredOptions = query
           ? options.filter(option => option.value.toLowerCase().includes(query.toLowerCase()))
           : options;
-        const buttonRef = buttonRefs.current[step.conditionid] as React.RefObject<HTMLButtonElement>;
+        const buttonRef = buttonRefs.current[step.conditionid];
         return (
           <div key={`${step.conditionid}-${index}`} className="space-y-3">
             <div className="flex items-center justify-between">
@@ -255,7 +255,7 @@ const WizardSearchForm: React.FC<WizardSearchFormProps> = ({
                     <Combobox.Input
                       id={`wizard-combobox-${step.conditionid}`}
                       className="w-full px-6 py-4 bg-white rounded border border-stone-300 text-sm text-gray-950 placeholder:text-neutral-500 outline-none focus:shadow-none focus:border-stone-300 transition-colors"
-                      displayValue={key => options.find(o => o.key === key)?.value || ''}
+                      displayValue={(key: string) => options.find(o => o.key === key)?.value || ''}
                       onChange={e => setQueries(q => ({ ...q, [step.conditionid]: e.target.value }))}
                       placeholder="Начните вводить..."
                       autoComplete="off"

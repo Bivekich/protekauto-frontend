@@ -85,7 +85,7 @@ const BrandWizardSearchSection: React.FC = () => {
               <Combobox.Input
                 id="brand-combobox"
                 className="w-full px-6 py-4 bg-white rounded border border-stone-300 text-sm text-gray-950 placeholder:text-neutral-500 outline-none focus:shadow-none focus:border-stone-300 transition-colors"
-                displayValue={brand => brand?.name || ''}
+                displayValue={(brand: LaximoBrand | null) => brand?.name || ''}
                 onChange={e => setBrandQuery(e.target.value)}
                 placeholder="Начните вводить бренд..."
                 autoComplete="off"
