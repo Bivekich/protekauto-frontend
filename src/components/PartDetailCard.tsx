@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useLazyQuery } from '@apollo/client';
 import { LaximoOEMResult } from '@/types/laximo';
 import { SEARCH_LAXIMO_OEM } from '@/lib/graphql';
+import BrandSelectionModal from './BrandSelectionModal';
 
 interface PartDetailCardProps {
   oem: string;
@@ -29,6 +30,7 @@ const PartDetailCard: React.FC<PartDetailCardProps> = ({
 }) => {
   const router = useRouter();
   const [localExpanded, setLocalExpanded] = useState(false);
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
   
   // Используем локальное состояние если нет внешнего контроля
   const expanded = onToggleExpand ? isExpanded : localExpanded;
@@ -50,10 +52,13 @@ const PartDetailCard: React.FC<PartDetailCardProps> = ({
   };
 
   const handleFindOffers = () => {
-    // Переходим на поиск предложений для этой детали
-    // Если бренд не указан или пустой, передаем пустую строку (AutoEuro API автоматически определит бренд)
-    const brandParam = brand && brand.trim() !== '' ? `&brand=${encodeURIComponent(brand)}` : '&brand=';
-    router.push(`/search-result?article=${encodeURIComponent(oem)}${brandParam}&name=${encodeURIComponent(name)}`);
+    console.log('🔍 Выбрана деталь для поиска предложений:', name, 'OEM:', oem);
+    // Показываем модал выбора бренда
+    setIsBrandModalOpen(true);
+  };
+
+  const handleCloseBrandModal = () => {
+    setIsBrandModalOpen(false);
   };
 
   const handleOpenFullInfo = () => {
@@ -244,6 +249,14 @@ const PartDetailCard: React.FC<PartDetailCardProps> = ({
           </div>
         </div>
       )}
+
+      {/* Модал выбора бренда */}
+      <BrandSelectionModal
+        isOpen={isBrandModalOpen}
+        onClose={handleCloseBrandModal}
+        articleNumber={oem}
+        detailName={name}
+      />
     </div>
   );
 };

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import Head from 'next/head';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Layout from '@/components/Layout';
 import VehiclePartsSearchSection from '@/components/VehiclePartsSearchSection';
 import LaximoDiagnostic from '@/components/LaximoDiagnostic';
 import { GET_LAXIMO_VEHICLE_INFO, GET_LAXIMO_CATALOG_INFO } from '@/lib/graphql';
@@ -107,30 +107,27 @@ const VehicleDetailsPage = () => {
 
   if (vehicleLoading) {
     return (
-      <>
+      <Layout>
         <Head>
           <title>Загрузка автомобиля...</title>
         </Head>
-        <Header />
         <main className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600 mx-auto"></div>
             <p className="mt-4 text-lg text-gray-600">Загружаем информацию об автомобиле...</p>
           </div>
         </main>
-        <Footer />
-      </>
+      </Layout>
     );
   }
 
   // Если информация о каталоге недоступна, показываем ошибку
   if (!catalogData?.laximoCatalogInfo) {
     return (
-      <>
+      <Layout>
         <Head>
           <title>Каталог не найден</title>
         </Head>
-        <Header />
         <main className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Каталог не найден</h1>
@@ -143,8 +140,7 @@ const VehicleDetailsPage = () => {
             </button>
           </div>
         </main>
-        <Footer />
-      </>
+      </Layout>
     );
   }
 
@@ -163,12 +159,11 @@ const VehicleDetailsPage = () => {
   const catalogInfo = catalogData.laximoCatalogInfo;
 
   return (
-    <>
+    <Layout>
       <Head>
         <title>{vehicleInfo.name} - Поиск запчастей</title>
         <meta name="description" content={`Поиск запчастей для ${vehicleInfo.name} в каталоге ${catalogInfo.name}`} />
       </Head>
-      <Header />
       
       <main className="min-h-screen bg-gray-50">
         {/* Навигация */}
@@ -309,9 +304,7 @@ const VehicleDetailsPage = () => {
           />
         </div>
       </main>
-
-      <Footer />
-    </>
+    </Layout>
   );
 };
 

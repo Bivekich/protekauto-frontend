@@ -3,6 +3,7 @@ import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { GET_LAXIMO_UNIT_INFO, GET_LAXIMO_UNIT_DETAILS, GET_LAXIMO_UNIT_IMAGE_MAP } from '@/lib/graphql';
 import { LaximoUnitInfo, LaximoUnitDetail, LaximoUnitImageMap, LaximoImageCoordinate } from '@/types/laximo';
+import BrandSelectionModal from './BrandSelectionModal';
 
 interface UnitDetailsSectionProps {
   catalogCode: string;
@@ -25,6 +26,8 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
   const [selectedImageSize, setSelectedImageSize] = useState<string>('250');
   const [imageScale, setImageScale] = useState<{ x: number; y: number }>({ x: 1, y: 1 });
   const [imageLoadTimeout, setImageLoadTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
+  const [selectedDetail, setSelectedDetail] = useState<LaximoUnitDetail | null>(null);
 
   // Получаем информацию об узле
   const { data: unitInfoData, loading: unitInfoLoading, error: unitInfoError } = useQuery<{ laximoUnitInfo: LaximoUnitInfo }>(
@@ -104,11 +107,16 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
   const unitImageMap = unitImageMapData?.laximoUnitImageMap;
 
   const handleDetailClick = (detail: LaximoUnitDetail) => {
-    console.log('🔍 Выбрана деталь:', detail.name, 'OEM:', detail.oem);
+    console.log('🔍 Выбрана деталь для выбора бренда:', detail.name, 'OEM:', detail.oem);
     if (detail.oem) {
-      // Переходим к поиску товара по OEM номеру
-      router.push(`/search-result?q=${detail.oem}&catalog=${catalogCode}&vehicle=${vehicleId}&name=${encodeURIComponent(detail.name)}`);
+      setSelectedDetail(detail);
+      setIsBrandModalOpen(true);
     }
+  };
+
+  const handleCloseBrandModal = () => {
+    setIsBrandModalOpen(false);
+    setSelectedDetail(null);
   };
 
   const handleCoordinateClick = (coord: LaximoImageCoordinate) => {
@@ -122,9 +130,10 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
     );
     
     if (detail && detail.oem) {
-      console.log('✅ Найдена деталь:', detail.name, 'OEM:', detail.oem);
-      // Переходим к поиску товара по OEM номеру
-      router.push(`/search-result?q=${detail.oem}&catalog=${catalogCode}&vehicle=${vehicleId}&name=${encodeURIComponent(detail.name)}`);
+      console.log('✅ Найдена деталь для выбора бренда:', detail.name, 'OEM:', detail.oem);
+      // Показываем модал выбора бренда
+      setSelectedDetail(detail);
+      setIsBrandModalOpen(true);
     } else {
       // Если деталь не найдена в списке, переходим к общему поиску по коду на изображении
       console.log('⚠️ Деталь не найдена в списке, переходим к поиску по коду:', coord.codeonimage);
@@ -662,6 +671,16 @@ const UnitDetailsSection: React.FC<UnitDetailsSectionProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Модал выбора бренда */}
+      {selectedDetail && (
+        <BrandSelectionModal
+          isOpen={isBrandModalOpen}
+          onClose={handleCloseBrandModal}
+          articleNumber={selectedDetail.oem || ''}
+          detailName={selectedDetail.name}
+        />
+      )}
     </div>
   );
 };

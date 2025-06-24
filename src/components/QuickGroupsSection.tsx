@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import { GET_LAXIMO_QUICK_GROUPS, GET_LAXIMO_QUICK_DETAIL } from '@/lib/graphql';
-import { LaximoQuickGroup, LaximoQuickDetail } from '@/types/laximo';
+import { LaximoQuickGroup, LaximoQuickDetail, LaximoUnit } from '@/types/laximo';
 import BrandSelectionModal from './BrandSelectionModal';
+import UnitDetailsSection from './UnitDetailsSection';
 
 interface QuickGroupsSectionProps {
   catalogCode: string;
@@ -111,9 +112,12 @@ const QuickDetailSection: React.FC<QuickDetailSectionProps> = ({
   ssd,
   onBack
 }) => {
+  console.log('🚀 QuickDetailSection рендерится с параметрами:', { catalogCode, vehicleId, selectedGroup, ssd });
   const router = useRouter();
   const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState<any>(null);
+  const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
+  const [selectedUnit, setSelectedUnit] = useState<LaximoUnit | null>(null);
 
   const handleDetailClick = (detail: any) => {
     const articleNumber = detail.oem;
@@ -128,6 +132,25 @@ const QuickDetailSection: React.FC<QuickDetailSectionProps> = ({
     setSelectedDetail(null);
   };
 
+  const toggleUnitExpansion = (unitId: string) => {
+    const newExpanded = new Set(expandedUnits);
+    if (newExpanded.has(unitId)) {
+      newExpanded.delete(unitId);
+    } else {
+      newExpanded.add(unitId);
+    }
+    setExpandedUnits(newExpanded);
+  };
+
+  const handleUnitClick = (unit: LaximoUnit) => {
+    console.log('🔍 Выбран узел для детального просмотра:', unit.name, 'ID:', unit.unitid);
+    setSelectedUnit(unit);
+  };
+
+  const handleBackFromUnit = () => {
+    setSelectedUnit(null);
+  };
+
   const { data: quickDetailData, loading: quickDetailLoading, error: quickDetailError } = useQuery<{ laximoQuickDetail: LaximoQuickDetail }>(
     GET_LAXIMO_QUICK_DETAIL,
     {
@@ -138,11 +161,33 @@ const QuickDetailSection: React.FC<QuickDetailSectionProps> = ({
         ssd
       },
       skip: !catalogCode || !vehicleId || !selectedGroup.quickgroupid || !ssd,
-      errorPolicy: 'all'
+      errorPolicy: 'all',
+      fetchPolicy: 'cache-and-network' // Принудительно запрашиваем данные
     }
   );
 
   const quickDetail = quickDetailData?.laximoQuickDetail;
+
+  // Добавляем отладочную информацию
+  console.log('🔍 QuickDetailSection Debug:');
+  console.log('📊 quickDetailData:', quickDetailData);
+  console.log('📋 quickDetail:', quickDetail);
+  console.log('🏗️ quickDetail.units:', quickDetail?.units);
+  console.log('⚙️ Variables:', { catalogCode, vehicleId, quickGroupId: selectedGroup.quickgroupid, ssd });
+
+  // Если выбран узел для детального просмотра, показываем UnitDetailsSection
+  if (selectedUnit) {
+    return (
+      <UnitDetailsSection
+        catalogCode={catalogCode}
+        vehicleId={vehicleId}
+        ssd={ssd}
+        unitId={selectedUnit.unitid}
+        unitName={selectedUnit.name}
+        onBack={handleBackFromUnit}
+      />
+    );
+  }
 
   if (quickDetailLoading) {
     return (
@@ -225,23 +270,101 @@ const QuickDetailSection: React.FC<QuickDetailSectionProps> = ({
         <div className="space-y-4">
           {quickDetail.units.map((unit) => (
             <div key={unit.unitid} className="bg-white rounded-lg border p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{unit.name}</h3>
-                  {unit.code && (
-                    <p className="text-sm text-gray-500">Код: {unit.code}</p>
-                  )}
+              <div className="flex items-start space-x-6 mb-4">
+                {/* Изображение узла */}
+                {(unit.imageurl || unit.largeimageurl) && (() => {
+                  const finalImageUrl = unit.largeimageurl ? unit.largeimageurl.replace('%size%', '250') : unit.imageurl?.replace('%size%', '250') || '';
+                  console.log('🖼️ Загружаем изображение:', finalImageUrl);
+                  console.log('🔍 Raw URLs:', { imageurl: unit.imageurl, largeimageurl: unit.largeimageurl });
+                  
+                  return (
+                    <div className="flex-shrink-0">
+                      <div className="text-xs text-gray-500 mb-2 p-2 bg-yellow-100 rounded">
+                        Debug: {finalImageUrl}
+                      </div>
+                      <img 
+                        src={finalImageUrl}
+                        alt={unit.name}
+                        className="w-48 h-48 object-contain bg-gray-50 rounded-lg border border-gray-200 hover:border-red-300 transition-colors cursor-pointer"
+                        onLoad={() => {
+                          console.log('✅ Изображение загружено успешно:', finalImageUrl);
+                        }}
+                        onError={(e) => {
+                          console.error('❌ Ошибка загрузки изображения:', finalImageUrl);
+                          console.error('❌ Event:', e);
+                          const img = e.target as HTMLImageElement;
+                          img.style.border = '2px solid red';
+                          img.alt = 'Ошибка загрузки';
+                        }}
+                        onClick={() => {
+                          // Открываем изображение в новой вкладке
+                          const imageUrl = unit.largeimageurl ? unit.largeimageurl.replace('%size%', '400') : unit.imageurl?.replace('%size%', '400') || '';
+                          if (imageUrl) {
+                            window.open(imageUrl, '_blank');
+                          }
+                        }}
+                      />
+                    </div>
+                  );
+                })()}
+                
+                <div className="flex-1">
+                  <div className="flex items-start justify-between mb-4">
+                    <button
+                      onClick={() => toggleUnitExpansion(unit.unitid)}
+                      className="flex-1 text-left hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                            {unit.name}
+                            {unit.details && unit.details.length > 0 && (
+                              <svg 
+                                className={`w-5 h-5 ml-2 transform transition-transform ${
+                                  expandedUnits.has(unit.unitid) ? 'rotate-90' : ''
+                                }`}
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            )}
+                          </h3>
+                          {unit.code && (
+                            <p className="text-sm text-gray-500">Код: {unit.code}</p>
+                          )}
+                          {unit.details && unit.details.length > 0 && (
+                            <p className="text-xs text-gray-400 mt-1">
+                              {unit.details.length} деталей • Нажмите для {expandedUnits.has(unit.unitid) ? 'скрытия' : 'показа'}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                          {unit.unitid && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              ID: {unit.unitid}
+                            </span>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation(); // Предотвращаем всплытие события
+                              handleUnitClick(unit);
+                            }}
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                          >
+                            Подробнее
+                          </button>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
                 </div>
-                {unit.unitid && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    ID: {unit.unitid}
-                  </span>
-                )}
               </div>
 
-              {unit.details && unit.details.length > 0 && (
+              {unit.details && unit.details.length > 0 && expandedUnits.has(unit.unitid) && (
                 <div className="border-t pt-4">
-                  <h4 className="text-sm font-medium text-gray-900 mb-3">Детали:</h4>
+                  <h4 className="text-sm font-medium text-gray-900 mb-3">Детали узла "{unit.name}":</h4>
                   <div className="space-y-3">
                     {unit.details.map((detail) => (
                       <div key={detail.detailid} className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-red-300 transition-colors">

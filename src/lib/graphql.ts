@@ -829,6 +829,8 @@ export const GET_LAXIMO_QUICK_DETAIL = gql`
         name
         code
         description
+        imageurl
+        largeimageurl
         details {
           detailid
           name
