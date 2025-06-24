@@ -106,7 +106,6 @@ const SearchPage = () => {
         <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
         <link href="images/webclip.png" rel="apple-touch-icon" />
       </Head>
-      <Header />
       <InfoSearch />
       <div className="page-wrapper bg-[#F5F8FB] min-h-screen">
         <div className="flex flex-col px-32 pt-10 pb-16 max-md:px-5">

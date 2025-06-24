@@ -416,7 +416,7 @@ export default function SearchResult() {
         <Head>
           <title>Поиск предложений {searchQuery} - Protek</title>
         </Head>
-        <Header />
+
         <main className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600 mx-auto"></div>
@@ -443,7 +443,6 @@ export default function SearchResult() {
         <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
         <link href="images/webclip.png" rel="apple-touch-icon" />
       </Head>
-      <Header />
       <InfoSearch
         brand={result ? result.brand : brandQuery}
         articleNumber={result ? result.articleNumber : searchQuery}

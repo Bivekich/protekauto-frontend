@@ -168,7 +168,7 @@ const VehicleSearchResultsPage: React.FC<VehicleSearchResultsPageProps> = () => 
 
   return (
     <>
-      <Header />
+
       
       <main className="bg-gray-50 min-h-screen">
         {/* Breadcrumb */}

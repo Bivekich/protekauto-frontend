@@ -52,7 +52,6 @@ const VehiclesByPartPage = () => {
         <Head>
           <title>Поиск автомобилей по артикулу {cleanPartNumber} - Protek</title>
         </Head>
-        <Header />
         <main className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600 mx-auto"></div>
@@ -70,7 +69,6 @@ const VehiclesByPartPage = () => {
         <Head>
           <title>Ошибка поиска - Protek</title>
         </Head>
-        <Header />
         <main className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="text-red-500 mb-4">
