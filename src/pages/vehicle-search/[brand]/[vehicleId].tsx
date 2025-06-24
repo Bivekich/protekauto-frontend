@@ -5,6 +5,7 @@ import Head from 'next/head';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import VehiclePartsSearchSection from '@/components/VehiclePartsSearchSection';
+import LaximoDiagnostic from '@/components/LaximoDiagnostic';
 import { GET_LAXIMO_VEHICLE_INFO, GET_LAXIMO_CATALOG_INFO } from '@/lib/graphql';
 import { LaximoCatalogInfo } from '@/types/laximo';
 
@@ -26,9 +27,20 @@ const VehicleDetailsPage = () => {
   const { brand, vehicleId, oemNumber, searchType: searchTypeParam } = router.query;
   
   // Устанавливаем тип поиска из URL или по умолчанию
-  const defaultSearchType = (searchTypeParam === 'categories' || searchTypeParam === 'quickgroups' || searchTypeParam === 'fulltext') 
-    ? searchTypeParam 
-    : 'quickgroups';
+  // Важно: согласно документации Laximo, для групп быстрого поиска используется ListQuickGroup
+  // Если в URL передан searchType=categories, мы интерпретируем это как запрос на quickgroups
+  let defaultSearchType: 'quickgroups' | 'categories' | 'fulltext' = 'quickgroups';
+  
+  if (searchTypeParam === 'categories') {
+    // В URL categories, но мы используем quickgroups для групп быстрого поиска
+    defaultSearchType = 'quickgroups';
+    console.log('🔄 URL содержит searchType=categories, интерпретируем как quickgroups (группы быстрого поиска)');
+  } else if (searchTypeParam === 'quickgroups') {
+    defaultSearchType = 'quickgroups';
+  } else if (searchTypeParam === 'fulltext') {
+    defaultSearchType = 'fulltext';
+  }
+  
   const [searchType, setSearchType] = useState<'quickgroups' | 'categories' | 'fulltext'>(defaultSearchType);
 
   // Получаем информацию о каталоге
@@ -281,6 +293,13 @@ const VehicleDetailsPage = () => {
               Выберите способ поиска запчастей для вашего автомобиля
             </p>
           </div>
+
+          {/* Диагностический компонент */}
+          <LaximoDiagnostic
+            catalogCode={vehicleInfo.catalog}
+            vehicleId={vehicleInfo.vehicleid}
+            ssd={vehicleInfo.ssd}
+          />
 
           <VehiclePartsSearchSection
             catalogInfo={catalogInfo}

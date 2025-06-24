@@ -30,88 +30,175 @@ const VehiclePartsSearchSection: React.FC<VehiclePartsSearchSectionProps> = ({
   searchType,
   onSearchTypeChange
 }) => {
+  // Проверяем поддержку функций согласно документации Laximo
+  const supportsQuickGroups = catalogInfo.features.some(f => f.name === 'quickgroups');
+  const supportsFullTextSearch = catalogInfo.features.some(f => f.name === 'fulltextsearch');
+  
+  console.log('🔧 VehiclePartsSearchSection - Поддерживаемые функции:');
+  console.log('📋 Все features:', catalogInfo.features.map(f => f.name));
+  console.log('🚀 quickgroups поддерживается:', supportsQuickGroups);
+  console.log('🔍 fulltextsearch поддерживается:', supportsFullTextSearch);
+
   const searchOptions = [
     {
       id: 'quickgroups' as const,
       name: 'Группы быстрого поиска',
-      description: 'Поиск запчастей по категориям быстрого поиска',
-      enabled: catalogInfo.features.some(f => f.name === 'quickgroups'),
+      description: 'Поиск запчастей по группам быстрого поиска Laximo (ListQuickGroup)',
+      enabled: supportsQuickGroups,
+      requiresSSD: true,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
       )
     },
     {
       id: 'categories' as const,
-      name: 'Категории узлов оригинального каталога',
-      description: 'Поиск через структуру оригинального каталога',
-      enabled: true, // Always available
+      name: 'Категории узлов каталога',
+      description: 'Поиск через структуру оригинального каталога (ListCategories)',
+      enabled: true, // Always available according to documentation
+      requiresSSD: false,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
       )
     },
-
     {
       id: 'fulltext' as const,
       name: 'Поиск деталей по названию',
-      description: 'Введите часть названия детали',
-      enabled: catalogInfo.features.some(f => f.name === 'fulltextsearch'),
+      description: 'Введите часть названия детали (SearchVehicleDetails)',
+      enabled: supportsFullTextSearch,
+      requiresSSD: true,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       )
     }
   ];
 
-  const availableOptions = searchOptions.filter(option => option.enabled);
+  // Если текущий тип поиска не поддерживается, переключаемся на поддерживаемый
+  React.useEffect(() => {
+    const currentOption = searchOptions.find(option => option.id === searchType);
+    if (!currentOption?.enabled) {
+      // Приоритет: quickgroups -> categories -> fulltext
+      if (supportsQuickGroups && vehicleInfo.ssd) {
+        onSearchTypeChange('quickgroups');
+      } else {
+        onSearchTypeChange('categories'); // categories всегда доступны
+      }
+    }
+  }, [catalogInfo, vehicleInfo, searchType, onSearchTypeChange, supportsQuickGroups]);
+
+  const handleSearchTypeChange = (type: 'quickgroups' | 'categories' | 'fulltext') => {
+    const option = searchOptions.find(opt => opt.id === type);
+    
+    if (!option?.enabled) {
+      console.warn(`Тип поиска ${type} не поддерживается каталогом ${catalogInfo.code}`);
+      return;
+    }
+
+    if (option.requiresSSD && (!vehicleInfo.ssd || vehicleInfo.ssd.trim() === '')) {
+      alert(`Для использования "${option.name}" необходимы данные автомобиля (SSD). Пожалуйста, выберите автомобиль заново.`);
+      return;
+    }
+
+    console.log(`🔄 Переключение на тип поиска: ${type}`);
+    onSearchTypeChange(type);
+  };
 
   return (
     <div className="space-y-6">
-      {/* Варианты поиска */}
-      <div className="mb-8">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Способы поиска запчастей</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {availableOptions.map((option) => (
+      {/* Заголовок с информацией о каталоге */}
+      <div className="bg-white rounded-lg border p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Способы поиска запчастей
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Выберите предпочтительный способ поиска для каталога {catalogInfo.name}
+            </p>
+          </div>
+          
+          {/* Индикатор поддерживаемых функций */}
+          <div className="text-right">
+            <div className="text-xs text-gray-500 mb-1">Поддерживаемые функции:</div>
+            <div className="flex space-x-2">
+              {supportsQuickGroups && (
+                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                  QuickGroups
+                </span>
+              )}
+              {supportsFullTextSearch && (
+                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                  FullText
+                </span>
+              )}
+              <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                Categories
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Селектор типов поиска */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {searchOptions.map((option) => (
             <button
               key={option.id}
-              onClick={() => onSearchTypeChange(option.id)}
+              onClick={() => handleSearchTypeChange(option.id)}
+              disabled={!option.enabled}
               className={`
-                relative rounded-lg border-2 p-6 text-left hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105
-                ${searchType === option.id
-                  ? 'border-red-500 bg-red-50 shadow-lg'
-                  : 'border-gray-200 bg-white hover:shadow-md'
+                relative p-4 border rounded-lg text-left transition-all duration-200
+                ${searchType === option.id && option.enabled
+                  ? 'border-red-500 bg-red-50 ring-2 ring-red-200'
+                  : option.enabled
+                    ? 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                    : 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'
                 }
               `}
             >
-              <div className="flex items-start space-x-4">
-                <div className={`flex-shrink-0 p-2 rounded-lg ${searchType === option.id ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'}`}>
+              <div className="flex items-start space-x-3">
+                <div className={`flex-shrink-0 ${option.enabled ? 'text-gray-600' : 'text-gray-400'}`}>
                   {option.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className={`text-base font-semibold mb-2 ${searchType === option.id ? 'text-red-900' : 'text-gray-900'}`}>
+                  <h3 className={`text-sm font-medium ${option.enabled ? 'text-gray-900' : 'text-gray-500'}`}>
                     {option.name}
-                  </h4>
-                  <p className={`text-sm ${searchType === option.id ? 'text-red-700' : 'text-gray-600'}`}>
+                  </h3>
+                  <p className={`text-xs mt-1 ${option.enabled ? 'text-gray-600' : 'text-gray-400'}`}>
                     {option.description}
                   </p>
-                  {!option.enabled && (
-                    <span className="inline-block mt-2 px-2 py-1 text-xs bg-gray-200 text-gray-600 rounded">
-                      Недоступно для данного каталога
-                    </span>
-                  )}
+                  
+                  {/* Индикаторы требований */}
+                  <div className="mt-2 flex items-center space-x-2">
+                    {option.requiresSSD && (
+                      <span className={`text-xs px-2 py-0.5 rounded ${
+                        vehicleInfo.ssd 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {vehicleInfo.ssd ? '✓ SSD доступен' : '⚠ Требует SSD'}
+                      </span>
+                    )}
+                    
+                    {!option.enabled && (
+                      <span className="text-xs px-2 py-0.5 rounded bg-red-100 text-red-700">
+                        Не поддерживается
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-              {searchType === option.id && (
-                <div className="absolute top-3 right-3">
-                  <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
+
+              {/* Индикатор выбранного состояния */}
+              {searchType === option.id && option.enabled && (
+                <div className="absolute top-2 right-2">
+                  <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
                 </div>
               )}
             </button>
@@ -119,74 +206,63 @@ const VehiclePartsSearchSection: React.FC<VehiclePartsSearchSectionProps> = ({
         </div>
       </div>
 
-      {/* Содержимое поиска */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        {searchType === 'quickgroups' && (
-          <div>
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Группы быстрого поиска</h3>
-              <p className="text-sm text-gray-600">
-                Выберите группу запчастей для быстрого поиска нужных деталей
-              </p>
-            </div>
-            <QuickGroupsSection
-              catalogCode={vehicleInfo.catalog}
-              vehicleId={vehicleInfo.vehicleid}
-              ssd={vehicleInfo.ssd}
-            />
-          </div>
+      {/* Отображение выбранного компонента поиска */}
+      <div className="min-h-[400px]">
+        {searchType === 'quickgroups' && supportsQuickGroups && (
+          <QuickGroupsSection
+            catalogCode={vehicleInfo.catalog}
+            vehicleId={vehicleInfo.vehicleid}
+            ssd={vehicleInfo.ssd}
+          />
         )}
 
         {searchType === 'categories' && (
-          <div>
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Категории узлов оригинального каталога</h3>
-              <p className="text-sm text-gray-600">
-                Навигация по структуре оригинального каталога производителя
-              </p>
-            </div>
-            <CategoriesSection
-              catalogCode={vehicleInfo.catalog}
-              vehicleId={vehicleInfo.vehicleid}
-              ssd={vehicleInfo.ssd}
-            />
-          </div>
+          <CategoriesSection
+            catalogCode={vehicleInfo.catalog}
+            vehicleId={vehicleInfo.vehicleid}
+            ssd={vehicleInfo.ssd}
+          />
         )}
 
-
-
-        {searchType === 'fulltext' && (
-          <div>
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Поиск деталей по названию</h3>
-              <p className="text-sm text-gray-600">
-                Введите часть названия детали для поиска в каталоге
-              </p>
-            </div>
-            <FulltextSearchSection
-              catalogCode={vehicleInfo.catalog}
-              vehicleId={vehicleInfo.vehicleid}
-              ssd={vehicleInfo.ssd}
-            />
-          </div>
+        {searchType === 'fulltext' && supportsFullTextSearch && (
+          <FulltextSearchSection
+            catalogCode={vehicleInfo.catalog}
+            vehicleId={vehicleInfo.vehicleid}
+            ssd={vehicleInfo.ssd}
+          />
         )}
       </div>
 
-      {/* Информация о текущем автомобиле */}
+      {/* Информационная панель */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="text-sm font-medium text-blue-900 mb-2">
-          Выбранный автомобиль: {vehicleInfo.name}
-        </h4>
-        <p className="text-blue-700 text-sm">
-          ID автомобиля: {vehicleInfo.vehicleid} | Каталог: {vehicleInfo.brand}
-        </p>
-        <p className="text-blue-700 text-sm mt-1">
-          SSD: {vehicleInfo.ssd && vehicleInfo.ssd.trim() !== '' 
-            ? `${vehicleInfo.ssd.substring(0, 50)}...` 
-            : 'отсутствует'
-          } 
-          {vehicleInfo.ssd && ` (длина: ${vehicleInfo.ssd.length})`}
-        </p>
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-blue-800">
+              Информация о способах поиска
+            </h3>
+            <div className="mt-2 text-sm text-blue-700">
+              <ul className="list-disc list-inside space-y-1">
+                <li><strong>Группы быстрого поиска</strong> - используют функцию Laximo ListQuickGroup для быстрого доступа к категориям</li>
+                <li><strong>Категории узлов каталога</strong> - навигация по структуре оригинального каталога производителя</li>
+                <li><strong>Поиск по названию</strong> - полнотекстовый поиск деталей по их наименованию</li>
+              </ul>
+              {vehicleInfo.ssd ? (
+                <p className="mt-2 text-green-700">
+                  ✓ Данные автомобиля (SSD) доступны - все функции активны
+                </p>
+              ) : (
+                <p className="mt-2 text-yellow-700">
+                  ⚠ Некоторые функции требуют данных автомобиля (SSD)
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

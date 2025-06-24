@@ -738,6 +738,38 @@ export const GET_LAXIMO_QUICK_GROUPS = gql`
   }
 `
 
+export const GET_LAXIMO_QUICK_GROUPS_WITH_XML = gql`
+  query GetLaximoQuickGroupsWithXML($catalogCode: String!, $vehicleId: String!, $ssd: String) {
+    laximoQuickGroupsWithXML(catalogCode: $catalogCode, vehicleId: $vehicleId, ssd: $ssd) {
+      groups {
+        quickgroupid
+        name
+        link
+        code
+        imageurl
+        largeimageurl
+        children {
+          quickgroupid
+          name
+          link
+          code
+          imageurl
+          largeimageurl
+          children {
+            quickgroupid
+            name
+            link
+            code
+            imageurl
+            largeimageurl
+          }
+        }
+      }
+      rawXML
+    }
+  }
+`
+
 export const GET_LAXIMO_CATEGORIES = gql`
   query GetLaximoCategories($catalogCode: String!, $vehicleId: String, $ssd: String) {
     laximoCategories(catalogCode: $catalogCode, vehicleId: $vehicleId, ssd: $ssd) {
