@@ -199,7 +199,7 @@ const ProfileAddressWayWithMap: React.FC<ProfileAddressWayWithMapProps> = ({ onB
   };
 
   return (
-    <div className="flex relative gap-8 items-start bg-white rounded-2xl flex-[1_0_0] min-h-[860px] max-md:flex-col max-md:gap-5">
+    <div className="flex relative gap-8 items-start bg-white rounded-2xl flex-[1_0_0] max-md:flex-col max-md:gap-5">
       {/* Левая часть */}
       {showDetails ? (
         <AddressDetails
@@ -222,14 +222,14 @@ const ProfileAddressWayWithMap: React.FC<ProfileAddressWayWithMapProps> = ({ onB
       )}
       
       {/* Правая часть: карта */}
-      <div className="flex-1 rounded-2xl overflow-hidden shadow-lg md:w-full">
+      <div className="flex-1 min-w-0 w-full rounded-2xl md:w-full max-md:h-[320px] max-md:min-h-0">
         <YandexPickupPointsMap
           pickupPoints={pickupPoints}
           selectedPoint={selectedPickupPoint}
           onPointSelect={handlePickupPointSelect}
           center={mapCenter}
           zoom={12}
-          className="w-full h-full min-h-[860px] max-md:min-h-[300px]"
+          className="w-full h-[220px] md:min-h-[990px] md:h-full"
         />
       </div>
     </div>

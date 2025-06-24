@@ -78,15 +78,11 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ value, onChan
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+        className="w-full bg-transparent outline-none text-gray-600"
         onFocus={() => {
-          console.log('Автокомплит: фокус на поле');
           if (suggestions.length > 0) setShowSuggestions(true);
         }}
-        onBlur={() => {
-          console.log('Автокомплит: потеря фокуса');
-          setTimeout(() => setShowSuggestions(false), 200);
-        }}
+        onBlur={() => setShowSuggestions(false)}
       />
       {isLoading && (
         <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
@@ -94,19 +90,18 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ value, onChan
         </div>
       )}
       {/* Отладочная информация */}
-      {process.env.NODE_ENV === 'development' && (
+      {/* {process.env.NODE_ENV === 'development' && (
         <div className="absolute right-16 top-1/2 transform -translate-y-1/2 text-xs text-gray-400">
           {suggestions.length > 0 ? `${suggestions.length} подсказок` : 'Нет подсказок'}
         </div>
-      )}
+      )} */}
       {showSuggestions && suggestions.length > 0 && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
           {suggestions.map((suggestion, index) => (
             <div
               key={index}
               className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm border-b border-gray-100 last:border-b-0"
-              onClick={() => {
-                console.log('Автокомплит: выбор предложения', suggestion);
+              onMouseDown={() => {
                 handleSuggestionClick(suggestion);
               }}
             >
@@ -119,28 +114,21 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ value, onChan
   );
 };
 
-const Tabs = ({ deliveryType, setDeliveryType }: { 
-  deliveryType: string; 
-  setDeliveryType: (type: string) => void;
-}) => (
-  <div className="flex gap-1 items-center self-stretch p-1 bg-gray-100 rounded-lg">
+const Tabs = ({ deliveryType, setDeliveryType }: { deliveryType: string; setDeliveryType: (type: string) => void; }) => (
+  <div className="flex items-center w-full text-base font-medium text-center whitespace-nowrap rounded-xl bg-slate-100 mb-6">
     <button
+      type="button"
+      style={deliveryType === 'COURIER' ? { color: '#fff' } : {}}
+      className={`flex-1 py-3 rounded-xl transition-colors duration-150 ${deliveryType === 'COURIER' ? 'bg-red-600 text-white shadow' : 'text-gray-700 hover:text-red-600'}`}
       onClick={() => setDeliveryType('COURIER')}
-      className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-        deliveryType === 'COURIER'
-          ? 'bg-white text-gray-900 shadow-sm'
-          : 'text-gray-500 hover:text-gray-700'
-      }`}
     >
-      Курьер
+      Курьером
     </button>
     <button
+      type="button"
+      style={deliveryType === 'PICKUP' ? { color: '#fff' } : {}}
+      className={`flex-1 py-3 rounded-xl transition-colors duration-150 ${deliveryType === 'PICKUP' ? 'bg-red-600 text-white shadow' : 'text-gray-700 hover:text-red-600'}`}
       onClick={() => setDeliveryType('PICKUP')}
-      className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-        deliveryType === 'PICKUP'
-          ? 'bg-white text-gray-900 shadow-sm'
-          : 'text-gray-500 hover:text-gray-700'
-      }`}
     >
       Самовывоз
     </button>
@@ -155,26 +143,32 @@ const PickupTypeFilter = ({ selectedType, onTypeChange }: {
   <div className="flex flex-col gap-3">
     <label className="text-sm font-medium text-gray-700">Тип пункта выдачи *</label>
     <div className="flex gap-2">
-      <button
+      <div
         onClick={() => onTypeChange('pickup_point')}
-        className={`flex-1 px-4 py-2 text-sm font-medium rounded-md border transition-colors ${
+        className={`flex-1 px-4 py-2 text-sm font-medium rounded-md border transition-colors text-center cursor-pointer select-none ${
           selectedType === 'pickup_point'
             ? 'bg-red-600 text-white border-red-600'
             : 'bg-white text-gray-700 border-gray-300 hover:border-red-300'
         }`}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onTypeChange('pickup_point'); }}
       >
         ПВЗ
-      </button>
-      <button
+      </div>
+      <div
         onClick={() => onTypeChange('terminal')}
-        className={`flex-1 px-4 py-2 text-sm font-medium rounded-md border transition-colors ${
+        className={`flex-1 px-4 py-2 text-sm font-medium rounded-md border transition-colors text-center cursor-pointer select-none ${
           selectedType === 'terminal'
             ? 'bg-red-600 text-white border-red-600'
             : 'bg-white text-gray-700 border-gray-300 hover:border-red-300'
         }`}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onTypeChange('terminal'); }}
       >
         Постомат
-      </button>
+      </div>
     </div>
   </div>
 );
@@ -248,18 +242,25 @@ const PickupPointDetails = ({ point, onConfirm, onCancel }: {
     </div>
 
     <div className="flex gap-3 pt-2">
-      <button
+      <div
         onClick={onCancel}
-        className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+        className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-center cursor-pointer select-none"
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onCancel(); }}
       >
         Изменить выбор
-      </button>
-      <button
+      </div>
+      <div
         onClick={onConfirm}
-        className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+        style={{ color: '#fff' }}
+        className="flex-1 px-4 py-2 text-sm font-medium bg-red-600 rounded-md hover:bg-red-700 !text-[#fff] text-center cursor-pointer select-none"
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onConfirm(); }}
       >
         Подтвердить выбор
-      </button>
+      </div>
     </div>
   </div>
 );
@@ -417,184 +418,202 @@ const AddressFormWithPickup = ({
     'Любое время'
   ];
 
+  // Желаемое время доставки — кастомный селект
+  const [isTimeOpen, setIsTimeOpen] = useState(false);
+
   return (
-    <div className="flex flex-col px-8 pt-8 bg-white rounded-2xl w-[480px] max-md:w-full max-md:px-5 max-md:pb-8">
-      <div className="flex relative flex-col gap-8 items-start h-[730px] w-[420px] max-md:w-full max-md:h-auto max-sm:gap-5">
-        <div className="flex relative flex-col gap-5 items-start self-stretch max-sm:gap-4">
-          <div className="flex relative gap-2.5 justify-center items-center self-stretch pr-10 max-md:pr-5">
-            <div className="text-3xl font-bold leading-9 flex-[1_0_0] text-gray-950 max-md:text-2xl max-sm:text-2xl">
-              {editingAddress ? 'Редактировать адрес' : 'Адрес доставки'}
-            </div>
-            <div onClick={onBack} className="cursor-pointer absolute right-0 top-1">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M1.8 18L0 16.2L7.2 9L0 1.8L1.8 0L9 7.2L16.2 0L18 1.8L10.8 9L18 16.2L16.2 18L9 10.8L1.8 18Z" fill="#000814"/>
-              </svg>
-            </div>
-          </div>
-
-          <Tabs deliveryType={deliveryType} setDeliveryType={setDeliveryType} />
+    <div className="flex flex-col px-8 pt-8 bg-white rounded-2xl w-[480px] max-md:w-full max-md:px-4 max-md:pb-8 ">
+      <div className="flex flex-col w-full leading-tight mb-2">
+        <div className="text-2xl font-bold text-gray-950 mb-2">
+          {editingAddress ? 'Редактировать адрес' : 'Адрес доставки'}
         </div>
-
-        {deliveryType === 'COURIER' ? (
-          <div className="flex flex-col gap-4 items-start self-stretch">
-            {/* Название адреса */}
-            <div className="flex flex-col gap-2 items-start self-stretch">
-              <label className="text-sm font-medium text-gray-700">Название адреса *</label>
+        <Tabs deliveryType={deliveryType} setDeliveryType={setDeliveryType} />
+      </div>
+      {deliveryType === 'COURIER' ? (
+        <div className="flex flex-col gap-4 w-full">
+          {/* Название адреса */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Название адреса *</label>
+            <div className="gap-2.5 self-stretch px-6 py-3.5 mt-1.5 w-full bg-white rounded border border-solid border-stone-300 min-h-[46px] max-md:px-5">
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Например: Дом, Офис, Дача"
-                className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                className="w-full bg-transparent outline-none text-gray-600"
               />
             </div>
-
-            {/* Адрес с автокомплитом */}
-            <div className="flex flex-col gap-2 items-start self-stretch">
-              <label className="text-sm font-medium text-gray-700">Адрес доставки *</label>
+          </div>
+          {/* Адрес с автокомплитом */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Адрес доставки *</label>
+            <div className="gap-2.5 self-stretch px-6 py-3.5 mt-1.5 w-full bg-white rounded border border-solid border-stone-300 min-h-[46px] max-md:px-5">
               <AddressAutocomplete
                 value={formData.address}
                 onChange={(value) => setFormData(prev => ({ ...prev, address: value }))}
                 placeholder="Введите адрес"
               />
             </div>
-
-            {/* Дополнительные поля */}
-            <div className="grid grid-cols-2 gap-4 w-full">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-gray-700">Подъезд</label>
+          </div>
+          {/* Дополнительные поля */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-gray-700">Подъезд</label>
+              <div className="gap-2.5 self-stretch px-6 py-3.5 mt-1.5 w-full bg-white rounded border border-solid border-stone-300 min-h-[46px] max-md:px-5">
                 <input
                   type="text"
                   value={formData.entrance}
                   onChange={(e) => setFormData(prev => ({ ...prev, entrance: e.target.value }))}
                   placeholder="1"
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  className="w-full bg-transparent outline-none text-gray-600"
                 />
               </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-gray-700">Этаж</label>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-gray-700">Этаж</label>
+              <div className="gap-2.5 self-stretch px-6 py-3.5 mt-1.5 w-full bg-white rounded border border-solid border-stone-300 min-h-[46px] max-md:px-5">
                 <input
                   type="text"
                   value={formData.floor}
                   onChange={(e) => setFormData(prev => ({ ...prev, floor: e.target.value }))}
                   placeholder="5"
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  className="w-full bg-transparent outline-none text-gray-600"
                 />
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-4 w-full">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-gray-700">Квартира/офис</label>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-gray-700">Квартира/офис</label>
+              <div className="gap-2.5 self-stretch px-6 py-3.5 mt-1.5 w-full bg-white rounded border border-solid border-stone-300 min-h-[46px] max-md:px-5">
                 <input
                   type="text"
                   value={formData.apartment}
                   onChange={(e) => setFormData(prev => ({ ...prev, apartment: e.target.value }))}
                   placeholder="25"
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  className="w-full bg-transparent outline-none text-gray-600"
                 />
               </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-gray-700">Домофон</label>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-gray-700">Домофон</label>
+              <div className="gap-2.5 self-stretch px-6 py-3.5 mt-1.5 w-full bg-white rounded border border-solid border-stone-300 min-h-[46px] max-md:px-5">
                 <input
                   type="text"
                   value={formData.intercom}
                   onChange={(e) => setFormData(prev => ({ ...prev, intercom: e.target.value }))}
                   placeholder="25К"
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  className="w-full bg-transparent outline-none text-gray-600"
                 />
               </div>
             </div>
-
-            {/* Время доставки */}
-            <div className="flex flex-col gap-2 items-start self-stretch">
-              <label className="text-sm font-medium text-gray-700">Желаемое время доставки</label>
-              <select
-                value={formData.deliveryTime}
-                onChange={(e) => setFormData(prev => ({ ...prev, deliveryTime: e.target.value }))}
-                className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+          </div>
+          {/* Время доставки */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Желаемое время доставки</label>
+            <div className="relative mt-1.5">
+              <div
+                className="flex gap-10 justify-between items-center px-6 py-3.5 w-full bg-white rounded border border-solid border-stone-300 min-h-[46px] text-neutral-500 max-md:px-5 cursor-pointer select-none"
+                onClick={() => setIsTimeOpen((prev) => !prev)}
+                tabIndex={0}
+                onBlur={() => setIsTimeOpen(false)}
               >
-                <option value="">Выберите время</option>
-                {timeSlots.map((slot) => (
-                  <option key={slot} value={slot}>{slot}</option>
-                ))}
-              </select>
+                <span className="self-stretch my-auto text-neutral-500">{formData.deliveryTime || 'Выберите время'}</span>
+                <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path d="M6 8l4 4 4-4" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </div>
+              {isTimeOpen && (
+                <ul className="absolute left-0 right-0 z-10 bg-white border-x border-b border-stone-300 rounded-b-lg shadow-lg animate-fadeIn">
+                  {timeSlots.map(option => (
+                    <li
+                      key={option}
+                      className={`px-6 py-3.5 cursor-pointer hover:bg-blue-100 ${option === formData.deliveryTime ? 'bg-blue-50 font-semibold' : ''}`}
+                      onMouseDown={() => { setFormData(prev => ({ ...prev, deliveryTime: option })); setIsTimeOpen(false); }}
+                    >
+                      {option}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-
-            {/* Контактный телефон */}
-            <div className="flex flex-col gap-2 items-start self-stretch">
-              <label className="text-sm font-medium text-gray-700">Контактный телефон</label>
+          </div>
+          {/* Контактный телефон */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Контактный телефон</label>
+            <div className="gap-2.5 self-stretch px-6 py-3.5 mt-1.5 w-full bg-white rounded border border-solid border-stone-300 min-h-[46px] max-md:px-5">
               <input
                 type="tel"
                 value={formData.contactPhone}
                 onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
                 placeholder="+7 (999) 123-45-67"
-                className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                className="w-full bg-transparent outline-none text-gray-600"
               />
             </div>
-
-            {/* Комментарий */}
-            <div className="flex flex-col gap-2 items-start self-stretch">
-              <label className="text-sm font-medium text-gray-700">Комментарий для курьера</label>
+          </div>
+          {/* Комментарий для курьера */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Комментарий для курьера</label>
+            <div className="gap-2.5 self-stretch px-6 py-3.5 mt-1.5 w-full bg-white rounded border border-solid border-stone-300 min-h-[46px] max-md:px-5">
               <textarea
                 value={formData.comment}
                 onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
                 placeholder="Дополнительная информация для курьера"
                 rows={3}
-                className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+                className="w-full bg-transparent outline-none text-gray-600 resize-none"
               />
             </div>
           </div>
-        ) : (
-          <div className="flex flex-col gap-4 items-start self-stretch">
-            <PickupTypeFilter 
-              selectedType={pickupTypeFilter} 
-              onTypeChange={setPickupTypeFilter} 
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4 w-full">
+          <PickupTypeFilter 
+            selectedType={pickupTypeFilter} 
+            onTypeChange={setPickupTypeFilter} 
+          />
+          {showPickupDetails && selectedPickupPoint ? (
+            <PickupPointDetails
+              point={selectedPickupPoint}
+              onConfirm={() => {
+                setShowPickupDetails(false);
+                handleSave();
+              }}
+              onCancel={() => setShowPickupDetails(false)}
             />
-            
-            {showPickupDetails && selectedPickupPoint ? (
-              <PickupPointDetails
-                point={selectedPickupPoint}
-                onConfirm={() => {
-                  setShowPickupDetails(false);
-                  handleSave();
-                }}
-                onCancel={() => setShowPickupDetails(false)}
-              />
-            ) : (
-              <PickupPointSelector
-                selectedPoint={selectedPickupPoint}
-                onPointSelect={handlePickupPointSelect}
-                onCityChange={onCityChange}
-                placeholder={`Выберите ${pickupTypeFilter === 'pickup_point' ? 'ПВЗ' : 'постомат'}`}
-                typeFilter={pickupTypeFilter}
-              />
-            )}
-
-            {/* Комментарий для самовывоза */}
-            <div className="flex flex-col gap-2 items-start self-stretch">
-              <label className="text-sm font-medium text-gray-700">Комментарий</label>
+          ) : (
+            <PickupPointSelector
+              selectedPoint={selectedPickupPoint}
+              onPointSelect={handlePickupPointSelect}
+              onCityChange={onCityChange}
+              placeholder={`Выберите ${pickupTypeFilter === 'pickup_point' ? 'ПВЗ' : 'постомат'}`}
+              typeFilter={pickupTypeFilter}
+            />
+          )}
+          {/* Комментарий для самовывоза */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Комментарий</label>
+            <div className="gap-2.5 self-stretch px-6 py-3.5 mt-1.5 w-full bg-white rounded border border-solid border-stone-300 min-h-[46px] max-md:px-5">
               <textarea
                 value={formData.comment}
                 onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
                 placeholder="Дополнительная информация"
                 rows={3}
-                className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+                className="w-full bg-transparent outline-none text-gray-600 resize-none"
               />
             </div>
           </div>
-        )}
-
-        <button
-          onClick={handleSave}
-          className="w-full px-5 py-3.5 text-base font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors"
-          disabled={deliveryType === 'PICKUP' && !selectedPickupPoint}
-        >
-          {deliveryType === 'PICKUP' && selectedPickupPoint && !showPickupDetails 
-            ? 'Показать детали и сохранить' 
-            : editingAddress ? 'Сохранить изменения' : 'Сохранить адрес доставки'
-          }
-        </button>
+        </div>
+      )}
+      <div
+        onClick={handleSave}
+        style={{ color: '#fff' }}
+        className="w-full mt-6 mb-6 px-5 py-3.5 text-base font-medium bg-red-600 rounded-xl hover:bg-red-700 transition-colors shadow-md disabled:opacity-60 disabled:cursor-not-allowed !text-[#fff] text-center cursor-pointer select-none"
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleSave(); }}
+      >
+        {deliveryType === 'PICKUP' && selectedPickupPoint && !showPickupDetails 
+          ? 'Показать детали и сохранить' 
+          : editingAddress ? 'Сохранить изменения' : 'Сохранить адрес доставки'
+        }
       </div>
     </div>
   );

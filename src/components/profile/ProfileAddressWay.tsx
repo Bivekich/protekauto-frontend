@@ -27,7 +27,7 @@ const ProfileAddressWay = ({ onBack }: ProfileAddressWayProps) => {
       <div className="flex-1  rounded-2xl overflow-hidden shadow-lg md:w-full ">
         <iframe
           src="https://yandex.ru/map-widget/v1/?ll=37.532502%2C56.339223&mode=whatshere&whatshere%5Bpoint%5D=37.532502%2C56.339223&whatshere%5Bzoom%5D=17&z=16"
-          className="w-full h-full min-h-[860px] max-md:min-h-[300px] "
+          className="w-full h-full min-h-[990px] max-md:min-h-[300px] "
           frameBorder="0"
           allowFullScreen
           title="Карта"

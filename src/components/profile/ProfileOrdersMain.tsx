@@ -166,7 +166,7 @@ const ProfileOrdersMain: React.FC<ProfileOrdersMainProps> = (props) => {
   }
 
   return (
-    <div className="flex flex-col flex-1 shrink justify-center basis-0 min-w-[240px] max-md:max-w-full">
+    <div className="flex flex-col flex-1 shrink justify-center basis-0 w-full max-md:max-w-full">
       <div className="flex flex-wrap gap-5 w-full whitespace-nowrap max-md:max-w-full">
         <div className="flex flex-wrap flex-1 shrink gap-5 self-start text-lg font-medium leading-tight text-center basis-[60px] min-w-[240px] text-gray-950 max-md:max-w-full">
           {tabs.map((tab, idx) => (

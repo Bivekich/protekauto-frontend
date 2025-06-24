@@ -86,10 +86,11 @@ const ProfilePersonalData: React.FC<ProfilePersonalDataProps> = ({
       </div>
 
       {onSave && (
-        <div className="flex justify-end mt-6">
+        <div className="flex justify-end mt-6 max-md:self-start">
           <button
             onClick={onSave}
             className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+            style={{ color: '#fff' }}
           >
             Сохранить изменения
           </button>

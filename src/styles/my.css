@@ -354,3 +354,7 @@ input.input-receiver:focus {
 .core-product-card, .cart-list, .flex-block-48, .product-list-cart{
   min-height: 100%;
 }
+
+.filter-red {
+  filter: invert(32%) sepia(99%) saturate(7499%) hue-rotate(-7deg) brightness(98%) contrast(108%);
+}

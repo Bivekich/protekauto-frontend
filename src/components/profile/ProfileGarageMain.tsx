@@ -143,7 +143,7 @@ const ProfileGarageMain = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center">
+    <div className="flex flex-col flex-1 shrink justify-center basis-0 w-full max-md:max-w-full">
       <div className="flex flex-wrap gap-5 items-center px-8 py-3 w-full text-base leading-snug text-gray-400 whitespace-nowrap bg-white rounded-lg max-md:px-5 max-md:max-w-full">
         <div className="flex-1 shrink self-stretch my-auto text-gray-400 basis-0 text-ellipsis max-md:max-w-full">
           <input
@@ -179,17 +179,17 @@ const ProfileGarageMain = () => {
 
         {!vehiclesLoading && filteredVehicles.map((vehicle) => (
           <div key={vehicle.id} className="mt-8">
-            <div className="flex flex-col justify-center px-5 py-3 w-full rounded-lg bg-slate-50 max-md:max-w-full">
+            <div className="flex flex-col justify-center pr-5 py-3 w-full rounded-lg bg-slate-50 max-md:max-w-full">
               <div className="flex flex-wrap gap-8 items-center w-full max-md:max-w-full">
-                <div className="flex gap-8 items-center self-stretch my-auto min-w-[240px]">
+                <div className="flex gap-8 items-center self-stretch my-auto min-w-[240px] max-md:flex-col max-md:min-w-0 max-md:gap-2">
                   <div className="self-stretch my-auto text-xl font-bold leading-none text-gray-950">
                     {vehicle.name || `${vehicle.brand || ''} ${vehicle.model || ''}`.trim() || 'Неизвестный автомобиль'}
                   </div>
-                  <div className="self-stretch my-auto text-sm leading-snug text-gray-600">
+                  <div className="self-stretch my-auto text-sm leading-snug text-gray-600 max-md:whitespace-normal">
                     {vehicle.vin || 'VIN не указан'}
                   </div>
                 </div>
-                <div className="flex-1 shrink gap-2.5 self-stretch px-3.5 py-1.5 my-auto text-sm leading-snug whitespace-nowrap bg-white rounded border border-solid basis-3 border-zinc-100 min-h-[32px] min-w-[240px] text-stone-500">
+                <div className="flex-1 shrink gap-2.5 self-stretch px-3.5 py-1.5 my-auto text-sm leading-snug whitespace-nowrap bg-white rounded border border-solid basis-3 border-zinc-100 min-h-[32px] min-w-[240px] text-stone-500 truncate overflow-hidden">
                   {vehicle.comment || 'Комментарий не добавлен'}
                 </div>
                 <div 
@@ -388,7 +388,7 @@ const ProfileGarageMain = () => {
             {searchHistory.map((historyItem) => (
               <div key={historyItem.id} className="flex flex-col justify-center px-5 py-3 mb-2.5 w-full rounded-lg bg-slate-50 min-h-[44px] max-md:max-w-full">
                 <div className="flex flex-wrap gap-10 justify-between items-center w-full max-md:max-w-full">
-                  <div className="flex gap-8 items-center self-stretch my-auto min-w-[240px]">
+                  <div className="flex gap-8 items-center self-stretch my-auto min-w-[240px] max-md:flex-col max-md:min-w-0 max-md:gap-2">
                     <div className="self-stretch my-auto text-lg font-bold leading-none text-gray-950">
                       {historyItem.brand && historyItem.model 
                         ? `${historyItem.brand} ${historyItem.model}` 

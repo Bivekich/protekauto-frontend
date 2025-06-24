@@ -216,7 +216,7 @@ const ProfileSettingsMain = () => {
     const clientData: ClientData | null = data?.clientMe || null;
 
     return (
-        <div className="flex flex-col justify-center">
+        <div className="flex flex-col flex-1 shrink justify-center basis-0 w-full max-md:max-w-full">
               <ProfilePersonalData
                 firstName={firstName}
                 setFirstName={setFirstName}
