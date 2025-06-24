@@ -68,11 +68,11 @@ const BrandWizardSearchSection: React.FC = () => {
   const catalogInfo = catalogData?.laximoCatalogInfo;
 
   return (
-    <section className="max-w-[1580px] min-h-[700px] mx-auto bg-white rounded-2xl shadow p-6 md:p-10 my-8">
-      <div className="text-2xl font-bold text-gray-900 mb-6 mt-6 text-center" style={{ fontSize: '28px' }}>Подбор автомобиля по параметрам</div>
+    <section className="max-w-[1100px] min-h-[450px] mx-auto bg-white rounded-2xl shadow p-6 md:p-10 my-8">
+      {/* <div className="text-2xl font-bold text-gray-900 mb-6 mt-6 text-center" style={{ fontSize: '28px' }}>Подбор автомобиля по параметрам</div> */}
       {/* Combobox бренда */}
       <div className="mb-8 w-full">
-        <div className="w-full max-w-[450px]">
+        <div className="w-full max-w-[320px] min-w-[320px]">
         <div className="flex items-center justify-between mb-[12px]" >
             <div className="flex items-center space-x-3">
                 <h4  className="text-lg font-medium text-gray-900">
@@ -136,23 +136,24 @@ const BrandWizardSearchSection: React.FC = () => {
       {catalogError && selectedBrand && (
         <div className="text-red-600 text-center py-4">Ошибка загрузки каталога</div>
       )}
-      {catalogInfo && catalogInfo.supportparameteridentification2 && !vehicles && (
-        <div className="mt-6">
-          <WizardSearchForm
-            catalogCode={catalogInfo.code}
-            onVehicleFound={handleVehicleFound}
-          />
-        </div>
+      {catalogInfo && catalogInfo.supportparameteridentification2 && (
+        <>
+          <div className="mt-6">
+            <WizardSearchForm
+              catalogCode={catalogInfo.code}
+              onVehicleFound={handleVehicleFound}
+            />
+          </div>
+          {vehicles && (
+            <div className="mt-8">
+              <VehicleSearchResults results={vehicles} catalogInfo={catalogInfo} />
+            </div>
+          )}
+        </>
       )}
       {catalogInfo && !catalogInfo.supportparameteridentification2 && (
         <div className="text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6 text-center">
           Для выбранного бренда подбор по параметрам недоступен.
-        </div>
-      )}
-      {/* Результаты поиска */}
-      {vehicles && catalogInfo && (
-        <div className="mt-8">
-          <VehicleSearchResults results={vehicles} catalogInfo={catalogInfo} />
         </div>
       )}
     </section>

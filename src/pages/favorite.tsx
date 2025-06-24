@@ -103,8 +103,9 @@ export default function Favorite() {
         <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <link href="/images/webclip.png" rel="apple-touch-icon" />
       </Head>
-      <Header />
       <FavoriteInfo />
+      <section className="main">
+      
       <div className="w-layout-blockcontainer container w-container">
         <div className="w-layout-hflex flex-block-84">
           <div className="w-layout-hflex flex-block-85" onClick={() => setShowFiltersMobile((v) => !v)}>
@@ -148,6 +149,7 @@ export default function Favorite() {
           onFilterChange={handleFilterChange}
         />
       </div>
+      </section>
       <section className="main">
         <div className="w-layout-blockcontainer container w-container">
           <div className="w-layout-vflex cart-list">

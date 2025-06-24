@@ -24,22 +24,17 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
     if (!firstName.trim()) {
       onError('Введите имя')
       return
     }
-
     if (!lastName.trim()) {
       onError('Введите фамилию')
       return
     }
-
     setIsLoading(true)
-
     try {
       const fullName = `${firstName.trim()} ${lastName.trim()}`
-      
       const { data } = await registerClient({
         variables: {
           phone,
@@ -47,12 +42,10 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({
           sessionId
         }
       })
-
       if (data?.registerNewClient) {
         onSuccess(data.registerNewClient)
       }
     } catch (error) {
-      console.error('Ошибка регистрации:', error)
       onError('Не удалось зарегистрировать пользователя')
     } finally {
       setIsLoading(false)
@@ -60,105 +53,48 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({
   }
 
   return (
-    <div className="w-full">
-      <form onSubmit={handleSubmit}>
-        <div className="flex items-end" style={{ gap: '20px' }}>
-          {/* Блок с двумя полями ввода */}
-          <div className="flex" style={{ gap: '12px' }}>
-            {/* Поле имени */}
-            <div className="flex flex-col" style={{ gap: '20px', width: '360px' }}>
-              <label
-                style={{
-                  fontSize: '22px',
-                  lineHeight: '1.4',
-                  fontWeight: 400,
-                  fontFamily: 'Onest, sans-serif',
-                  color: '#000814'
-                }}
-              >
-                Введите имя
-              </label>
-              <input
-                type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="Иван"
-                className="focus:outline-none"
-                style={{
-                  width: '360px',
-                  height: '62px',
-                  padding: '15px 24px',
-                  fontSize: '18px',
-                  lineHeight: '1.4',
-                  fontWeight: 400,
-                  fontFamily: 'Onest, sans-serif',
-                  color: '#747474',
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #D0D0D0',
-                  borderRadius: '4px'
-                }}
-                disabled={isLoading}
-                required
-              />
-            </div>
-
-            {/* Поле фамилии */}
-            <div className="flex flex-col" style={{ gap: '20px', width: '360px' }}>
-              <label
-                style={{
-                  fontSize: '22px',
-                  lineHeight: '1.4',
-                  fontWeight: 400,
-                  fontFamily: 'Onest, sans-serif',
-                  color: '#000814'
-                }}
-              >
-                Фамилию
-              </label>
-              <input
-                type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Иванов"
-                className="focus:outline-none"
-                style={{
-                  width: '360px',
-                  height: '62px',
-                  padding: '15px 24px',
-                  fontSize: '18px',
-                  lineHeight: '1.4',
-                  fontWeight: 400,
-                  fontFamily: 'Onest, sans-serif',
-                  color: '#747474',
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #D0D0D0',
-                  borderRadius: '4px'
-                }}
-                disabled={isLoading}
-                required
-              />
-            </div>
+    <div className="flex flex-col gap-5 w-full">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
+        <div className="flex gap-5 items-end w-full max-md:flex-col max-md:gap-4 max-sm:gap-3">
+          {/* Имя */}
+          <div className="flex flex-col gap-3 max-w-[360px] w-full">
+            <label className="text-2xl leading-8 text-gray-950 mb-2 font-normal font-[Onest,sans-serif]">Введите имя</label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Иван"
+              className="max-w-[360px] w-full h-[62px] px-6 py-4 text-[18px] leading-[1.4] font-normal font-[Onest,sans-serif] text-neutral-500 bg-white border border-stone-300 rounded focus:outline-none"
+              disabled={isLoading}
+              required
+            />
           </div>
-
+          {/* Фамилия */}
+          <div className="flex flex-col gap-3 max-w-[360px] w-full">
+            <label className="text-2xl leading-8 text-gray-950 mb-2 font-normal font-[Onest,sans-serif]">Фамилию</label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Иванов"
+              className="max-w-[360px] w-full h-[62px] px-6 py-4 text-[18px] leading-[1.4] font-normal font-[Onest,sans-serif] text-neutral-500 bg-white border border-stone-300 rounded focus:outline-none"
+              disabled={isLoading}
+              required
+            />
+          </div>
           {/* Кнопка */}
           <button
             type="submit"
             disabled={isLoading || !firstName.trim() || !lastName.trim()}
-            className="disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="flex items-center justify-center flex-shrink-0 bg-red-600 rounded-xl px-8 py-5 text-lg font-medium leading-5 text-white disabled:opacity-50 disabled:cursor-not-allowed h-[62px] max-sm:px-6 max-sm:py-4"
             style={{
-              backgroundColor: '#EC1C24',
-              borderRadius: '12px',
-              padding: '20px 30px',
-              fontSize: '18px',
-              lineHeight: '1.2',
-              fontWeight: 500,
-              fontFamily: 'Onest, sans-serif',
-              color: '#FFFFFF',
-              border: 'none',
-              cursor: isLoading ? 'not-allowed' : 'pointer'
+              color: 'white'
             }}
+            aria-label="Сохранить"
+            tabIndex={0}
           >
             {isLoading ? 'Сохраняем...' : 'Сохранить'}
+            <img src="/images/Arrow_right.svg" alt="" className="ml-2 w-6 h-6" />
           </button>
         </div>
       </form>

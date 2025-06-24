@@ -3,6 +3,10 @@ import MobileMenuButton from './MobileMenuButton';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCart } from '@/contexts/CartContext';
 
+interface MobileMenuBottomSectionProps {
+  onOpenAuthModal: () => void;
+}
+
 const GarageIcon = (
   <svg width="30" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M27 10.8V24H24.6V13.2H5.4V24H3V10.8L15 6L27 10.8ZM23.4 14.4H6.6V16.8H23.4V14.4ZM23.4 18H6.6V20.4H23.4V18Z" fill="currentColor"></path>
@@ -28,7 +32,7 @@ const CabinetIcon = (
   </svg>
 );
 
-const MobileMenuBottomSection: React.FC = () => {
+const MobileMenuBottomSection: React.FC<MobileMenuBottomSectionProps> = ({ onOpenAuthModal }) => {
   const { favorites } = useFavorites();
   const { state: cartState } = useCart();
 
@@ -59,7 +63,17 @@ const MobileMenuBottomSection: React.FC = () => {
             counter={cartCounter} 
             status={cartState.items.length > 0 ? "danger" : undefined}
           />
-          <MobileMenuButton icon={CabinetIcon} label="Кабинет" href="/login" counter={<div className="text-block-39">!</div>} status="success" />
+          <button
+            type="button"
+            className="button-for-mobile-menu-block w-inline-block"
+            onClick={onOpenAuthModal}
+          >
+            <div className="block-for-moble-menu-icon">
+              <div className="icon-setting w-embed">{CabinetIcon}</div>
+              <div className="pcs-info pcs-info--success"><div className="text-block-39">!</div></div>
+            </div>
+            <div className="name-mobile-menu-item">Кабинет</div>
+          </button>
         </div>
       </div>
     </nav>

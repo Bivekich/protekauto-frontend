@@ -6,9 +6,10 @@ import type { ClientAuthResponse, SMSCodeResponse } from '@/types/auth'
 interface PhoneInputProps {
   onSuccess: (data: ClientAuthResponse, phone: string) => void
   onError: (error: string) => void
+  onRegister: () => void
 }
 
-const PhoneInput: React.FC<PhoneInputProps> = ({ onSuccess, onError }) => {
+const PhoneInput: React.FC<PhoneInputProps> = ({ onSuccess, onError, onRegister }) => {
   const [phone, setPhone] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -87,68 +88,53 @@ const PhoneInput: React.FC<PhoneInputProps> = ({ onSuccess, onError }) => {
   }
 
     return (
-    <div className="w-full">
-      <div className="w-full" style={{ marginBottom: '15px' }}>
-        <label 
-          className="block"
-          style={{ 
+    <div className="flex flex-col gap-5 w-full">
+      <label className="text-2xl leading-8 text-gray-950 mb-2 font-normal font-[Onest,sans-serif] "           
+      style={{
             fontSize: '22px',
             lineHeight: '1.4',
-            fontWeight: 'normal',
+            fontWeight: 400,
             fontFamily: 'Onest, sans-serif',
-            color: '#000814',
-            marginBottom: '15px'
-          }}
-        >
-          Введите номер телефона
-        </label>
-        <form onSubmit={handleSubmit} className="w-full">
-          <div className="flex items-center w-full" style={{ gap: '20px' }}>
-            <input
-              type="tel"
-              value={`+7 ${phone}`}
-              onChange={handlePhoneChange}
-              placeholder="+7 (999) 999-99-99"
-              className="focus:outline-none flex-1"
-              style={{ 
-                height: '70px',
-                padding: '20px 30px',
-                fontSize: '20px',
-                lineHeight: '1.4',
-                fontFamily: 'Onest, sans-serif',
-                color: '#747474',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #D0D0D0',
-                borderRadius: '4px',
-                minWidth: 0
-              }}
-              disabled={isLoading}
-              required
-            />
-            <button
-              type="submit"
-              disabled={isLoading || phone.replace(/\D/g, '').length !== 10}
-              className="disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0"
-              style={{
-                backgroundColor: '#EC1C24',
-                borderRadius: '12px',
-                padding: '25px 35px',
-                fontSize: '20px',
-                lineHeight: '1.2',
-                fontWeight: 500,
-                fontFamily: 'Onest, sans-serif',
-                color: '#FFFFFF',
-                border: 'none',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                gap: '10px',
-                height: '70px'
-              }}
-            >
-              {isLoading ? 'Проверяем...' : 'Получить код'}
-            </button>
-          </div>
-        </form>
-      </div>
+            color: '#000814'
+          }}>Введите номер телефона</label>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
+        <div className="flex gap-5 items-center w-full max-md:flex-col max-md:gap-4 max-sm:gap-3">
+          <input
+            type="tel"
+            value={`+7 ${phone}`}
+            onChange={handlePhoneChange}
+            placeholder="+7 (999) 999-99-99"
+            className="max-w-[360px] w-full h-[70px] px-[30px] py-[20px] text-[20px] leading-[1.4] font-[Onest,sans-serif] text-neutral-500 bg-white border border-stone-300 rounded focus:outline-none min-w-0 max-md:w-[300px] max-sm:w-full"
+            disabled={isLoading}
+            required
+            aria-label="Введите номер телефона"
+          />
+          <button
+            type="submit"
+            disabled={isLoading || phone.replace(/\D/g, '').length !== 10}
+            className="flex items-center justify-center flex-shrink-0 bg-red-600 rounded-xl px-8 py-5 text-lg font-medium leading-5 text-white disabled:opacity-50 disabled:cursor-not-allowed h-[70px] max-sm:px-6 max-sm:py-4"
+            style={{ color: 'white' }}
+            aria-label="Получить код"
+            tabIndex={0}
+          >
+            {isLoading ? 'Проверяем...' : 'Получить код'}
+          </button>
+        </div>
+      </form>
+      {/* <button
+        type="button"
+        onClick={onRegister}
+        className="flex gap-5 justify-center items-center px-7 py-5 w-80 rounded-xl border border-red-700 border-solid cursor-pointer max-md:self-center max-md:px-6 max-md:py-5 max-md:w-[280px] max-sm:px-5 max-sm:py-4 max-sm:w-full"
+        aria-label="Зарегистрироваться"
+        tabIndex={0}
+      >
+        <span className="text-xl font-medium leading-7 text-center text-gray-950 max-md:text-lg max-sm:text-base">Зарегистрироваться</span>
+        <span aria-hidden="true">
+          <svg width="31" height="16" viewBox="0 0 31 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="arrow-icon" style={{width:'30px',height:'16px',flexShrink:0}}>
+            <path d="M30.7071 8.70711C31.0976 8.31659 31.0976 7.68342 30.7071 7.2929L24.3431 0.928936C23.9526 0.538412 23.3195 0.538412 22.9289 0.928936C22.5384 1.31946 22.5384 1.95263 22.9289 2.34315L28.5858 8L22.9289 13.6569C22.5384 14.0474 22.5384 14.6805 22.9289 15.0711C23.3195 15.4616 23.9526 15.4616 24.3431 15.0711L30.7071 8.70711ZM0 8L-1.74846e-07 9L30 9.00001L30 8.00001L30 7.00001L1.74846e-07 7L0 8Z" fill="#000814"/>
+          </svg>
+        </span>
+      </button> */}
     </div>
   )
 }

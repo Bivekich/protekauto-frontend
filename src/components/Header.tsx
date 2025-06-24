@@ -10,9 +10,12 @@ import { LaximoVehicleSearchResult, LaximoDocFindOEMResult, LaximoVehiclesByPart
 import Link from "next/link";
 import CartButton from './CartButton';
 
-const Header = () => {
+interface HeaderProps {
+  onOpenAuthModal: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onOpenAuthModal }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<Client | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -21,7 +24,7 @@ const Header = () => {
   const [oemSearchResults, setOemSearchResults] = useState<LaximoDocFindOEMResult | null>(null);
   const [vehiclesByPartResults, setVehiclesByPartResults] = useState<LaximoVehiclesByPartResult | null>(null);
   const [searchType, setSearchType] = useState<'vin' | 'oem' | 'plate' | 'text'>('text');
-  const [oemSearchMode, setOemSearchMode] = useState<'parts' | 'vehicles'>('parts'); // Режим поиска по OEM
+  const [oemSearchMode, setOemSearchMode] = useState<'parts' | 'vehicles'>('parts');
   const router = useRouter();
   const searchFormRef = useRef<HTMLFormElement>(null);
   const searchDropdownRef = useRef<HTMLDivElement>(null);
@@ -327,7 +330,7 @@ const Header = () => {
   };
 
   return (
-    <header className="section-4">
+    <>
       <section className="top_head">
         <div className="w-layout-blockcontainer container nav w-container">
           <div data-animation="default" data-collapse="medium" data-duration="400" data-easing="ease" data-easing2="ease" role="banner" className="navbar w-nav">
@@ -354,10 +357,6 @@ const Header = () => {
       </section>
       <section className="bottom_head">
         <div className="w-layout-blockcontainer container nav w-container">
-
-
-              
-            
             <div className="w-layout-hflex flex-block-93">
           <div data-animation="default" data-collapse="all" data-duration="400" data-easing="ease-in" data-easing2="ease" role="banner" className="navbar-2 w-nav">
             <div
@@ -700,8 +699,6 @@ const Header = () => {
                   </div>
                 )}
 
-
-                
                 <div className="success-message w-form-done">
                   <div>Thank you! Your submission has been received!</div>
                 </div>
@@ -721,11 +718,9 @@ const Header = () => {
                 <button 
                   onClick={() => {
                     if (currentUser) {
-                      // Если пользователь авторизован, переходим в личный кабинет
                       router.push('/profile-orders');
                     } else {
-                      // Если не авторизован, открываем модальное окно
-                      setAuthModalOpen(true);
+                      onOpenAuthModal();
                     }
                   }}
                   className="button_h login w-inline-block"
@@ -740,31 +735,7 @@ const Header = () => {
         </div>
       </section>
       <BottomHead menuOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      
-      <AuthModal 
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        onSuccess={(client, token) => {
-          setCurrentUser(client);
-          if (isClient) {
-            if (token) {
-              localStorage.setItem('authToken', token);
-            }
-            
-            // Сохраняем данные пользователя
-            localStorage.setItem('userData', JSON.stringify(client));
-          }
-          
-          console.log('Пользователь авторизован:', client);
-          
-          // Закрываем модальное окно
-          setAuthModalOpen(false);
-          
-          // Перенаправляем в личный кабинет
-          router.push('/profile-orders');
-        }}
-      />
-    </header>
+    </>
   );
 };
 
