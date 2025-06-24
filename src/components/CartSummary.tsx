@@ -148,15 +148,29 @@ const CartSummary: React.FC = () => {
       
       // Подготавливаем данные для API
       const deliveryOffersInput = {
-        items: items.map(item => ({
-          name: item.name,
-          article: item.article || '',
-          brand: item.brand || '',
-          price: item.price,
-          quantity: item.quantity,
-          weight: item.weight || 500, // Примерный вес в граммах
-          dimensions: "10x10x5" // Примерные размеры
-        })),
+        items: items.map(item => {
+          // Извлекаем срок поставки из deliveryTime товара
+          let deliveryDays = 0;
+          if (item.deliveryTime) {
+            const match = item.deliveryTime.match(/(\d+)/);
+            if (match) {
+              deliveryDays = parseInt(match[0]);
+            }
+          }
+          
+          return {
+            name: item.name,
+            article: item.article || '',
+            brand: item.brand || '',
+            price: item.price,
+            quantity: item.quantity,
+            weight: item.weight || 500, // Примерный вес в граммах
+            dimensions: "10x10x5", // Примерные размеры
+            deliveryTime: deliveryDays, // Срок поставки товара в днях
+            offerKey: item.offerKey,
+            isExternal: item.isExternal
+          };
+        }),
         deliveryAddress: selectedDeliveryAddress,
         recipientName,
         recipientPhone
@@ -166,12 +180,12 @@ const CartSummary: React.FC = () => {
         variables: { input: deliveryOffersInput }
       });
 
-      if (data?.getDeliveryOffers && Array.isArray(data.getDeliveryOffers) && data.getDeliveryOffers.length > 0) {
-        setDeliveryOffers(data.getDeliveryOffers);
+      if (data?.getDeliveryOffers?.success && data.getDeliveryOffers.offers && Array.isArray(data.getDeliveryOffers.offers) && data.getDeliveryOffers.offers.length > 0) {
+        setDeliveryOffers(data.getDeliveryOffers.offers);
         setOffersError('');
         
         // Автоматически выбираем первый оффер
-        const firstOffer = data.getDeliveryOffers[0];
+        const firstOffer = data.getDeliveryOffers.offers[0];
         setSelectedDeliveryOffer(firstOffer);
         
         // Обновляем стоимость доставки в корзине
@@ -182,10 +196,11 @@ const CartSummary: React.FC = () => {
           time: firstOffer.deliveryTime
         });
       } else {
-        setOffersError('Не удалось получить варианты доставки');
+        const errorMessage = data?.getDeliveryOffers?.error || 'Не удалось получить варианты доставки';
+        setOffersError(errorMessage);
         
         // Добавляем стандартные варианты доставки как fallback
-        const standardOffers = [
+        const standardOffers = data?.getDeliveryOffers?.offers || [
           {
             id: 'standard',
             name: 'Стандартная доставка',
