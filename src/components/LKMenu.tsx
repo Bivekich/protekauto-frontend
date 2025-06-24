@@ -16,7 +16,7 @@
   const financeItems = [
     { label: 'Баланс', href: '/profile-balance', icon: 'https://cdn.builder.io/api/v1/image/assets/TEMP/135ee20623aaa1f29816106bd0ca1a627976969d?placeholderIfAbsent=true&apiKey=f5bc5a2dc9b841d0aba1cc6c74a35920' },
     { label: 'Реквизиты', href: '/profile-req', icon: 'https://cdn.builder.io/api/v1/image/assets/TEMP/0890fb36a7fb89b3942f93be72ac0e79d93bc530?placeholderIfAbsent=true&apiKey=f5bc5a2dc9b841d0aba1cc6c74a35920' },
-    { label: 'Взаиморасчеты', href: '/profile-settlements', icon: 'https://cdn.builder.io/api/v1/image/assets/TEMP/74b08742b16c7daefb4d895173a6d749eb61fd94?placeholderIfAbsent=true&apiKey=f5bc5a2dc9b841d0aba1cc6c74a35920' },
+    // { label: 'Взаиморасчеты', href: '/profile-settlements', icon: 'https://cdn.builder.io/api/v1/image/assets/TEMP/74b08742b16c7daefb4d895173a6d749eb61fd94?placeholderIfAbsent=true&apiKey=f5bc5a2dc9b841d0aba1cc6c74a35920' },
     { label: 'Акты сверки', href: '/profile-acts', icon: 'https://cdn.builder.io/api/v1/image/assets/TEMP/22ecd7e6251abe04521d03f0ac09f73018a8c2c8?placeholderIfAbsent=true&apiKey=f5bc5a2dc9b841d0aba1cc6c74a35920' },
   ];
 
@@ -37,7 +37,7 @@
     };
 
     return (
-      <div className="flex flex-col max-w-xs text-xl font-semibold leading-none text-gray-950">
+      <div className="flex flex-col max-w-xs max-md:w-full max-md:max-w-full w-full text-xl font-semibold leading-none text-gray-950">
         <div className="flex flex-col px-4 pt-4 pb-6 w-full bg-white rounded-3xl">
           <div className="gap-2.5 self-start px-2.5 pt-2.5 text-gray-950">
             Личный кабинет

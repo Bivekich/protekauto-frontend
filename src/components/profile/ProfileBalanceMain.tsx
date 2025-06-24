@@ -253,7 +253,7 @@ const ProfileBalanceMain = () => {
   // Проверяем есть ли договоры
   if (!clientData?.contracts?.length) {
     return (
-      <div className="flex flex-col justify-center">
+      <div className="flex flex-col flex-1 shrink justify-center basis-0 w-full max-md:max-w-full">
         <div className="flex overflow-hidden flex-col justify-center p-8 w-full bg-white rounded-2xl min-h-[543px] max-md:px-5 max-md:max-w-full">
           <div className="flex flex-col justify-center items-center p-8">
             <div className="text-center">
@@ -308,7 +308,7 @@ const ProfileBalanceMain = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center">
+    <div className="flex flex-col flex-1 shrink justify-center basis-0 w-full max-md:max-w-full">
       <div className="flex overflow-hidden flex-col justify-center p-8 w-full bg-white rounded-2xl min-h-[543px] max-md:px-5 max-md:max-w-full">
         <div className="flex flex-wrap flex-1 gap-5 size-full max-md:max-w-full">
           {clientData.contracts.filter(contract => contract.isActive).map((contract) => {

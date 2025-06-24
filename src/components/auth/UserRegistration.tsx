@@ -86,7 +86,7 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({
           <button
             type="submit"
             disabled={isLoading || !firstName.trim() || !lastName.trim()}
-            className="flex items-center justify-center flex-shrink-0 bg-red-600 rounded-xl px-8 py-5 text-lg font-medium leading-5 text-white disabled:opacity-50 disabled:cursor-not-allowed h-[62px] max-sm:px-6 max-sm:py-4"
+            className="flex items-center justify-center flex-shrink-0 bg-red-600 rounded-xl px-8 py-5 text-lg font-medium leading-5 text-white disabled:opacity-50 disabled:cursor-not-allowed h-[70px] max-sm:px-6 max-sm:py-4"
             style={{
               color: 'white'
             }}
@@ -94,7 +94,7 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({
             tabIndex={0}
           >
             {isLoading ? 'Сохраняем...' : 'Сохранить'}
-            <img src="/images/Arrow_right.svg" alt="" className="ml-2 w-6 h-6" />
+            {/* <img src="/images/Arrow_right.svg" alt="" className="ml-2 w-6 h-6" /> */}
           </button>
         </div>
       </form>

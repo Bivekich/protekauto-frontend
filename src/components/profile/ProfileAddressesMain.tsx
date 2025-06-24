@@ -81,7 +81,7 @@ const ProfileAddressesMain = () => {
 
   if (loading) {
     return (
-      <div className="flex relative flex-col gap-8 items-start p-8 bg-white rounded-2xl flex-[1_0_0] max-md:gap-5">
+      <div className="flex relative flex-col gap-8 items-start p-8 bg-white rounded-2xl flex-[1_0_0] max-md:gap-5 ">
         <div className="text-center text-gray-500">Загрузка адресов...</div>
       </div>
     );
@@ -89,7 +89,7 @@ const ProfileAddressesMain = () => {
 
   if (error) {
     return (
-      <div className="flex relative flex-col gap-8 items-start p-8 bg-white rounded-2xl flex-[1_0_0] max-md:gap-5">
+      <div className="flex relative flex-col gap-8 items-start p-8 bg-white rounded-2xl flex-[1_0_0] max-md:gap-5 ">
         <div className="text-center text-red-500">
           <div className="mb-2">Ошибка загрузки адресов</div>
           <div className="text-sm text-gray-500 mb-4">{error.message}</div>
@@ -107,7 +107,7 @@ const ProfileAddressesMain = () => {
   const addresses = data?.clientMe?.deliveryAddresses || [];
 
   return (
-    <div className="flex relative flex-col gap-8 items-start p-8 bg-white rounded-2xl flex-[1_0_0] max-md:gap-5">
+    <div className="flex relative flex-col gap-8 w-full items-start p-8 bg-white rounded-2xl flex-[1_0_0] max-md:gap-5 ">
       {addresses.length > 0 ? (
         <div className="flex flex-wrap gap-5 items-start self-stretch">
           {addresses.map((addr: DeliveryAddress, idx: number) => (
@@ -125,24 +125,27 @@ const ProfileAddressesMain = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center text-gray-500 self-stretch">
-          <div className="mb-4">У вас пока нет сохраненных адресов доставки</div>
-          <div className="text-sm text-gray-400">Добавьте первый адрес, чтобы быстрее оформлять заказы</div>
+        <div
+          className="flex items-center justify-center w-full h-[380px] max-w-[400px] bg-[#eaf0f8] rounded-2xl text-xl font-semibold text-gray-900 cursor-pointer select-none"
+          onClick={() => setShowWay(true)}
+        >
+          + Добавить адрес
         </div>
       )}
-      
-      <div
-        layer-name="Button Small"
-        className="flex relative gap-2.5 justify-center items-center px-5 py-3.5 bg-red-600 rounded-xl h-[50px] cursor-pointer hover:bg-red-700 transition-colors"
-        onClick={() => setShowWay(true)}
-      >
+      {addresses.length > 0 && (
         <div
           layer-name="Button Small"
-          className="relative text-base font-medium leading-5 text-center text-white"
+          className="flex relative gap-2.5 justify-center items-center px-5 py-3.5 bg-red-600 rounded-xl h-[50px] cursor-pointer hover:bg-red-700 transition-colors"
+          onClick={() => setShowWay(true)}
         >
-          Добавить адрес доставки
+          <div
+            layer-name="Button Small"
+            className="relative text-base font-medium leading-5 text-center text-white "
+          >
+            Добавить адрес доставки
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

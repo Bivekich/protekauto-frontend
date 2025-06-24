@@ -15,7 +15,7 @@ import {
 const ProfileHistoryMain = () => {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("Все");
-  const [sortField, setSortField] = useState<"date" | "manufacturer" | "name" | null>(null);
+  const [sortField, setSortField] = useState<"date" | "manufacturer" | "name">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [filteredItems, setFilteredItems] = useState<PartsSearchHistoryItem[]>([]);
 
@@ -103,7 +103,7 @@ const ProfileHistoryMain = () => {
 
   // Фильтрация и сортировка
   useEffect(() => {
-    let filtered = getFilteredByTime(historyItems, activeTab);
+    let filtered = [...getFilteredByTime(historyItems, activeTab)];
 
     // Поиск
     if (search.trim()) {
@@ -243,7 +243,7 @@ const ProfileHistoryMain = () => {
 
   if (loading && historyItems.length === 0) {
     return (
-      <div className="flex flex-col justify-center text-base">
+      <div className="flex flex-col justify-center text-base min-h-[526px] h-full">
         <div className="flex justify-center items-center h-40">
           <div className="text-gray-500">Загрузка истории поиска...</div>
         </div>
@@ -253,7 +253,7 @@ const ProfileHistoryMain = () => {
 
   if (error) {
     return (
-      <div className="flex flex-col justify-center text-base">
+      <div className="flex flex-col justify-center text-base  min-h-[526px]">
         <div className="flex justify-center items-center h-40">
           <div className="text-red-500">Ошибка загрузки истории поиска</div>
         </div>
@@ -262,7 +262,7 @@ const ProfileHistoryMain = () => {
   }
 
   return (
-    <div className="flex flex-col justify-center text-base">
+    <div className="flex flex-col min-h-[526px]">
       <div className="flex flex-wrap gap-5 items-center px-8 py-3 w-full leading-snug text-gray-400 whitespace-nowrap bg-white rounded-lg max-md:px-5 max-md:max-w-full max-md:flex-col">
         <div className="flex-1 shrink self-stretch my-auto text-gray-400 basis-0 text-ellipsis max-md:max-w-full max-md:w-full">
           <SearchInput 
@@ -300,13 +300,13 @@ const ProfileHistoryMain = () => {
         <ProfileHistoryTabs tabs={tabOptions} activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 
-      <div className="flex flex-col mt-5 w-full text-gray-400 max-md:max-w-full">
-        <div className="flex flex-col justify-center p-2 w-full bg-white rounded-xl max-md:max-w-full">
-          <div className="flex gap-10 items-center px-5 py-2 w-full text-sm max-md:max-w-full max-md:flex-col max-md:gap-2 max-md:px-2">
+      <div className="flex flex-col mt-5 w-full text-gray-400 max-md:max-w-full flex-1 h-full">
+        <div className="flex flex-col  p-2 w-full bg-white rounded-xl h-full max-md:max-w-full min-h-[250px] ">
+          <div className="hidden md:flex gap-10 items-center px-5 py-2 w-full text-sm max-md:max-w-full max-md:flex-col max-md:gap-2 max-md:px-2">
             <div className="flex flex-wrap flex-1 shrink gap-5 items-center self-stretch pr-5 my-auto w-full basis-0 min-w-[240px] max-md:max-w-full max-md:flex-col max-md:gap-2 max-md:p-0 max-md:min-w-0">
-              <div className="flex gap-1.5 items-center self-stretch my-auto w-40 max-md:w-full">
+              <div className={`flex gap-1.5 items-center self-stretch my-auto w-40 max-md:w-full ${sortField === 'date' ? 'text-[#ec1c24] font-semibold' : ''}`}> 
                 <div 
-                  className="self-stretch my-auto cursor-pointer select-none hover:text-gray-600 transition-colors" 
+                  className="self-stretch my-auto cursor-pointer select-none hover:text-[#ec1c24] transition-colors" 
                   onClick={() => handleSort('date')}
                 >
                   Дата и время
@@ -319,18 +319,19 @@ const ProfileHistoryMain = () => {
                   className="transition-transform duration-200"
                   style={{ 
                     transform: sortField === 'date' && sortOrder === 'asc' ? 'rotate(180deg)' : 'none',
-                    opacity: sortField === 'date' ? 1 : 0.5
+                    opacity: sortField === 'date' ? 1 : 0.5,
+                    stroke: sortField === 'date' ? '#ec1c24' : '#9CA3AF'
                   }}
                 >
-                  <path d="M6 8l4 4 4-4" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <div className="flex gap-1.5 items-center self-stretch my-auto w-40 whitespace-nowrap max-md:w-full">
+              <div className={`flex gap-1.5 items-center self-stretch my-auto w-40 whitespace-nowrap max-md:w-full ${sortField === 'manufacturer' ? 'text-[#ec1c24] font-semibold' : ''}`}> 
                 <div 
-                  className="self-stretch my-auto cursor-pointer select-none hover:text-gray-600 transition-colors" 
+                  className="self-stretch my-auto cursor-pointer select-none hover:text-[#ec1c24] transition-colors" 
                   onClick={() => handleSort('manufacturer')}
                 >
-                  Бренд/Производитель
+                  Производитель
                 </div>
                 <svg
                   width="14"
@@ -340,18 +341,19 @@ const ProfileHistoryMain = () => {
                   className="transition-transform duration-200"
                   style={{ 
                     transform: sortField === 'manufacturer' && sortOrder === 'asc' ? 'rotate(180deg)' : 'none',
-                    opacity: sortField === 'manufacturer' ? 1 : 0.5
+                    opacity: sortField === 'manufacturer' ? 1 : 0.5,
+                    stroke: sortField === 'manufacturer' ? '#ec1c24' : '#9CA3AF'
                   }}
                 >
-                  <path d="M6 8l4 4 4-4" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
               <div className="gap-1.5 self-stretch my-auto whitespace-nowrap w-[180px] max-md:w-full">
                 Артикул/Тип
               </div>
-              <div className="flex flex-wrap flex-1 shrink gap-1.5 items-center self-stretch my-auto whitespace-nowrap basis-0 min-w-[240px] max-md:max-w-full max-md:w-full">
+              <div className={`flex flex-wrap flex-1 shrink gap-1.5 items-center self-stretch my-auto whitespace-nowrap basis-0  max-md:max-w-full max-md:w-full ${sortField === 'name' ? 'text-[#ec1c24] font-semibold' : ''}`}> 
                 <div 
-                  className="self-stretch my-auto cursor-pointer select-none hover:text-gray-600 transition-colors" 
+                  className="self-stretch my-auto cursor-pointer select-none hover:text-[#ec1c24] transition-colors" 
                   onClick={() => handleSort('name')}
                 >
                   Поисковый запрос
@@ -364,10 +366,11 @@ const ProfileHistoryMain = () => {
                   className="transition-transform duration-200"
                   style={{ 
                     transform: sortField === 'name' && sortOrder === 'asc' ? 'rotate(180deg)' : 'none',
-                    opacity: sortField === 'name' ? 1 : 0.5
+                    opacity: sortField === 'name' ? 1 : 0.5,
+                    stroke: sortField === 'name' ? '#ec1c24' : '#9CA3AF'
                   }}
                 >
-                  <path d="M6 8l4 4 4-4" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
               <div className="w-16 text-center max-md:w-full">
@@ -377,11 +380,11 @@ const ProfileHistoryMain = () => {
           </div>
 
           {filteredItems.length === 0 ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="text-center text-gray-500">
+            <div className="flex justify-center items-center py-12 h-full  max-md:h-full">
+              <div className="text-center text-gray-500 h-full">
                 {historyItems.length === 0 ? (
                   <>
-                    <div className="text-lg mb-2">История поиска пуста</div>
+                    <div className="text-lg mb-2 " >История поиска пуста</div>
                     <div className="text-sm">Ваши поисковые запросы будут отображаться здесь</div>
                   </>
                 ) : (

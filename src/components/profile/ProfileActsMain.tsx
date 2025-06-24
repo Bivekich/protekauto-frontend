@@ -71,7 +71,7 @@ const ProfileActsMain = () => {
 
   return (
     <>
-      <div className=" flex relative flex-col gap-8 items-start p-8 mx-auto my-0 w-full bg-white rounded-2xl max-w-[1310px] max-md:gap-5 max-md:p-5 max-sm:gap-4 max-sm:p-4">
+      <div className=" flex relative flex-col gap-8 items-start p-8 mx-auto my-0 w-full bg-white rounded-2xl  max-md:gap-5 max-md:p-5 max-sm:gap-4 max-sm:p-4">
         <div className="flex relative flex-col gap-8 items-start self-stretch max-md:gap-5 max-sm:gap-4">
           <div className="flex relative flex-wrap gap-5 items-start self-stretch max-md:flex-col max-md:gap-4 max-sm:gap-2.5">
             {tabOptions.map((tab) => (
