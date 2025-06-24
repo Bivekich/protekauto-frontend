@@ -12,7 +12,7 @@ import ProfileInfo from '@/components/profile/ProfileInfo';
 const ProfileSettingsPage = () => {
   return (
     <div className="page-wrapper">
-      <Header />
+  
       <ProfileInfo />
       <div className="flex flex-col px-32 pt-10 pb-16 max-md:px-5">
         

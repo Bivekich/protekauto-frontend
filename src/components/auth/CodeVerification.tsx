@@ -98,122 +98,60 @@ const CodeVerification: React.FC<CodeVerificationProps> = ({
   }
 
   return (
-    <div className="w-full">
-      <div className="flex flex-col" style={{ gap: '15px' }}>
-        {/* Заголовок */}
-        <label
-          style={{
-            fontSize: '22px',
-            lineHeight: '1.4',
-            fontWeight: 400,
-            fontFamily: 'Onest, sans-serif',
-            color: '#000814'
-          }}
-        >
-          Введите код из СМС
-        </label>
-
-        {/* Основная строка с кнопкой назад и полями ввода */}
-        <div className="flex items-center" style={{ gap: '30px' }}>
-          {/* Кнопка "Ввести другой номер" */}
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex items-center hover:opacity-70"
-            style={{ gap: '18px' }}
-          >
-            <svg width="39" height="1" viewBox="0 0 39 1" fill="none">
-              <path d="M39 0.5H0" stroke="#424F60" strokeWidth="1.5"/>
-            </svg>
-            <span
-              style={{
-                fontSize: '18px',
-                lineHeight: '1.4',
-                fontWeight: 400,
-                fontFamily: 'Onest, sans-serif',
-                color: '#424F60'
-              }}
-            >
-              Ввести другой номер
-            </span>
-          </button>
-
-          {/* Поля ввода кода и кнопка */}
-          <div className="flex items-center" style={{ gap: '20px' }}>
-            {/* 5 полей для цифр */}
-            <div className="flex" style={{ gap: '12px' }}>
-              {code.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={el => { inputRefs.current[index] = el }}
-                  type="text"
-                  value={digit}
-                  onChange={(e) => handleCodeChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="focus:outline-none text-center"
-                  style={{
-                    width: '62px',
-                    height: '62px',
-                    padding: '15px 24px',
-                    fontSize: '18px',
-                    lineHeight: '1.4',
-                    fontWeight: 400,
-                    fontFamily: 'Onest, sans-serif',
-                    color: '#747474',
-                    backgroundColor: '#FFFFFF',
-                    border: '1px solid #D0D0D0',
-                    borderRadius: '4px'
-                  }}
-                  maxLength={1}
-                  disabled={isLoading}
-                />
-              ))}
-            </div>
-
-            {/* Кнопка "Войти" */}
-            <button
-              type="button"
-              onClick={() => handleVerify()}
-              disabled={isLoading || code.some(digit => digit === '')}
-              className="disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              style={{
-                backgroundColor: '#EC1C24',
-                borderRadius: '12px',
-                padding: '20px 30px',
-                fontSize: '18px',
-                lineHeight: '1.2',
-                fontWeight: 500,
-                fontFamily: 'Onest, sans-serif',
-                color: '#FFFFFF',
-                border: 'none',
-                cursor: isLoading ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {isLoading ? 'Проверяем...' : 'Войти'}
-            </button>
-          </div>
+    <div className="flex flex-col gap-5 w-full">
+      <label className="text-2xl leading-8 text-gray-950 mb-2 font-normal font-[Onest,sans-serif]">Введите код из СМС</label>
+      <div className="flex gap-5 items-center w-full max-md:flex-col max-md:gap-4 max-sm:gap-3">
+        {/* 5 полей для цифр */}
+        <div className="flex gap-3">
+          {code.map((digit, index) => (
+            <input
+              key={index}
+              ref={el => { inputRefs.current[index] = el }}
+              type="text"
+              value={digit}
+              onChange={(e) => handleCodeChange(index, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(index, e)}
+              className="w-[62px] h-[62px] px-4 py-3 text-[18px] leading-[1.4] font-normal font-[Onest,sans-serif] text-neutral-500 bg-white border border-stone-300 rounded focus:outline-none text-center"
+              maxLength={1}
+              disabled={isLoading}
+              aria-label={`Цифра ${index + 1}`}
+            />
+          ))}
         </div>
-
-        {/* Отладочная информация */}
-        {smsCode && (
-          <div style={{ 
-            marginTop: '15px', 
-            padding: '12px 16px', 
-            backgroundColor: '#EFF6FF', 
-            border: '1px solid #BFDBFE', 
-            borderRadius: '4px' 
-          }}>
-            <p style={{ 
-              fontSize: '14px', 
-              color: '#1E40AF', 
-              margin: 0,
-              fontFamily: 'Onest, sans-serif'
-            }}>
-              <strong>Код для тестирования:</strong> {smsCode}
-            </p>
-          </div>
-        )}
+        {/* Кнопка "Войти" */}
+        <button
+          type="button"
+          onClick={() => handleVerify()}
+          disabled={isLoading || code.some(digit => digit === '')}
+          style={{ color: 'white' }}
+          className="flex items-center justify-center flex-shrink-0 bg-red-600 rounded-xl px-8 py-5 text-lg font-medium leading-5 text-white disabled:opacity-50 disabled:cursor-not-allowed h-[62px] max-sm:px-6 max-sm:py-4"
+          aria-label="Войти"
+          tabIndex={0}
+        >
+          {isLoading ? 'Проверяем...' : 'Войти'}
+        </button>
       </div>
+      {/* Кнопка "Ввести другой номер" под вводом кода */}
+      <button
+        type="button"
+        onClick={onBack}
+        className="flex gap-3 items-center hover:opacity-70 mt-2"
+        aria-label="Ввести другой номер"
+        tabIndex={0}
+      >
+<svg width="40" height="13" viewBox="0 0 40 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0.469669 5.96967C0.176777 6.26256 0.176777 6.73743 0.469669 7.03033L5.24264 11.8033C5.53553 12.0962 6.01041 12.0962 6.3033 11.8033C6.59619 11.5104 6.59619 11.0355 6.3033 10.7426L2.06066 6.5L6.3033 2.25736C6.5962 1.96446 6.5962 1.48959 6.3033 1.1967C6.01041 0.903803 5.53553 0.903803 5.24264 1.1967L0.469669 5.96967ZM40 5.75L1 5.75L1 7.25L40 7.25L40 5.75Z" fill="#424F60"/>
+</svg>
+        <span className="text-lg leading-[1.4] font-normal font-[Onest,sans-serif] text-[#424F60]">Ввести другой номер</span>
+      </button>
+      {/* Отладочная информация */}
+      {smsCode && (
+        <div className="mt-4 px-4 py-3 bg-blue-50 border border-blue-200 rounded">
+          <p className="text-sm text-blue-800 m-0 font-[Onest,sans-serif]">
+            <strong>Код для тестирования:</strong> {smsCode}
+          </p>
+        </div>
+      )}
     </div>
   )
 }

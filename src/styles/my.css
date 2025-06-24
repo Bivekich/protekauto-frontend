@@ -349,3 +349,8 @@ input.input-receiver:focus {
   color: #111;
   font-weight: 700;
 } 
+
+
+.core-product-card, .cart-list, .flex-block-48, .product-list-cart{
+  min-height: 100%;
+}

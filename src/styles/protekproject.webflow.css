@@ -2862,7 +2862,7 @@ body {
   color: var(--_fonts---color--black);
   font-size: var(--_fonts---font-size--bigger);
   text-align: right;
-  width: 100px;
+
   margin-top: 0;
   margin-bottom: 0;
   font-weight: 700;
@@ -3143,7 +3143,7 @@ body {
 .sort-item-brand {
   color: var(--_fonts---color--light-blue-grey);
   font-size: var(--_fonts---font-size--small-font-size);
-  width: 100px;
+  width: 120px;
 }
 
 .sort-item-brand.first {
@@ -3195,7 +3195,7 @@ body {
   align-items: center;
   margin-bottom: 20px;
   padding-left: 10px;
-  padding-right: 10px;
+  padding-right: 15px;
 }
 
 .flex-block-62 {
@@ -6103,6 +6103,7 @@ body {
 
   .product-list-cart {
     padding-bottom: 10px;
+    min-height: 100%;
   }
 
   .brandname {

@@ -296,8 +296,6 @@ const ProfileSettings: React.FC = () => {
 
   return (
     <div className="page-wrapper">
-      <Header />
-      
       {/* Хлебные крошки */}
       <div className="breadcrumbs">
         <div className="container">

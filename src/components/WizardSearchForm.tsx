@@ -20,6 +20,7 @@ const WizardSearchForm: React.FC<WizardSearchFormProps> = ({
   const [error, setError] = useState<string>('');
   const [queries, setQueries] = useState<Record<string, string>>({});
   const buttonRefs = useRef<Record<string, React.RefObject<HTMLButtonElement | null>>>({});
+  const [showSearchButton, setShowSearchButton] = React.useState(true);
 
   const [getWizard2] = useLazyQuery(GET_LAXIMO_WIZARD2, {
     onCompleted: (data) => {
@@ -71,6 +72,18 @@ const WizardSearchForm: React.FC<WizardSearchFormProps> = ({
       buttonRefs.current[step.conditionid] = React.createRef<HTMLButtonElement>();
     }
   });
+
+  // --- Автовыбор единственного варианта для всех шагов ---
+  React.useEffect(() => {
+    wizardSteps.forEach(step => {
+      const options = step.options || [];
+      const selectedKey = selectedParams[step.conditionid]?.key || (step.determined ? options.find(o => o.value === step.value)?.key : '');
+      if (options.length === 1 && selectedKey !== options[0].key) {
+        handleParamSelect(step, options[0].key, options[0].value);
+      }
+    });
+    // eslint-disable-next-line
+  }, [wizardSteps, selectedParams]);
 
   // Обработка выбора параметра
   const handleParamSelect = async (step: LaximoWizardStep, optionKey: string, optionValue: string) => {
@@ -153,6 +166,11 @@ const WizardSearchForm: React.FC<WizardSearchFormProps> = ({
     step.allowlistvehicles && (step.determined || selectedParams[step.conditionid])
   );
 
+  // Скрывать кнопку и блок после поиска, показывать при изменении параметров
+  React.useEffect(() => {
+    setShowSearchButton(true);
+  }, [selectedParams, queries]);
+
   if (error) {
     return (
       <div className="text-center py-8">
@@ -193,117 +211,109 @@ const WizardSearchForm: React.FC<WizardSearchFormProps> = ({
       )}
 
       {/* Шаги wizard */}
-      {!isLoading && wizardSteps.map((step, index) => {
-        const options = step.options || [];
-        const query = queries[step.conditionid] || '';
-        const filteredOptions = query
-          ? options.filter(option => option.value.toLowerCase().includes(query.toLowerCase()))
-          : options;
-        const buttonRef = buttonRefs.current[step.conditionid];
-        return (
-          <div key={`${step.conditionid}-${index}`} className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <h4 className="text-lg font-medium text-gray-900">{step.name}</h4>
-                {step.determined && (
-                  <span className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full
-                    ${step.automatic ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}
-                  >
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {step.automatic ? 'Авто' : 'Выбрано'}
-                  </span>
-                )}
-              </div>
-              {step.determined && !step.automatic && (
-                <button
-                  onClick={() => handleParamReset(step)}
-                  className="text-sm text-gray-500 hover:text-red-600 underline transition"
-                  disabled={isLoading}
-                >
-                  Сбросить
-                </button>
-              )}
-            </div>
-            {/* Показываем текущее значение для определенных параметров */}
-            {step.determined && step.value && (
-              <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-center gap-2">
-                <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full
-                  ${step.automatic ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </span>
-                <span className={`text-sm font-medium ${step.automatic ? 'text-green-900' : 'text-blue-900'}`}>{step.automatic ? 'Авто:' : 'Выбрано:'}</span>
-                <span className="font-semibold text-gray-900">{step.value}</span>
-              </div>
-            )}
-            {/* Combobox для выбора опции */}
-            {!step.determined && options.length > 0 && (
-              <div className="w-full max-w-[450px]">
-                <Combobox
-                  value={selectedParams[step.conditionid]?.key || ''}
-                  onChange={key => {
-                    const option = options.find(o => o.key === key);
-                    if (option) handleParamSelect(step, option.key, option.value);
-                  }}
-                  disabled={isLoading}
-                >
-                  <div className="relative">
-                    <Combobox.Input
-                      id={`wizard-combobox-${step.conditionid}`}
-                      className="w-full px-6 py-4 bg-white rounded border border-stone-300 text-sm text-gray-950 placeholder:text-neutral-500 outline-none focus:shadow-none focus:border-stone-300 transition-colors"
-                      displayValue={(key: string) => options.find(o => o.key === key)?.value || ''}
-                      onChange={e => setQueries(q => ({ ...q, [step.conditionid]: e.target.value }))}
-                      placeholder="Начните вводить..."
-                      autoComplete="off"
-                    />
-                    <Combobox.Button className="absolute inset-y-0 right-0 flex items-center px-3 focus:outline-none w-12">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
-                      </svg>
-                    </Combobox.Button>
-                    <Combobox.Options
-                      className="absolute left-0 top-full z-10 bg-white border-x border-b border-stone-300 rounded-b-lg shadow-lg w-full max-h-60 overflow-auto scrollbar-none"
-                      style={{ scrollbarWidth: 'none' }}
-                      data-hide-scrollbar
-                    >
-                      {filteredOptions.length === 0 && (
-                        <div className="px-6 py-4 text-gray-500">Нет опций</div>
-                      )}
-                      {filteredOptions.map(option => (
-                        <Combobox.Option
-                          key={option.key}
-                          value={option.key}
-                          className={({ active, selected }) =>
-                            `px-6 py-4 cursor-pointer hover:!bg-[rgb(236,28,36)] hover:!text-white text-sm transition-colors ${selected ? 'bg-red-50 font-semibold text-gray-950' : 'text-neutral-500'}`
-                          }
-                        >
-                          {option.value}
-                        </Combobox.Option>
-                      ))}
-                    </Combobox.Options>
+      {!isLoading && (
+        <div className="flex flex-row flex-wrap gap-4 pb-2">
+          {wizardSteps.map((step, index) => {
+            const options = step.options || [];
+            const query = queries[step.conditionid] || '';
+            const filteredOptions = query
+              ? options.filter(option => option.value.toLowerCase().includes(query.toLowerCase()))
+              : options;
+            const buttonRef = buttonRefs.current[step.conditionid];
+            // Определяем выбранный ключ
+            const selectedKey = selectedParams[step.conditionid]?.key || (step.determined ? options.find(o => o.value === step.value)?.key : '');
+            // Определяем отображаемый label
+            const selectedLabel =
+              options.find(o => o.key === selectedKey)?.value ||
+              selectedParams[step.conditionid]?.value ||
+              step.value ||
+              '';
+
+            // Если единственный вариант уже выбран — не рендерим селект
+            if (options.length === 1 && (selectedKey === options[0].key || step.determined)) {
+              return null;
+            }
+
+            return (
+              <div key={`${step.conditionid}-${index}`} className="space-y-3 min-w-[320px] max-w-[320px] flex-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <h4 className="text-lg font-medium text-gray-900">{step.name}</h4>
                   </div>
-                </Combobox>
+                </div>
+                {/* Combobox для выбора опции (всегда показываем, кроме случая с единственным вариантом) */}
+                <div className={`w-full max-w-[450px] relative transition-colors duration-200 ${selectedLabel ? 'bg-gray-50 border border-gray-200' : ''}`}>
+                  <Combobox
+                    value={selectedKey}
+                    onChange={key => {
+                      const option = options.find(o => o.key === key);
+                      if (option) handleParamSelect(step, option.key, option.value);
+                    }}
+                    disabled={isLoading || options.length === 0}
+                  >
+                    <div className="relative">
+                      <Combobox.Input
+                        id={`wizard-combobox-${step.conditionid}`}
+                        className={`w-full px-6 py-4 rounded text-sm text-gray-950 placeholder:text-neutral-500 outline-none focus:shadow-none transition-colors pr-12 ${selectedLabel ? 'bg-gray-50 border-gray-200' : 'bg-white border border-stone-300'}`}
+                        displayValue={() => selectedLabel}
+                        onChange={e => setQueries(q => ({ ...q, [step.conditionid]: e.target.value }))}
+                        placeholder="Начните вводить..."
+                        autoComplete="off"
+                        disabled={options.length === 0}
+                      />
+                      {selectedLabel ? (
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 w-12 flex items-center justify-center text-gray-400 hover:text-red-600 focus:outline-none"
+                          aria-label="Сбросить"
+                          tabIndex={0}
+                          onClick={() => handleParamReset(step)}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      ) : (
+                        <Combobox.Button className="absolute inset-y-0 right-0 w-12 flex items-center justify-center focus:outline-none">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
+                          </svg>
+                        </Combobox.Button>
+                      )}
+                      <Combobox.Options
+                        className="absolute left-0 top-full z-10 bg-white border-x border-b border-stone-300 rounded-b-lg shadow-lg w-full max-h-60 overflow-auto scrollbar-none"
+                        style={{ scrollbarWidth: 'none' }}
+                        data-hide-scrollbar
+                      >
+                        {filteredOptions.length === 0 ? null : filteredOptions.map(option => (
+                          <Combobox.Option
+                            key={option.key}
+                            value={option.key}
+                            className={({ active, selected }) =>
+                              `px-6 py-4 cursor-pointer hover:!bg-[rgb(236,28,36)] hover:!text-white text-sm transition-colors ${selected ? 'bg-red-50 font-semibold text-gray-950' : 'text-neutral-500'}`
+                            }
+                          >
+                            {option.value}
+                          </Combobox.Option>
+                        ))}
+                      </Combobox.Options>
+                    </div>
+                  </Combobox>
+                </div>
               </div>
-            )}
-            {/* Когда нет опций для неопределенного параметра */}
-            {!step.determined && (!options || options.length === 0) && (
-              <div className="text-sm text-gray-500 italic">
-                Нет доступных опций для выбора
-              </div>
-            )}
-          </div>
-        );
-      })}
+            );
+          })}
+        </div>
+      )}
 
       {/* Кнопка поиска автомобилей */}
-      {!isLoading && canListVehicles && (
+      {!isLoading && canListVehicles && showSearchButton && (
         <div className="pt-4 border-t">
           <button
-            onClick={handleFindVehicles}
+            onClick={() => {
+              handleFindVehicles();
+              setShowSearchButton(false);
+            }}
             disabled={isLoading}
             className="w-full sm:w-auto px-8 py-3 bg-red-600 !text-white font-medium rounded-lg shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
@@ -312,7 +322,6 @@ const WizardSearchForm: React.FC<WizardSearchFormProps> = ({
             </svg>
             Найти автомобили
           </button>
-          
           <div className="mt-3 text-sm text-gray-600">
             Определено параметров: {wizardSteps.filter(s => s.determined).length} из {wizardSteps.length}
           </div>

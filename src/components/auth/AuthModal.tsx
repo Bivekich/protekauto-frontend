@@ -83,21 +83,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
   const renderStep = () => {
     switch (authState.step) {
       case 'phone':
-                 return (
-           <PhoneInput
-             onSuccess={(data, phone) => {
-               setAuthState(prev => ({
-                 ...prev,
-                 phone: phone,
-                 sessionId: data.sessionId,
-                 client: data.client,
-                 isExistingClient: data.exists
-               }))
-               handlePhoneSuccess(data)
-             }}
-             onError={handleError}
-           />
-         )
+        return (
+          <PhoneInput
+            onSuccess={(data, phone) => {
+              setAuthState(prev => ({
+                ...prev,
+                phone: phone,
+                sessionId: data.sessionId,
+                client: data.client,
+                isExistingClient: data.exists
+              }))
+              handlePhoneSuccess(data)
+            }}
+            onError={handleError}
+            onRegister={handleGoToRegistration}
+          />
+        )
       case 'code':
         return (
           <CodeVerification
@@ -126,73 +127,37 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
 
   return (
     <ApolloProvider client={apolloClient}>
-      {/* Модальное окно под хэдером */}
-      <div 
-        className="fixed left-0 right-0 bg-white z-50 shadow-lg flex justify-center"
-        style={{ 
-          top: '144px', // высота header + subheader (подберите под ваш макет)
-          paddingTop: '40px', 
-          paddingBottom: '40px', 
-          paddingLeft: '24px', 
-          paddingRight: '24px',
-          maxWidth: '700px',
-          width: '100%',
-          margin: '0 auto',
-          left: 0,
-          right: 0
-        }}
+      <div
+        className="flex relative flex-col gap-4 items-start px-32 py-10 w-full bg-white max-w-[1920px] min-h-[320px] max-md:px-16 max-md:py-8 max-sm:gap-8 max-sm:p-5 mx-auto "
+        style={{ marginTop: 0 }}
       >
-        <div className="flex flex-col w-full" style={{ gap: '40px' }}>
-            {/* Header */}
-            <div className="flex justify-between items-center w-full">
-              <h2 style={{ 
-                fontSize: '32px', 
-                lineHeight: '1.2', 
-                fontWeight: 800,
-                fontFamily: 'Onest, sans-serif',
-                color: '#000814',
-                margin: 0,
-                flex: 1
-              }}>
-                Вход или регистрация
-              </h2>
-              <button
-                onClick={handleClose}
-                className="hover:opacity-70"
-                style={{ 
-                  width: '24px', 
-                  height: '24px',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#000814',
-                  padding: 0,
-                  flexShrink: 0
-                }}
-              >
-                <svg width="24" height="24" viewBox="0 0 18 18" fill="none">
-                  <path d="M13.5 4.5L4.5 13.5M4.5 4.5L13.5 13.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="flex flex-col">
-              {error && (
-                <div style={{ 
-                  marginBottom: '15px', 
-                  padding: '12px 16px', 
-                  backgroundColor: '#FEF2F2', 
-                  border: '1px solid #FECACA', 
-                  borderRadius: '4px' 
-                }}>
-                  <p style={{ color: '#991B1B', margin: 0 }}>{error}</p>
-                </div>
-              )}
-              
-              {renderStep()}
-            </div>
+        {/* Кнопка закрытия */}
+        <button
+          onClick={handleClose}
+          className="absolute right-8 top-8 p-2 hover:opacity-70 focus:outline-none"
+          aria-label="Закрыть окно авторизации"
+          tabIndex={0}
+        >
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+            <path d="M8 23.75L6.25 22L13.25 15L6.25 8L8 6.25L15 13.25L22 6.25L23.75 8L16.75 15L23.75 22L22 23.75L15 16.75L8 23.75Z" fill="#000814"/>
+          </svg>
+        </button>
+        {/* Заголовок */}
+        <div className="flex relative justify-between items-start w-full max-sm:flex-col max-sm:gap-5">
+          <div className="relative text-5xl font-bold uppercase leading-[62.4px] text-gray-950 max-md:text-5xl max-sm:self-start max-sm:text-3xl">
+            ВХОД
           </div>
+        </div>
+        {/* Ошибка */}
+        {error && (
+          <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded">
+            <p className="text-red-800 m-0">{error}</p>
+          </div>
+        )}
+        {/* Контент */}
+        <div className="flex relative flex-col gap-5 items-start self-stretch w-full">
+          {renderStep()}
+        </div>
       </div>
     </ApolloProvider>
   )

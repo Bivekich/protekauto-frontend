@@ -93,10 +93,10 @@
           </div>
           
           {/* Кнопка выхода */}
-          <div className="mt-4 pt-3 border-t border-gray-200">
+          <div className="mt-3">
             <button
               onClick={handleLogout}
-              className="flex gap-2.5 items-center px-2.5 py-2 w-full text-base leading-snug text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
+              className="flex gap-2.5 items-center px-2.5 py-2 w-full text-base leading-snug text-gray-600 rounded-lg bg-white hover:bg-slate-200 font-normal"
               tabIndex={0}
               aria-label="Выйти из аккаунта"
             >
@@ -106,7 +106,7 @@
                 viewBox="0 0 20 20" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
-                className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square"
+                className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square text-gray-600"
               >
                 <path 
                   d="M7 17L3 17C2.46957 17 1.96086 16.7893 1.58579 16.4142C1.21071 16.0391 1 15.5304 1 15L1 5C1 4.46957 1.21071 3.96086 1.58579 3.58579C1.96086 3.21071 2.46957 3 3 3L7 3" 
@@ -130,7 +130,7 @@
                   strokeLinejoin="round"
                 />
               </svg>
-              <div className="self-stretch my-auto">Выйти</div>
+              <div className="self-stretch my-auto text-gray-600 text-[16px]">Выйти</div>
             </button>
           </div>
         </div>
