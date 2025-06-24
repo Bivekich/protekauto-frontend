@@ -100,8 +100,8 @@ export default function Favorite() {
         <title>Избранное - Protek Auto</title>
         <meta name="description" content="Ваши избранные товары" />
         <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
-        <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
-        <link href="/images/webclip.png" rel="apple-touch-icon" />
+        <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon" />
+        <link href="images/webclip.png" rel="apple-touch-icon" />
       </Head>
       <FavoriteInfo />
       <section className="main">
