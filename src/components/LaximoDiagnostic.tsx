@@ -17,6 +17,19 @@ const LaximoDiagnostic: React.FC<LaximoDiagnosticProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [showRawData, setShowRawData] = useState(false);
   const [showRawXML, setShowRawXML] = useState(false);
+  const [copySuccess, setCopySuccess] = useState<string | null>(null);
+
+  const handleCopyToClipboard = async (content: string, type: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopySuccess(`${type} скопирован в буфер обмена!`);
+      setTimeout(() => setCopySuccess(null), 3000);
+    } catch (err) {
+      console.error('Ошибка копирования в буфер обмена:', err);
+      setCopySuccess(`Ошибка копирования ${type}`);
+      setTimeout(() => setCopySuccess(null), 3000);
+    }
+  };
 
   // Получаем информацию о каталоге
   const { data: catalogData, loading: catalogLoading, error: catalogError } = useQuery<{ laximoCatalogInfo: LaximoCatalogInfo }>(
@@ -79,6 +92,18 @@ const LaximoDiagnostic: React.FC<LaximoDiagnosticProps> = ({
           </svg>
         </button>
       </div>
+
+      {/* Уведомление о копировании */}
+      {copySuccess && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+          <div className="flex items-center">
+            <svg className="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-sm text-green-800">{copySuccess}</span>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {/* Информация о каталоге */}
@@ -145,7 +170,32 @@ const LaximoDiagnostic: React.FC<LaximoDiagnosticProps> = ({
 
         {/* Параметры запроса */}
         <div className="bg-white rounded-lg border p-4">
-          <h4 className="font-medium text-gray-900 mb-3">🔗 Параметры запроса</h4>
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium text-gray-900">🔗 Параметры запроса</h4>
+            <button
+              onClick={() => {
+                const diagnosticInfo = {
+                  catalogCode,
+                  vehicleId,
+                  ssd: ssd ? ssd : 'отсутствует',
+                  ssdLength: ssd?.length || 0,
+                  catalogInfo: catalogInfo ? {
+                    code: catalogInfo.code,
+                    name: catalogInfo.name,
+                    brand: catalogInfo.brand,
+                    supportquickgroups: catalogInfo.supportquickgroups,
+                    features: catalogInfo.features
+                  } : 'не загружена',
+                  quickGroupsCount: quickGroups.length,
+                  timestamp: new Date().toISOString()
+                };
+                handleCopyToClipboard(JSON.stringify(diagnosticInfo, null, 2), 'Диагностическая информация');
+              }}
+              className="text-sm px-3 py-1 bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors"
+            >
+              📋 Скопировать все
+            </button>
+          </div>
           <div className="space-y-2 text-sm">
             <div>
               <span className="font-medium text-gray-700">Каталог:</span>
@@ -170,7 +220,15 @@ const LaximoDiagnostic: React.FC<LaximoDiagnosticProps> = ({
             </div>
             {ssd && ssd.trim() !== '' && (
               <div className="mt-2">
-                <span className="font-medium text-gray-700">SSD (первые 100 символов):</span>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-gray-700">SSD (первые 100 символов):</span>
+                  <button
+                    onClick={() => handleCopyToClipboard(ssd, 'SSD')}
+                    className="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                  >
+                    📋 Скопировать полный SSD
+                  </button>
+                </div>
                 <div className="mt-1 p-2 bg-gray-100 rounded text-xs font-mono break-all">
                   {ssd.substring(0, 100)}...
                 </div>
@@ -184,7 +242,7 @@ const LaximoDiagnostic: React.FC<LaximoDiagnosticProps> = ({
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium text-gray-900">⚡ Группы быстрого поиска</h4>
             {quickGroups.length > 0 && (
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 flex-wrap">
                 <button
                   onClick={() => {
                     setShowRawData(!showRawData);
@@ -212,15 +270,27 @@ const LaximoDiagnostic: React.FC<LaximoDiagnosticProps> = ({
                   📄 RAW XML
                 </button>
                 {(showRawData || showRawXML) && (
-                  <button
-                    onClick={() => {
-                      setShowRawData(false);
-                      setShowRawXML(false);
-                    }}
-                    className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
-                  >
-                    📊 Таблица
-                  </button>
+                  <>
+                    <button
+                      onClick={() => {
+                        setShowRawData(false);
+                        setShowRawXML(false);
+                      }}
+                      className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                    >
+                      📊 Таблица
+                    </button>
+                    <button
+                      onClick={() => {
+                        const content = showRawXML ? rawXML : JSON.stringify(quickGroups, null, 2);
+                        const type = showRawXML ? 'RAW XML' : 'JSON данные';
+                        handleCopyToClipboard(content, type);
+                      }}
+                      className="text-sm px-3 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors"
+                    >
+                      📋 Скопировать
+                    </button>
+                  </>
                 )}
               </div>
             )}

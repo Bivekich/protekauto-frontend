@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import { GET_LAXIMO_QUICK_GROUPS, GET_LAXIMO_QUICK_DETAIL } from '@/lib/graphql';
 import { LaximoQuickGroup, LaximoQuickDetail } from '@/types/laximo';
+import BrandSelectionModal from './BrandSelectionModal';
 
 interface QuickGroupsSectionProps {
   catalogCode: string;
@@ -109,6 +111,23 @@ const QuickDetailSection: React.FC<QuickDetailSectionProps> = ({
   ssd,
   onBack
 }) => {
+  const router = useRouter();
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
+  const [selectedDetail, setSelectedDetail] = useState<any>(null);
+
+  const handleDetailClick = (detail: any) => {
+    const articleNumber = detail.oem;
+    
+    console.log('🔍 Клик по детали из QuickGroups для выбора бренда:', { articleNumber, name: detail.name });
+    setSelectedDetail(detail);
+    setIsBrandModalOpen(true);
+  };
+
+  const handleCloseBrandModal = () => {
+    setIsBrandModalOpen(false);
+    setSelectedDetail(null);
+  };
+
   const { data: quickDetailData, loading: quickDetailLoading, error: quickDetailError } = useQuery<{ laximoQuickDetail: LaximoQuickDetail }>(
     GET_LAXIMO_QUICK_DETAIL,
     {
@@ -118,9 +137,12 @@ const QuickDetailSection: React.FC<QuickDetailSectionProps> = ({
         quickGroupId: selectedGroup.quickgroupid,
         ssd
       },
+      skip: !catalogCode || !vehicleId || !selectedGroup.quickgroupid || !ssd,
       errorPolicy: 'all'
     }
   );
+
+  const quickDetail = quickDetailData?.laximoQuickDetail;
 
   if (quickDetailLoading) {
     return (
@@ -135,19 +157,11 @@ const QuickDetailSection: React.FC<QuickDetailSectionProps> = ({
             </svg>
             <span>Назад к группам</span>
           </button>
-          <div className="text-sm text-gray-500">
-            Загрузка деталей...
-          </div>
         </div>
         
-        <div className="bg-white rounded-lg border p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            </div>
-          </div>
+        <div className="bg-white rounded-lg border p-6 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Загружаем детали...</p>
         </div>
       </div>
     );
@@ -168,29 +182,14 @@ const QuickDetailSection: React.FC<QuickDetailSectionProps> = ({
           </button>
         </div>
         
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
-                Ошибка загрузки деталей
-              </h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>Не удалось загрузить детали для группы "{selectedGroup.name}"</p>
-                <p className="mt-1">Ошибка: {quickDetailError.message}</p>
-              </div>
-            </div>
-          </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <h3 className="text-lg font-medium text-red-600 mb-2">Ошибка загрузки деталей</h3>
+          <p className="text-red-700">Не удалось загрузить детали для группы "{selectedGroup.name}"</p>
+          <p className="text-sm text-red-600 mt-2">Ошибка: {quickDetailError.message}</p>
         </div>
       </div>
     );
   }
-
-  const quickDetail = quickDetailData?.laximoQuickDetail;
 
   return (
     <div className="space-y-6">
@@ -245,39 +244,55 @@ const QuickDetailSection: React.FC<QuickDetailSectionProps> = ({
                   <h4 className="text-sm font-medium text-gray-900 mb-3">Детали:</h4>
                   <div className="space-y-3">
                     {unit.details.map((detail) => (
-                      <div key={detail.detailid} className="flex items-start justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex-1">
-                          <h5 className="font-medium text-gray-900">{detail.name}</h5>
-                          <div className="mt-1 space-y-1">
-                            <p className="text-sm text-gray-600">
-                              <span className="font-medium">OEM:</span> {detail.oem}
-                            </p>
-                            {detail.brand && (
+                      <div key={detail.detailid} className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-red-300 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h5 className="font-medium text-gray-900 mb-2">{detail.name}</h5>
+                            <div className="space-y-1">
                               <p className="text-sm text-gray-600">
-                                <span className="font-medium">Бренд:</span> {detail.brand}
+                                <span className="font-medium">OEM:</span> 
+                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-mono ml-2">
+                                  {detail.oem}
+                                </span>
                               </p>
-                            )}
-                            {detail.note && (
-                              <p className="text-sm text-gray-600">
-                                <span className="font-medium">Примечание:</span> {detail.note}
-                              </p>
+                              {detail.brand && (
+                                <p className="text-sm text-gray-600">
+                                  <span className="font-medium">Бренд:</span> 
+                                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium ml-2">
+                                    {detail.brand}
+                                  </span>
+                                </p>
+                              )}
+                              {detail.note && (
+                                <p className="text-sm text-gray-600">
+                                  <span className="font-medium">Примечание:</span> {detail.note}
+                                </p>
+                              )}
+                            </div>
+                            
+                            {detail.attributes && detail.attributes.length > 0 && (
+                              <div className="mt-2 space-y-1">
+                                {detail.attributes.map((attr, index) => (
+                                  <p key={index} className="text-xs text-gray-500">
+                                    <span className="font-medium">{attr.name || attr.key}:</span> {attr.value}
+                                  </p>
+                                ))}
+                              </div>
                             )}
                           </div>
                           
-                          {detail.attributes && detail.attributes.length > 0 && (
-                            <div className="mt-2 space-y-1">
-                              {detail.attributes.map((attr, index) => (
-                                <p key={index} className="text-xs text-gray-500">
-                                  <span className="font-medium">{attr.name || attr.key}:</span> {attr.value}
-                                </p>
-                              ))}
-                            </div>
-                          )}
+                          <div className="flex flex-col space-y-2 ml-4">
+                            <button
+                              onClick={() => handleDetailClick(detail)}
+                              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                            >
+                              Найти предложения
+                            </button>
+                            <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-200 text-gray-800 text-center">
+                              {detail.detailid}
+                            </span>
+                          </div>
                         </div>
-                        
-                        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-200 text-gray-800 ml-4">
-                          {detail.detailid}
-                        </span>
                       </div>
                     ))}
                   </div>
@@ -296,6 +311,15 @@ const QuickDetailSection: React.FC<QuickDetailSectionProps> = ({
             В данной группе не найдено деталей или узлов.
           </p>
         </div>
+      )}
+      
+      {selectedDetail && (
+        <BrandSelectionModal
+          isOpen={isBrandModalOpen}
+          onClose={handleCloseBrandModal}
+          articleNumber={selectedDetail.oem}
+          detailName={selectedDetail.name}
+        />
       )}
     </div>
   );

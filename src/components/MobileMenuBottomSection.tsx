@@ -4,7 +4,7 @@ import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCart } from '@/contexts/CartContext';
 
 interface MobileMenuBottomSectionProps {
-  onOpenAuthModal: () => void;
+  onOpenAuthModal?: () => void;
 }
 
 const GarageIcon = (
@@ -32,7 +32,9 @@ const CabinetIcon = (
   </svg>
 );
 
-const MobileMenuBottomSection: React.FC<MobileMenuBottomSectionProps> = ({ onOpenAuthModal }) => {
+const MobileMenuBottomSection: React.FC<MobileMenuBottomSectionProps> = ({ 
+  onOpenAuthModal = () => console.log('Auth modal action not provided') 
+}) => {
   const { favorites } = useFavorites();
   const { state: cartState } = useCart();
 

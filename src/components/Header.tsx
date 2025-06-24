@@ -11,10 +11,10 @@ import Link from "next/link";
 import CartButton from './CartButton';
 
 interface HeaderProps {
-  onOpenAuthModal: () => void;
+  onOpenAuthModal?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenAuthModal }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenAuthModal = () => console.log('Auth modal action not provided') }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<Client | null>(null);
   const [searchQuery, setSearchQuery] = useState('');

@@ -1279,12 +1279,33 @@ export const GET_INVOICE_PDF = gql`
 export const GET_DELIVERY_OFFERS = gql`
   mutation GetDeliveryOffers($input: DeliveryOffersInput!) {
     getDeliveryOffers(input: $input) {
-      id
-      name
-      description
-      deliveryDate
-      deliveryTime
-      cost
+      success
+      message
+      error
+      offers {
+        id
+        name
+        deliveryDate
+        deliveryTime
+        cost
+        description
+        type
+        expiresAt
+      }
+    }
+  }
+`
+
+export const GET_BRANDS_BY_CODE = gql`
+  query GetBrandsByCode($code: String!) {
+    getBrandsByCode(code: $code) {
+      success
+      error
+      brands {
+        brand
+        code
+        name
+      }
     }
   }
 `

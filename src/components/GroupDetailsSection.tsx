@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import { GET_LAXIMO_QUICK_DETAIL } from '@/lib/graphql';
 import { LaximoQuickDetail, LaximoUnit, LaximoDetail } from '@/types/laximo';
+import BrandSelectionModal from './BrandSelectionModal';
 
 interface GroupDetailsSectionProps {
   catalogCode: string;
@@ -17,6 +19,25 @@ interface DetailCardProps {
 }
 
 const DetailCard: React.FC<DetailCardProps> = ({ detail }) => {
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
+
+  const handleDetailClick = () => {
+    const articleNumber = detail.oem;
+    
+    console.log('🔍 Клик по детали для выбора бренда:', { articleNumber, name: detail.name });
+    setIsBrandModalOpen(true);
+  };
+
+  const handleCloseBrandModal = () => {
+    setIsBrandModalOpen(false);
+  };
+
+  const handleAddToCart = () => {
+    // TODO: Реализовать добавление в корзину
+    console.log('Добавить в корзину:', detail.oem);
+    alert(`Функция "Добавить в корзину" будет реализована в ближайшее время.\nДеталь: ${detail.name}\nOEM: ${detail.oem}`);
+  };
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
@@ -76,25 +97,26 @@ const DetailCard: React.FC<DetailCardProps> = ({ detail }) => {
 
       <div className="mt-4 flex items-center justify-between">
         <button
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
-          onClick={() => {
-            // TODO: Добавить в корзину
-            console.log('Добавить в корзину:', detail.oem);
-          }}
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          onClick={handleDetailClick}
         >
-          Добавить в корзину
+          Найти предложения
         </button>
         
         <button
           className="text-gray-500 hover:text-gray-700 text-sm transition-colors"
-          onClick={() => {
-            // TODO: Посмотреть аналоги
-            console.log('Поиск аналогов:', detail.oem);
-          }}
+          onClick={handleAddToCart}
         >
-          Найти аналоги
+          Добавить в корзину
         </button>
       </div>
+      
+      <BrandSelectionModal
+        isOpen={isBrandModalOpen}
+        onClose={handleCloseBrandModal}
+        articleNumber={detail.oem}
+        detailName={detail.name}
+      />
     </div>
   );
 };
