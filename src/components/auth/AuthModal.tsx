@@ -127,9 +127,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
 
   return (
     <ApolloProvider client={apolloClient}>
+      {/* Overlay */}
       <div
-        className="flex relative flex-col gap-4 items-start px-32 py-10 w-full bg-white max-w-[1920px] min-h-[320px] max-md:px-16 max-md:py-8 max-sm:gap-8 max-sm:p-5 mx-auto "
-        style={{ marginTop: 0 }}
+        className="fixed inset-0 bg-black/10 z-index-40 margin-top-[132px] transition-opacity duration-200"
+        aria-label="Затемнение фона"
+        tabIndex={-1}
+        onClick={handleClose}
+      />
+      {/* Модальное окно */}
+      <div
+        className="flex relative flex-col gap-4 items-start px-32 py-10 w-full bg-white max-w-[1920px] min-h-[320px] max-md:px-16 max-md:py-8 max-sm:gap-8 max-sm:p-5 mx-auto z-50"
+        style={{ marginTop: 0, position: 'relative' }}
       >
         {/* Кнопка закрытия */}
         <button
