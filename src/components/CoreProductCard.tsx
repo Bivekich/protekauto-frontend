@@ -49,6 +49,7 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
   const [quantities, setQuantities] = useState<{ [key: number]: number }>(
     offers.reduce((acc, _, index) => ({ ...acc, [index]: 1 }), {})
   );
+  const [quantityErrors, setQuantityErrors] = useState<{ [key: number]: string }>({});
 
   const displayedOffers = offers.slice(0, visibleOffersCount);
   const hasMoreOffers = visibleOffersCount < offers.length;
@@ -79,21 +80,16 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
     return match ? parseInt(match[0]) : 0;
   };
 
-  const handleQuantityChange = (index: number, delta: number) => {
+  const handleQuantityInput = (index: number, value: string) => {
     const offer = offers[index];
     const availableStock = parseStock(offer.pcs);
-    const currentQuantity = quantities[index] || 1;
-    const newQuantity = currentQuantity + delta;
-
-    if (delta > 0 && newQuantity > availableStock) {
-      alert(`Максимальное количество: ${availableStock} шт.`);
+    let num = parseInt(value, 10);
+    if (isNaN(num) || num < 1) num = 1;
+    if (num > availableStock) {
+      window.alert(`Максимум ${availableStock} шт.`);
       return;
     }
-
-    setQuantities(prev => ({
-      ...prev,
-      [index]: Math.max(1, newQuantity)
-    }));
+    setQuantities(prev => ({ ...prev, [index]: num }));
   };
 
   const handleAddToCart = (offer: CoreProductCardOffer, index: number) => {
@@ -293,7 +289,7 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
                         <button
                           type="button"
                           className="minus-plus"
-                          onClick={() => handleQuantityChange(idx, -1)}
+                          onClick={() => handleQuantityInput(idx, ((quantities[idx] || 1) - 1).toString())}
                           style={{ cursor: 'pointer' }}
                           aria-label="Уменьшить количество"
                         >
@@ -304,12 +300,20 @@ const CoreProductCard: React.FC<CoreProductCardProps> = ({
                           </div>
                         </button>
                         <div className="input-pcs">
-                          <div className="text-block-26">{quantities[idx] || 1}</div>
+                          <input
+                            type="number"
+                            min={1}
+                            max={parseStock(offer.pcs)}
+                            value={quantities[idx] || 1}
+                            onChange={e => handleQuantityInput(idx, e.target.value)}
+                            className="text-block-26 w-full text-center outline-none"
+                            aria-label="Количество"
+                          />
                         </div>
                         <button
                           type="button"
                           className="minus-plus"
-                          onClick={() => handleQuantityChange(idx, 1)}
+                          onClick={() => handleQuantityInput(idx, ((quantities[idx] || 1) + 1).toString())}
                           style={{ cursor: 'pointer' }}
                           aria-label="Увеличить количество"
                         >

@@ -108,7 +108,7 @@ const SearchPage = () => {
       </Head>
       <InfoSearch />
       <div className="page-wrapper bg-[#F5F8FB] min-h-screen">
-        <div className="flex flex-col px-32 pt-10 pb-16 max-md:px-5">
+        <div className="flex flex-col  pt-10 pb-16 max-md:px-5">
           <div className="flex flex-col items-center w-full">
             <div className="w-full max-w-[1580px]">
               {/* Переключатель режима поиска */}
@@ -169,15 +169,17 @@ const SearchPage = () => {
                   {searchMode === 'parts' && (
                     <>
                       {!hasPartsResults && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-2xl shadow p-10 text-center">
-                          <svg className="w-16 h-16 text-yellow-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="bg-[#eaf0fa] border border-[#b3c6e6] rounded-2xl shadow p-10 text-center">
+                          <svg className="w-16 h-16 mx-auto mb-4" style={{ color: '#0d336c' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.562M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
-                          <h3 className="text-xl font-semibold text-yellow-800 mb-2">Детали не найдены</h3>
-                          <p className="text-yellow-700 mb-4">
+                          <h3 className="text-xl font-semibold mb-2" style={{ color: '#0d336c' }}>
+                            Детали не найдены
+                          </h3>
+                          <p className="mb-4" style={{ color: '#0d336c' }}>
                             По артикулу <span className="font-mono font-semibold">{searchQuery}</span> детали не найдены.
                           </p>
-                          <p className="text-sm text-yellow-600">
+                          <p className="text-sm" style={{ color: '#3b5a99' }}>
                             Попробуйте изменить запрос или проверьте правильность написания артикула.
                           </p>
                         </div>
@@ -201,9 +203,9 @@ const SearchPage = () => {
                                   className="w-full text-left p-4 hover:bg-gray-50 transition-colors block group"
                                 >
                                   <div className="flex w-full items-center gap-2">
-                                    <div className="w-1/4 font-bold text-left truncate" style={{ color: 'rgb(77, 180, 94)' }}>{detail.manufacturer}</div>
-                                    <div className="w-1/4 font-bold text-center truncate group-hover:text-[#EC1C24] transition-colors">{detail.formattedoem || detail.oem}</div>
-                                    <div className="w-2/4 text-right truncate">{detail.name}</div>
+                                    <div className="w-1/5 max-md:w-1/3 font-bold text-left truncate" style={{ color: 'rgb(77, 180, 94)' }}>{detail.manufacturer}</div>
+                                    <div className="w-1/5 max-md:text-center max-md:w-1/3 font-bold text-left truncate group-hover:text-[#EC1C24] transition-colors">{detail.formattedoem || detail.oem}</div>
+                                    <div className="w-3/5 max-md:w-1/3 text-left truncate">{detail.name}</div>
                                   </div>
                                 </button>
                               </div>
