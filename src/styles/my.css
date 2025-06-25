@@ -323,7 +323,7 @@ input.input-receiver:focus {
 
 .image-5 {
   height: 190px;
-  width: 100%;
+  width: 200px;
   object-fit: contain;
   display: block;
 } 
@@ -369,4 +369,9 @@ input.input-receiver:focus {
 
 .filter-red {
   filter: invert(32%) sepia(99%) saturate(7499%) hue-rotate(-7deg) brightness(98%) contrast(108%);
+}
+
+
+.core-product-s1 {
+  max-width: 320px ;
 }

@@ -271,6 +271,7 @@ const ProfileRequisitiesMain = () => {
           <div className="flex gap-8 items-start self-start mt-8">
             <button
               onClick={() => router.push('/profile-set')}
+              style={{ color: 'fff' }}
               className="gap-2.5 self-stretch px-5 py-4 bg-red-600 rounded-xl min-h-[50px] cursor-pointer text-white text-base font-medium leading-tight text-center hover:bg-red-700"
             >
               Создать юридическое лицо

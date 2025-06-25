@@ -5769,7 +5769,7 @@ body {
 
   .core-product-s1 {
     flex-flow: column;
-    max-width: 320px;
+    max-width: 320px ;
   }
 
   .core-product-search-s2 {
@@ -8432,6 +8432,7 @@ body {
 
   .flex-block-48-copy {
     max-width: 100%;
+    width: 100%;
   }
 
   .sort-list-s1 {

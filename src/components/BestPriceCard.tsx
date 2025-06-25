@@ -24,6 +24,16 @@ const BestPriceCard: React.FC<BestPriceCardProps> = ({ bestOfferType, title, des
     }
   };
 
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = parseInt(e.target.value, 10);
+    if (isNaN(value) || value < 1) value = 1;
+    if (maxCount !== undefined && value > maxCount) {
+      window.alert(`Максимум ${maxCount} шт.`);
+      return;
+    }
+    setCount(value);
+  };
+
   return (
     <div className="w-layout-vflex flex-block-44">
       <h3 className="heading-8-copy line-clamp-2 md:line-clamp-1 min-h-[2.5em] md:min-h-0">{bestOfferType}</h3>
@@ -54,7 +64,15 @@ const BestPriceCard: React.FC<BestPriceCardProps> = ({ bestOfferType, title, des
                 <div className="pluspcs w-embed"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 10.5V9.5H14V10.5H6Z" fill="currentColor"/></svg></div>
               </button>
               <div className="input-pcs">
-                <div className="text-block-26">{count}</div>
+                <input
+                  type="number"
+                  min={1}
+                  max={maxCount}
+                  value={count}
+                  onChange={handleInput}
+                  className="text-block-26 w-full text-center outline-none"
+                  aria-label="Количество"
+                />
               </div>
               <button type="button" className="minus-plus" aria-label="Увеличить количество" onClick={handlePlus}>
                 <div className="pluspcs w-embed"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 10.5V9.5H14V10.5H6ZM9.5 6H10.5V14H9.5V6Z" fill="currentColor"/></svg></div>
