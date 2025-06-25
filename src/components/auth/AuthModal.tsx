@@ -135,8 +135,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
         onClick={handleClose}
       />
       {/* Модальное окно */}
-      <div
-        className="flex relative flex-col gap-4 items-start px-32 py-10 w-full bg-white max-w-[1920px] min-h-[320px] max-md:px-16 max-md:py-8 max-sm:gap-8 max-sm:p-5 mx-auto z-50"
+    <div className="flex relative  w-full bg-white   mx-auto z-50">
+      <div className="flex relative flex-col gap-4 items-start px-32 py-10 w-full bg-white max-w-[1920px] min-h-[320px] max-md:px-16 max-md:py-8 max-sm:gap-8 max-sm:p-5 mx-auto z-50"
         style={{ marginTop: 0, position: 'relative' }}
       >
         {/* Кнопка закрытия */}
@@ -167,6 +167,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
           {renderStep()}
         </div>
       </div>
+    </div>
     </ApolloProvider>
   )
 }

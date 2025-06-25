@@ -139,17 +139,26 @@ const ProfileBalanceCard: React.FC<ProfileBalanceCardProps> = ({
               {value || "Введите сумму пополнения"}
             </div>
           )}
-          <button
-            onClick={handleTopUp}
-            disabled={loading || isCreatingInvoice || !value.trim()}
-            className={`gap-2.5 self-start px-5 py-4 mt-4 text-base font-medium leading-tight text-center text-white whitespace-nowrap rounded-xl min-h-[50px] ${
-              loading || isCreatingInvoice || !value.trim() 
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-red-600 hover:bg-red-700 cursor-pointer'
-            }`}
+          <div
+            role="button"
+            tabIndex={0}
+            aria-disabled={loading || isCreatingInvoice || !value.trim()}
+            onClick={() => {
+              if (!(loading || isCreatingInvoice || !value.trim())) handleTopUp();
+            }}
+            onKeyDown={e => {
+              if ((e.key === 'Enter' || e.key === ' ') && !(loading || isCreatingInvoice || !value.trim())) {
+                handleTopUp();
+              }
+            }}
+            className={`gap-2.5 self-start px-5 py-4 mt-4 text-base font-medium leading-tight text-center text-white whitespace-nowrap rounded-xl min-h-[50px] transition-colors duration-150
+              ${loading || isCreatingInvoice || !value.trim()
+                ? 'bg-red-300 cursor-not-allowed'
+                : 'bg-red-600 hover:bg-red-700 cursor-pointer'}
+            `}
           >
             {isCreatingInvoice ? 'Создаем счет...' : loading ? 'Пополняем...' : buttonLabel}
-          </button>
+          </div>
         </div>
       </div>
     </div>
