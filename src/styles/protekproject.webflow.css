@@ -5278,7 +5278,6 @@ body {
 }
 
 .div-block-127 {
-  border: 1px solid var(--_icon---light-blue-grey);
   color: var(--_icon---light-blue-grey);
   border-radius: 50px;
   flex: none;
@@ -5292,7 +5291,7 @@ body {
 }
 
 .div-block-127:hover {
-  border-color: var(--_button---primary);
+  
   color: var(--_button---primary);
 }
 
@@ -5357,7 +5356,6 @@ body {
 }
 
 .favcardcat {
-  border: 1px none var(--_icon---light-blue-grey);
   background-color: var(--white);
   color: var(--_icon---light-blue-grey);
   border-radius: 50px;
@@ -5374,7 +5372,6 @@ body {
 }
 
 .favcardcat:hover {
-  border-color: var(--_button---primary);
   color: var(--_button---primary);
 }
 
@@ -5845,7 +5842,6 @@ body {
   }
 
   .div-block-127 {
-    border: 1px solid var(--_icon---light-blue-grey);
     color: var(--_icon---light-blue-grey);
     border-radius: 50px;
     justify-content: center;

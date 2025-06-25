@@ -3,7 +3,13 @@
   margin-left: 0 !important;
 } 
 
+.bottom_head{
+  z-index: 60;
+}
 
+.top_head{
+  z-index: 70;
+}
 
 .div-block-28{
   margin-top: 0 !important;
@@ -214,7 +220,13 @@ header.section-4 {
 
 
 .flex-block-6-copy-copy {
-  flex-wrap: wrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+.flex-block-6-copy-copy::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 
